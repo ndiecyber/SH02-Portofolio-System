@@ -15,9 +15,11 @@ export default {
           muted: '#94a3b8',   // slate-400
         },
         brand: {
-          indigo: '#6366f1',  // indigo-500
-          violet: '#8b5cf6',  // violet-500
-          purple: '#a78bfa',  // violet-400
+          indigo: '#2563eb',
+          violet: '#3b82f6',
+          purple: '#0d1b3e',
+          navy: '#0d1b3e',
+          blue: '#2563eb',
         }
       },
       fontFamily: {

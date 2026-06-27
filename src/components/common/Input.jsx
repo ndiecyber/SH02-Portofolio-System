@@ -7,7 +7,7 @@ const Input = forwardRef(
       label,
       type = 'text',
       error,
-      variant = 'dark',
+      variant = 'light',
       className,
       icon: Icon,
       required,

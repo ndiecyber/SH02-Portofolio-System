@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Menu, Bell, Search, ChevronDown, User, LogOut } from 'lucide-react';
-import lexaLogo from '../../assets/logo.svg';
+import { Menu, Bell, Search, User, LogOut } from 'lucide-react';
+import lexaLogo from '../../assets/lexa.svg';
 
 const Navbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
@@ -39,11 +39,21 @@ const Navbar = ({ onMenuClick }) => {
             .replace(/-/g, ' ')
             .replace(/\b\w/g, (l) => l.toUpperCase());
 
+          // Skip routing ID hashes to detail page
+          if (value.startsWith('proj-') || value.startsWith('cs-') || (!isNaN(value) && isLast)) {
+            return (
+              <React.Fragment key={to}>
+                <span>/</span>
+                <span className="text-slate-800 truncate max-w-[120px]">Detail</span>
+              </React.Fragment>
+            );
+          }
+
           return (
             <React.Fragment key={to}>
               <span>/</span>
               {isLast ? (
-                <span className="text-slate-800 truncate">
+                <span className="text-slate-800 truncate max-w-[120px]">
                   {formattedValue}
                 </span>
               ) : (
@@ -72,7 +82,7 @@ const Navbar = ({ onMenuClick }) => {
         {isDashboard ? (
           <div className="hidden sm:block text-left min-w-0">
             <h1 className="text-sm font-extrabold text-slate-800 flex items-center">
-              Welcome back, Admin Lexa!
+              Welcome back, {user?.name || 'Lexa Admin'}!
             </h1>
             <p className="text-[10px] font-semibold text-slate-400 truncate">
               Kelola portofolio proyek dan tampilkan karya terbaik LEXA.
@@ -93,7 +103,7 @@ const Navbar = ({ onMenuClick }) => {
           <input
             type="text"
             placeholder="Search projects, clients..."
-            className="bg-slate-100/80 border border-slate-200 rounded-lg py-1.5 pl-9 pr-4 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-48 focus:w-64 transition-all duration-300"
+            className="bg-slate-100/80 border border-slate-200 rounded-lg py-1.5 pl-9 pr-4 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-48 focus:w-64 transition-all duration-300 font-semibold"
           />
         </div>
 
@@ -107,7 +117,7 @@ const Navbar = ({ onMenuClick }) => {
         <div className="h-6 w-[1px] bg-slate-200" />
 
         {/* Brand Logo on Right matching figma layout */}
-        <img src={lexaLogo} alt="LEXA Logo" className="h-10 object-contain" />
+        <img src={lexaLogo} alt="LEXA Logo" className="h-9 object-contain" />
 
         {/* Compact User Menu for mobile support */}
         {user && (
@@ -124,9 +134,9 @@ const Navbar = ({ onMenuClick }) => {
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-xl py-1.5 z-50 animate-fade-in">
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-xl py-1.5 z-50 animate-fade-in text-left">
                 <div className="px-4 py-2 border-b border-slate-100">
-                  <p className="text-xs font-bold text-slate-800 truncate">Admin Lexa</p>
+                  <p className="text-xs font-bold text-slate-800 truncate">{user.name}</p>
                   <p className="text-[10px] text-slate-400 truncate font-semibold uppercase">{user.role}</p>
                 </div>
                 <Link

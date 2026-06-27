@@ -2,13 +2,17 @@ import React from 'react';
 import LoginPage from '../pages/Login/LoginPage';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
 import ProjectListPage from '../pages/Projects/ProjectListPage';
+import ProjectFormPage from '../pages/Projects/ProjectFormPage';
+import ProjectDetailPage from '../pages/Projects/ProjectDetailPage';
 import CaseStudyListPage from '../pages/CaseStudies/CaseStudyListPage';
+import CaseStudyFormPage from '../pages/CaseStudies/CaseStudyFormPage';
 import ServiceListPage from '../pages/Services/ServiceListPage';
 import TechnologyListPage from '../pages/Technologies/TechnologyListPage';
 import TeamListPage from '../pages/TeamMembers/TeamListPage';
 import TestimonialListPage from '../pages/Testimonials/TestimonialListPage';
 import DocumentListPage from '../pages/Documents/DocumentListPage';
 import SettingsPage from '../pages/Settings/SettingsPage';
+import UnauthorizedPage from '../pages/Unauthorized/UnauthorizedPage';
 import NotFoundPage from '../pages/NotFound/NotFoundPage';
 
 export const routesConfig = [
@@ -25,14 +29,37 @@ export const routesConfig = [
         index: true,
         element: <DashboardPage />,
       },
+      // Projects Module
       {
         path: 'projects',
         element: <ProjectListPage />,
       },
       {
+        path: 'projects/new',
+        element: <ProjectFormPage />,
+      },
+      {
+        path: 'projects/:id',
+        element: <ProjectDetailPage />,
+      },
+      {
+        path: 'projects/:id/edit',
+        element: <ProjectFormPage />,
+      },
+      // Case Studies Module
+      {
         path: 'case-studies',
         element: <CaseStudyListPage />,
       },
+      {
+        path: 'case-studies/new',
+        element: <CaseStudyFormPage />,
+      },
+      {
+        path: 'case-studies/:id/edit',
+        element: <CaseStudyFormPage />,
+      },
+      // Other Modules (Skeletons/Week 3-4)
       {
         path: 'services',
         element: <ServiceListPage />,
@@ -56,6 +83,10 @@ export const routesConfig = [
       {
         path: 'settings',
         element: <SettingsPage />,
+      },
+      {
+        path: 'unauthorized',
+        element: <UnauthorizedPage />,
       },
     ],
   },

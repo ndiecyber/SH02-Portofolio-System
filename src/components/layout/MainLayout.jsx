@@ -7,7 +7,7 @@ const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#f8fafc] text-slate-800 overflow-hidden font-sans">
+    <div className="flex h-screen bg-[#f1f5f9] text-slate-800 overflow-hidden font-sans">
       {/* Sidebar (Dark Sidebar layout matching Figma) */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
@@ -17,7 +17,7 @@ const MainLayout = () => {
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
         
         {/* Main Content Area */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#f8fafc] p-6 relative">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#f1f5f9] p-6 relative">
           <div className="max-w-7xl mx-auto relative z-10 animate-fade-in">
             <Outlet />
           </div>

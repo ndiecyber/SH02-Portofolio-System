@@ -1,34 +1,34 @@
 ================================================================================
                     SH-02 PORTFOLIO MANAGEMENT SYSTEM
-                        PROJECT CONTEXT - LENGKAP
+                    FULL PROJECT CONTEXT - COMPLETE
 ================================================================================
 
 PROJECT INFORMATION
 ================================================================================
 
 Project Name:       SH-02 Portfolio Management System
-Project Type:       Admin Dashboard & Portfolio Management
+Project Type:       Multi-Role Admin Dashboard & Portfolio Management
 Client:             LEXA Software House
 My Role:            Frontend Developer (React.js)
-Start Date:         -
-End Date:           -
-Status:             In Planning
+Duration:           1 month (4 weeks)
+Status:             Ready for Development
 
 Project Overview
 ================================================================================
 
-SH-02 adalah sistem manajemen portfolio untuk LEXA Software House. Sistem terdiri
-dari Admin Dashboard yang digunakan untuk mengelola konten dan Public Website
-yang digunakan untuk menampilkan informasi.
+SH-02 adalah sistem manajemen portfolio untuk LEXA Software House dengan
+multi-role user system dan team-based access control. Sistem terdiri dari:
+
+1. Admin Dashboard (untuk internal - berbagai roles)
+2. Public Website (dikerjakan tim lain)
 
 Scope Pekerjaan:
-- Frontend Admin Dashboard (React.js)
+- Frontend Admin Dashboard (React.js + Better Auth)
 - REST API Integration
+- Role-Based Access Control (7 roles)
+- Team-Based Access (khususnya untuk Magang)
 - Responsive Design
 - Loading & Error Handling
-
-Catatan: Frontend public website dikerjakan oleh tim lain, saya fokus pada
-Admin Dashboard saja.
 
 ================================================================================
 TECH STACK
@@ -36,263 +36,726 @@ TECH STACK
 
 Frontend:
 - React.js 18+
-- React Router v6 (untuk routing)
+- React Router v6 (routing)
 - Axios (HTTP client)
 - Tailwind CSS (styling)
-- Recharts (dashboard charts & visualizations)
+- Recharts (charts & visualizations)
 - React Hook Form (form management)
-- SweetAlert2 atau Modal component (untuk confirmations)
+- better-auth (authentication library)
+- @better-auth/react
+- @better-auth/core
+- SweetAlert2 atau custom modal (confirmations)
 
 Backend:
-- Dikerjakan oleh tim lain
-- REST API (akan dikonfirmasi contract-nya)
+- Base URL: https://ppms-backend-api.up.railway.app
+- REST API (akan dikonfirmasi contract)
+- Better Auth endpoints untuk authentication
 
 Tools & Utilities:
-- Vite (build tool, lebih cepat dari CRA)
+- Vite (build tool)
 - ESLint (code quality)
 - Prettier (code formatting)
 - Git (version control)
 
 ================================================================================
-USER ROLES & ACCESS CONTROL
+USER ROLES & PERMISSIONS
 ================================================================================
 
-ADMIN
------
-Admin dapat login dan mengakses seluruh dashboard:
-- Dashboard (main page)
-- Projects Module
-- Case Study Module
-- Services Module
-- Technologies Module
-- Team Members Module
-- Testimonials Module
-- Documents Module
-- Settings Module
+Sistem menggunakan 7 User Roles dengan permissions berbeda berdasarkan
+project assignment dan team assignment.
 
-Permissions:
-- Create, Read, Update, Delete untuk semua modules (kecuali Settings)
-- Publish/Unpublish content
-- Upload documents & images
-- Manage company information
+ROLE 1: CEO / ADMIN
+===================
+Akses Level: FULL ACCESS (Monitoring bisnis keseluruhan)
 
-VISITOR
--------
-Visitor tidak memiliki akses ke admin dashboard.
-Visitor hanya dapat melihat:
-- Homepage
-- Projects listing
-- Project detail page
-- Case studies
-- Team information
-- Testimonials
-- Contact form
+Dashboard:
+✓ Master Dashboard (all statistics, all projects, all teams)
+✓ View all reports & analytics
+✓ View audit logs
 
-Catatan: Website publik bukan bagian pekerjaan saya.
+Projects Module:
+✓ CREATE, READ, UPDATE, DELETE all projects
+✓ Assign/manage team members
+✓ View all project details
+
+Case Studies Module:
+✓ CRUD semua case studies
+✓ Publish/unpublish
+
+Services Module:
+✓ CRUD
+
+Technologies Module:
+✓ CRUD
+
+Team Members Module:
+✓ CRUD semua team members
+✓ Manage team structure
+
+Testimonials Module:
+✓ CRUD
+✓ Publish/unpublish
+
+Documents Module:
+✓ CRUD semua documents
+✓ Manage file organization
+
+Settings Module:
+✓ FULL ACCESS (company info, logo, etc)
+
+User Management:
+✓ Create, edit, deactivate users
+✓ Assign roles & teams
+✓ Set magang tiers
+
+Reports & Analytics:
+✓ All data & metrics
+
+Audit Logs:
+✓ System-wide activity logs
+
+---
+
+ROLE 2: PROJECT MANAGER
+=======================
+Akses Level: MODERATE ACCESS (Mengelola project & team)
+Scope: ASSIGNED PROJECTS ONLY
+
+Dashboard:
+✓ Project Dashboard (assigned projects only)
+✓ Project-specific statistics
+
+Projects Module:
+✓ CREATE, READ, UPDATE, DELETE untuk assigned projects only
+✓ UPDATE all project fields
+✓ Assign team members ke projects
+✓ View & manage project timeline
+✓ Manage project status
+
+Case Studies Module:
+✓ CRUD untuk case studies dari projects assigned
+✓ Publish/unpublish
+
+Services Module:
+✓ VIEW only
+
+Technologies Module:
+✓ VIEW only
+
+Team Members Module:
+✓ VIEW all
+✓ Assign members ke projects
+
+Testimonials Module:
+✓ CRUD untuk testimonials dari projects assigned
+✓ Publish/unpublish
+
+Documents Module:
+✓ CRUD project-related documents
+
+Reports & Analytics:
+✓ Project-specific reports
+
+Settings Module:
+✗ NO ACCESS
+
+User Management:
+✗ NO ACCESS
+
+Audit Logs:
+✗ NO ACCESS
+
+---
+
+ROLE 3: DEVELOPER
+=================
+Akses Level: LIMITED ACCESS - READ + PROGRESS UPDATE
+Scope: ASSIGNED PROJECTS ONLY
+
+Dashboard:
+✓ Project Dashboard (assigned projects - read only)
+✓ View project statistics & timelines
+
+Projects Module:
+✓ VIEW assigned projects (full detail)
+✓ VIEW specifications & requirements
+✓ UPDATE project progress:
+  - Update progress percentage (0-100%)
+  - Update project status
+  - Add progress notes/comments
+  - Update estimated completion date
+✓ CANNOT create or delete projects
+✓ CANNOT modify client, budget, or team assignments
+
+Documents Module:
+✓ VIEW project documents
+✓ DOWNLOAD resources
+✓ UPLOAD development documentation:
+  - API specifications
+  - Code documentation
+  - Architecture diagrams
+  - Implementation guides
+  - Code examples
+
+Team Members Module:
+✓ VIEW team members dalam projects assigned
+
+Technologies Module:
+✓ VIEW tech stack being used
+✓ VIEW usage statistics
+
+Case Studies Module:
+✗ NO ACCESS
+
+Testimonials Module:
+✗ NO ACCESS
+
+Services Module:
+✗ NO ACCESS
+
+Settings Module:
+✗ NO ACCESS
+
+User Management:
+✗ NO ACCESS
+
+Reports & Analytics:
+✗ NO ACCESS
+
+Special Permissions:
+✓ Update project progress & status
+✓ Add progress notes
+✓ Upload technical documentation
+✓ View sprint/milestone data
+
+---
+
+ROLE 4: UI/UX DESIGNER
+======================
+Akses Level: LIMITED ACCESS - DESIGN-FOCUSED
+Scope: ASSIGNED PROJECTS ONLY
+
+Dashboard:
+✓ Project Dashboard (assigned projects - read only)
+
+Projects Module:
+✓ VIEW assigned projects only
+
+Documents Module:
+✓ VIEW project documents
+✓ UPLOAD design files/assets:
+  - UI/UX designs
+  - Wireframes
+  - Design specifications
+  - Mockups
+  - Brand assets
+
+Team Members Module:
+✓ VIEW team members dalam projects
+
+Case Studies Module:
+✓ VIEW draft case studies (for reference)
+
+Modules dengan NO ACCESS:
+✗ Update projects
+✗ Testimonials
+✗ Services
+✗ Technologies (VIEW only)
+✗ Settings
+✗ User Management
+
+Special Permissions:
+✓ Upload design files & assets
+✓ View project specs
+✓ View case studies for inspiration
+
+---
+
+ROLE 5: QA TESTER
+=================
+Akses Level: LIMITED ACCESS - TESTING & QA FOCUSED
+Scope: ASSIGNED PROJECTS ONLY
+
+Dashboard:
+✓ Project Dashboard (assigned projects)
+
+Projects Module:
+✓ VIEW assigned projects
+✓ View project timeline & status
+
+Documents Module:
+✓ VIEW test documents
+✓ UPLOAD test reports & bug reports:
+  - Bug reports
+  - Test case documentation
+  - QA metrics
+  - Performance test results
+
+Team Members Module:
+✓ VIEW team
+
+Modules dengan NO ACCESS:
+✗ Create/Update projects
+✗ Case Studies
+✗ Testimonials
+✗ Services
+✗ Technologies
+✗ Settings
+✗ User Management
+
+Special Permissions:
+✓ Create & upload bug reports
+✓ Upload test documentation
+✓ View project status & timeline
+
+---
+
+ROLE 6: CLIENT (EXTERNAL)
+=========================
+Akses Level: MINIMAL ACCESS - READ ONLY + LIMITED WRITE
+Scope: CLIENT'S PROJECTS ONLY
+
+Dashboard:
+✓ Client Dashboard (assigned projects only - read only)
+
+Projects Module:
+✓ VIEW client's projects only
+✓ VIEW project progress & timeline
+✓ VIEW case studies (when published)
+
+Testimonials Module:
+✓ VIEW published testimonials
+✓ ADD testimonial untuk completed projects
+✓ CANNOT edit or delete
+
+Documents Module:
+✗ NO ACCESS
+
+Team Members Module:
+✓ VIEW only (names & roles)
+✓ Limited information
+
+Case Studies Module:
+✓ VIEW published only
+
+Modules dengan NO ACCESS:
+✗ Services
+✗ Technologies
+✗ Settings
+✗ User Management
+
+Special Permissions:
+✓ View project progress
+✓ Add testimonials untuk projects
+✓ View case studies
+
+---
+
+ROLE 7: INTERNSHIP / MAGANG
+===========================
+Akses Level: TEAM-BASED WITH 3 TIERS
+Scope: ASSIGNED TEAM ONLY
+
+Structure:
+- Setiap magang ter-assign ke 1 tim (Team A, B, C, dll)
+- Akses terbatas pada projects & resources dari tim assigned
+- 3 tier progression: Learning → Apprentice → Junior
+
+BASE ACCESS (semua tier):
+✓ Basic Dashboard (team data only)
+✓ Profile & Account settings
+✓ View team members dalam tim assigned
+✓ Cannot access other teams' data
+
+────────────────────────────────
+
+TIER 1: LEARNING (Onboarding & Learning Phase)
+───────────────────────────────────────────────
+
+Projects Module:
+✓ VIEW team projects only
+✓ VIEW project detail & specifications
+✓ VIEW progress (read-only)
+✗ UPDATE anything
+
+Documents Module:
+✓ VIEW team documents
+✓ DOWNLOAD learning resources
+✗ UPLOAD anything
+
+Case Studies Module:
+✓ VIEW published only
+✗ Edit or create
+
+Technologies Module:
+✓ VIEW tech stack
+
+Modules Accessible: Projects, Documents, Team, Technologies
+Modules Denied: Case Studies, Services, Testimonials, Settings
+
+Purpose: Learning & onboarding phase
+
+────────────────────────────────
+
+TIER 2: APPRENTICE (Active Learning & Contribution)
+────────────────────────────────────────────────
+
+Projects Module:
+✓ VIEW team projects
+✓ UPDATE project progress (limited):
+  - Add implementation notes
+  - Update progress (dengan mentor review)
+  - Can request code review
+
+Documents Module:
+✓ VIEW & DOWNLOAD resources
+✓ UPLOAD learning progress documents
+✓ UPLOAD code implementation examples
+✗ DELETE team documents
+
+Case Studies Module:
+✓ VIEW published
+✓ CONTRIBUTE to drafts (dengan mentor review)
+✗ Publish independently
+
+Modules Accessible: Projects, Documents, Team, Technologies, Case Studies
+Modules Denied: Services, Testimonials, Settings
+
+Purpose: Active learning & contribution
+
+────────────────────────────────
+
+TIER 3: JUNIOR (Near Junior Developer)
+──────────────────────────────────
+
+Projects Module:
+✓ VIEW & UPDATE project progress
+✓ Can contribute to case studies
+✓ ADD technical documentation
+✓ Can request & manage own tasks
+
+Documents Module:
+✓ VIEW, DOWNLOAD, UPLOAD
+✓ Organize documents
+✓ Manage work samples
+✗ DELETE team documents
+
+Case Studies Module:
+✓ VIEW & CONTRIBUTE
+✓ Can publish drafts (dengan approval)
+
+Testimonials Module:
+✓ VIEW
+
+Modules Accessible: Projects, Documents, Team, Technologies, Case Studies, Testimonials
+Modules Denied: Services, Settings
+
+Purpose: Mentoring & transition to full-time
+
+────────────────────────────────
+
+TEAM-BASED ISOLATION:
+Setiap tier magang hanya bisa akses:
+✓ Projects dari team assigned
+✓ Documents dari team assigned
+✓ Team members dari team assigned
+✗ Tidak bisa lihat data dari tim lain
+
+Progression Path:
+Tier 1 (Learning)
+    ↓ [Based on performance & mentor evaluation]
+Tier 2 (Apprentice)
+    ↓ [Show readiness for independence]
+Tier 3 (Junior)
 
 ================================================================================
-FEATURE MODULES & USER FLOW
+ACCESS CONTROL SUMMARY TABLE
+================================================================================
+
+Module              CEO/Admin  PM         Dev        Designer   QA      Client  Magang*
+─────────────────────────────────────────────────────────────────────────────────────────
+Dashboard           ✓ Full     ✓ Project  ✓ Project  ✓ Project  ✓ Pro   ✓ Lim   ✓ Basic
+Projects            ✓ CRUD     ✓ CRUD     ✓ Update   ✓ View     ✓ View  ✓ View  ✓ View
+  └ Progress        ✓ All      ✓ All      ✓ Update   ✗          ✗       ✗       ✓ (T2+)
+  └ Status          ✓ All      ✓ All      ✓ Update   ✗          ✗       ✗       ✓ (T2+)
+Case Studies        ✓ CRUD     ✓ CRUD     ✗          ✗          ✗       ✓ View  ✓ (T2+)
+Services            ✓ CRUD     ✓ View     ✗          ✗          ✗       ✗       ✗
+Technologies        ✓ CRUD     ✓ View     ✓ View     ✗          ✗       ✗       ✓ View
+Team Members        ✓ CRUD     ✓ Assign   ✓ View     ✓ View     ✓ View  ✓ Names ✓ View
+Testimonials        ✓ CRUD     ✓ CRUD     ✗          ✗          ✗       ✓ Add   ✓ (T3)
+Documents           ✓ CRUD     ✓ CRUD     ✓ Upload   ✓ Upload   ✓ View  ✗       ✓ Upload
+Settings            ✓ Full     ✗          ✗          ✗          ✗       ✗       ✗
+User Management     ✓ Full     ✗          ✗          ✗          ✗       ✗       ✗
+Reports             ✓ Full     ✓ Project  ✗          ✗          ✗       ✗       ✗
+Audit Logs          ✓ Full     ✗          ✗          ✗          ✗       ✗       ✗
+
+Legend:
+  ✓ = Access
+  ✗ = No Access
+  CRUD = Create Read Update Delete
+  Project = Project-specific only
+  View = Read-only
+  Lim = Limited data
+  Magang* = Depends on tier (Learning/Apprentice/Junior)
+  (T2+) = Accessible from Tier 2 (Apprentice) and higher
+  (T3) = Accessible from Tier 3 (Junior) only
+
+================================================================================
+AUTHENTICATION & AUTHORIZATION SYSTEM
+================================================================================
+
+Authentication Library: Better Auth Client
+Backend Base URL: https://ppms-backend-api.up.railway.app
+
+SETUP
+=====
+
+Dependencies:
+npm install better-auth @better-auth/react @better-auth/core
+
+File: src/config/auth.config.js
+```javascript
+import { createAuthClient } from "@better-auth/react";
+
+export const auth = createAuthClient({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+```
+
+File: .env.local
+```
+VITE_API_BASE_URL=https://ppms-backend-api.up.railway.app
+VITE_API_TIMEOUT=30000
+```
+
+AUTHENTICATION FLOW
+===================
+
+1. User Login
+   - Better Auth sign in dengan email & password
+   - Backend returns session token + user data
+
+2. Session Management
+   - Auto-managed oleh Better Auth
+   - Token stored securely
+
+3. Token Refresh
+   - Better Auth handle auto-refresh
+   - Redirect ke login jika token expired
+
+4. Authorization
+   - Frontend check user role
+   - Show/hide UI berdasarkan permissions
+   - Backend juga validate di API
+
+ROLE-BASED ACCESS CONTROL
+=========================
+
+User Data Structure (dari backend):
+```json
+{
+  "id": "user-123",
+  "email": "user@company.com",
+  "name": "User Name",
+  "role": "PROJECT_MANAGER",
+  "team_id": "team-a",
+  "magang_tier": null,
+  "assignedProjects": ["proj-1", "proj-2"],
+  "permissions": {...}
+}
+```
+
+Frontend Implementation:
+- useAuth hook: provides session & user data
+- useRole hook: provides role-based utilities
+- RoleGuard component: conditional rendering
+- ProtectedRoute: route-level access control
+
+================================================================================
+FEATURE MODULES & SPECIFICATIONS
 ================================================================================
 
 1. AUTHENTICATION MODULE
-================================================================================
+========================
 
-Flow:
-  Login Page → Validate Credentials → Dashboard (if success)
-                                   → Error Message (if failed)
+Login Flow:
+  Unauthenticated → Login Page → Validate → Dashboard (if success)
+                                         → Error Message (if failed)
 
 Features:
 - Login form (email/username + password)
-- Remember me checkbox
+- Form validation & error messages
+- Remember me checkbox (optional)
 - Forgot password link (optional - pending backend)
-- Error handling & validation
-- Protected routes (redirect to login if not authenticated)
+- Protected routes (redirect unauthenticated users to login)
 - Logout functionality
+- Session management via Better Auth
 
 Pages:
 - /login (public route)
 
-2. DASHBOARD MODULE
-================================================================================
+API Endpoints:
+- POST /auth/sign-in (Better Auth)
+- POST /auth/sign-out (Better Auth)
+- POST /auth/refresh-session (Better Auth)
+- GET /auth/session (Better Auth)
 
-Flow:
-  Authenticated User → Dashboard → View Statistics & Charts → Quick Actions
+---
+
+2. DASHBOARD MODULE
+===================
+
+Display: Welcome message + statistics + charts + recent projects + quick actions
 
 Features:
-A. STATISTICS CARDS (4 cards dengan trend)
-   - Total Projects
-     Display: Angka total | % perubahan dari bulan lalu | Mini trend chart
-     Color: Blue
+A. STATISTICS CARDS (4 cards dengan mini trend charts)
+   - Total Projects (blue)
+   - Completed Projects (green)
+   - In Progress Projects (orange)
+   - Total Clients (purple)
    
-   - Completed Projects
-     Display: Angka | % perubahan | Mini trend chart
-     Color: Green
-   
-   - In Progress Projects
-     Display: Angka | % perubahan | Mini trend chart
-     Color: Orange
-   
-   - Total Clients
-     Display: Angka | % perubahan | Mini trend chart
-     Color: Purple
+   Setiap card menampilkan:
+   - Main number
+   - % change dari bulan lalu
+   - Mini trend chart (last 6 months)
 
 B. CHARTS & VISUALIZATIONS
    
    1. Project Overview Chart (Line Chart)
-      - X-axis: Months (Jan - Jun atau last 6 months)
+      - X-axis: Last 6 months
       - Y-axis: Number of projects
-      - 3 lines: Total Projects, Completed, In Progress
-      - Color: Blue, Green, Orange
-      - Time filter: 6 Months dropdown
-      
+      - 3 lines: Total, Completed, In Progress
+      - Time filter dropdown
+   
    2. Projects by Category (Pie/Doughnut Chart)
-      - Categories: Web Development, Mobile Development, System Development, UI/UX Design, Other
-      - Show: Percentage & count
-      - Colors: Multiple color palette
-      - Center text: Total projects count
-      
+      - Categories: Web Dev, Mobile Dev, System Dev, UI/UX, Other
+      - Show percentage & count
+      - Center text: Total projects
+   
    3. Top Technologies (Horizontal Bar Chart)
       - Technologies: Laravel, React, Flutter, Node.js, Vue.js
-      - Values: Percentage (e.g., 80%, 70%, 60%)
-      - Show: Technology icon, name, percentage
-      - Sorted: Descending by usage
-      
+      - Values: Percentage of usage
+      - Sorted descending
+   
    4. Client Satisfaction (Rating Card)
-      - Display: 4.9/5 average rating
-      - Show: 5 gold stars
-      - Additional info: "Based on X Reviews" (jumlah review)
-      - Breakdown: Rating distribution (5 star: 27 reviews, 4 star: 4 reviews, etc.)
+      - Display: X.X/5 average rating
+      - 5 gold stars
+      - "Based on N Reviews"
+      - Rating distribution breakdown
 
 C. RECENT PROJECTS LIST
-   - Show: Last 5-10 projects
-   - Columns/Info:
-     - Project thumbnail image
-     - Project name
-     - Client name
-     - Status (Completed, In Progress, On Hold)
-     - Date (completion date atau start date)
-     - Action: View link
-   - Pagination: Next page link atau "View All" button
+   - Last 5-10 projects
+   - Columns: Thumbnail, Name, Client, Status, Date
+   - "View All" link
 
-D. QUICK ACTIONS (5 action buttons)
+D. QUICK ACTIONS (5 buttons)
    - Add New Project
    - Add Case Study
    - Add Testimonial
    - Upload Document
    - View Reports
-   
-   Each button: Icon + Text + Description
 
 Pages:
-- / or /dashboard
+- / atau /dashboard
 
 API Endpoints:
-- GET /api/statistics/summary (untuk semua stat cards)
-- GET /api/projects/overview (untuk Project Overview chart)
-- GET /api/projects/by-category (untuk Projects by Category)
-- GET /api/technologies/top (untuk Top Technologies)
-- GET /api/client-satisfaction (untuk rating & reviews)
-- GET /api/projects/recent (untuk Recent Projects)
+- GET /api/statistics/summary
+- GET /api/projects/overview
+- GET /api/projects/by-category
+- GET /api/technologies/top
+- GET /api/client-satisfaction
+- GET /api/projects/recent
+
+---
 
 3. PROJECTS MODULE
-================================================================================
+===================
 
 Flow:
-  Dashboard → Projects → Project List
-           ↓
-           → Add Project → Form → Save → Project Created
-           ↓
-           → Edit Project → Form → Update → Project Updated
-           ↓
-           → Delete Project → Confirm → Project Deleted
+  Dashboard → Projects → List → Create/Edit/Delete/View
 
 Features:
 - List Projects (dengan filter, search, pagination)
 - Create Project (form dengan validation)
 - Edit Project (update form)
 - Delete Project (dengan confirmation modal)
-- Bulk actions (optional - pending approval)
+- View Project Detail
 
 Project Fields:
 - Project name (required)
 - Client name (required)
 - Description (required)
-- Category/Type (dropdown: Web Dev, Mobile Dev, System Dev, UI/UX, Other)
+- Category (Web Dev, Mobile Dev, System Dev, UI/UX, Other)
 - Technologies used (multiple select)
 - Project thumbnail/image (file upload)
-- Start date (date picker)
-- End date/Completion date (date picker)
-- Status (dropdown: Planning, In Progress, Completed, On Hold)
-- Link/URL (optional)
+- Start date & End date (date pickers)
+- Status (Planning, In Progress, Completed, On Hold)
 - Budget (optional)
-- Team members assigned (multiple select)
+- Team members assigned
+- Progress percentage (0-100) - editable by Developer
+- Progress notes - editable by Developer
 
 Pages:
 - /projects (list)
 - /projects/new (create)
 - /projects/:id/edit (edit)
-- /projects/:id/view (detail view)
+- /projects/:id (detail)
 
 Components:
 - ProjectList (table view)
-- ProjectForm (reusable create/edit form)
-- ProjectCard (untuk recent projects di dashboard)
-- ProjectFilter (filter & search)
-- ProjectModal (untuk quick view)
+- ProjectForm (create/edit)
+- ProjectCard (recent projects)
+- ProjectFilter (search & filter)
+
+Permissions:
+- CEO/Admin: Full CRUD
+- PM: CRUD assigned projects
+- Developer: View + Update progress
+- Others: View/limited access per role
 
 API Endpoints:
-- GET /api/projects (list dengan params: page, limit, search, filter)
+- GET /api/projects (list dengan params)
 - GET /api/projects/:id (detail)
 - POST /api/projects (create)
 - PUT /api/projects/:id (update)
 - DELETE /api/projects/:id (delete)
+- PUT /api/projects/:id/progress (developer progress update)
+
+---
 
 4. CASE STUDY MODULE
-================================================================================
+====================
 
 Flow:
-  Dashboard → Case Studies → Case Study List
-           ↓
-           → Add Case Study → Form → Save → Draft Created
-           ↓
-           → Edit Case Study → Form → Update → Updated
-           ↓
-           → Publish Case Study → Publish → Published
-           ↓
-           → Delete Case Study → Confirm → Deleted
+  Projects → Case Studies → List → Create/Edit/Publish/Delete
 
 Features:
 - List Case Studies (dengan status filter)
-- Create Case Study (form dengan validation)
+- Create Case Study (form dengan rich text editor)
 - Edit Case Study (update form)
-- Delete Case Study (dengan confirmation)
-- Publish/Unpublish Case Study (status management)
+- Delete Case Study (confirmation)
+- Publish/Unpublish
 
 Case Study Fields:
 - Title (required)
-- Slug (auto-generate dari title, editable)
+- Slug (auto-generate, editable)
 - Project (select dari projects)
-- Client (auto-fill dari project)
+- Client (auto-fill)
 - Challenge (rich text editor)
 - Solution (rich text editor)
 - Result/Outcome (rich text editor)
 - Featured image (file upload)
 - Tags (multiple input)
 - Status (Draft, Published)
-- Published date (auto-set saat publish)
+- Published date (auto-set)
 
 Pages:
 - /case-studies (list)
 - /case-studies/new (create)
 - /case-studies/:id/edit (edit)
 
-Components:
-- CaseStudyList (table view)
-- CaseStudyForm (create/edit form dengan rich text editor)
-- CaseStudyStatusBadge (visual status indicator)
-
 API Endpoints:
-- GET /api/case-studies (list dengan params: status filter)
+- GET /api/case-studies (list)
 - GET /api/case-studies/:id (detail)
 - POST /api/case-studies (create)
 - PUT /api/case-studies/:id (update)
@@ -300,42 +763,33 @@ API Endpoints:
 - PUT /api/case-studies/:id/publish (publish)
 - PUT /api/case-studies/:id/unpublish (unpublish)
 
+---
+
 5. SERVICES MODULE
-================================================================================
+===================
 
 Flow:
-  Dashboard → Services → Service List
-           ↓
-           → Add Service → Form → Save → Service Created
-           ↓
-           → Edit Service → Form → Update → Service Updated
-           ↓
-           → Delete Service → Confirm → Service Deleted
+  Services → List → Create/Edit/Delete
 
 Features:
 - List Services (table view)
 - Create Service (form)
-- Edit Service (update form)
-- Delete Service (dengan confirmation)
+- Edit Service (update)
+- Delete Service (confirmation)
 
 Service Fields:
 - Service name (required)
 - Slug (auto-generate, editable)
-- Description (required, textarea/rich text)
+- Description (textarea/rich text)
 - Icon (file upload atau icon selector)
 - Featured image (file upload)
-- Sort order (number untuk ordering)
+- Sort order (number)
 - Status (Active, Inactive)
 
 Pages:
 - /services (list)
 - /services/new (create)
 - /services/:id/edit (edit)
-
-Components:
-- ServiceList (table view)
-- ServiceForm (create/edit form)
-- ServiceStatusToggle (untuk enable/disable)
 
 API Endpoints:
 - GET /api/services (list)
@@ -344,33 +798,29 @@ API Endpoints:
 - PUT /api/services/:id (update)
 - DELETE /api/services/:id (delete)
 
+---
+
 6. TECHNOLOGIES MODULE
-================================================================================
+=====================
 
 Flow:
-  Dashboard → Technologies → Technology List
-           ↓
-           → Add Technology → Form → Save → Technology Created
-           ↓
-           → Edit Technology → Form → Update → Technology Updated
-           ↓
-           → Delete Technology → Confirm → Technology Deleted
+  Technologies → List → Create/Edit/Delete
 
 Features:
-- List Technologies (table view)
+- List Technologies (table view dengan stats)
 - Create Technology (form)
-- Edit Technology (update form)
-- Delete Technology (dengan confirmation)
-- Technology stats (usage count, percentage)
+- Edit Technology (update)
+- Delete Technology (confirmation)
+- Show usage statistics
 
 Technology Fields:
 - Technology name (required)
 - Slug (auto-generate, editable)
-- Icon/Logo (file upload atau SVG)
-- Category (dropdown: Frontend, Backend, Mobile, Database, DevOps, Other)
-- Description (optional, textarea)
-- Usage count (auto-calculated dari projects)
-- Proficiency level (optional: Beginner, Intermediate, Advanced)
+- Icon/Logo (file upload)
+- Category (Frontend, Backend, Mobile, Database, DevOps, Other)
+- Description (optional)
+- Usage count (auto-calculated)
+- Proficiency level (Beginner, Intermediate, Advanced)
 - Status (Active, Inactive)
 
 Pages:
@@ -378,46 +828,36 @@ Pages:
 - /technologies/new (create)
 - /technologies/:id/edit (edit)
 
-Components:
-- TechnologyList (table view)
-- TechnologyForm (create/edit form)
-- TechnologyIcon (display tech icon/logo)
-- TechnologyStats (show usage percentage)
-
 API Endpoints:
-- GET /api/technologies (list dengan sorting)
+- GET /api/technologies (list)
 - GET /api/technologies/:id (detail)
 - POST /api/technologies (create)
 - PUT /api/technologies/:id (update)
 - DELETE /api/technologies/:id (delete)
 
+---
+
 7. TEAM MEMBERS MODULE
-================================================================================
+=======================
 
 Flow:
-  Dashboard → Team → Team Member List
-           ↓
-           → Add Member → Form → Save → Member Added
-           ↓
-           → Edit Member → Form → Update → Member Updated
-           ↓
-           → Delete Member → Confirm → Member Removed
+  Team → List → Create/Edit/Delete
 
 Features:
 - List Team Members (dengan filter role/position)
 - Create Team Member (form)
-- Edit Team Member (update form)
-- Delete Team Member (dengan confirmation)
+- Edit Team Member (update)
+- Delete Team Member (confirmation)
 
 Team Member Fields:
 - Full name (required)
 - Email (required, unique)
 - Phone number (optional)
-- Position/Role (dropdown: Developer, Designer, Project Manager, QA, etc.)
-- Department (dropdown: Frontend, Backend, Mobile, Design, etc.)
+- Position/Role (Developer, Designer, PM, QA, etc)
+- Department (Frontend, Backend, Mobile, Design, etc)
 - Bio/Description (textarea)
 - Profile photo (file upload)
-- Social media links (optional: LinkedIn, GitHub, Twitter)
+- Social media links (LinkedIn, GitHub, Twitter)
 - Status (Active, Inactive)
 - Joining date (date picker)
 
@@ -426,65 +866,48 @@ Pages:
 - /team/new (create)
 - /team/:id/edit (edit)
 
-Components:
-- TeamMemberList (table/card view)
-- TeamMemberForm (create/edit form)
-- TeamMemberCard (display member info dengan photo)
-- TeamMemberFilter (filter by position/department)
-
 API Endpoints:
-- GET /api/team-members (list dengan filter)
+- GET /api/team-members (list)
 - GET /api/team-members/:id (detail)
 - POST /api/team-members (create)
 - PUT /api/team-members/:id (update)
 - DELETE /api/team-members/:id (delete)
+- GET /api/team-members/by-project/:projectId (filter by project)
+
+---
 
 8. TESTIMONIALS MODULE
-================================================================================
+======================
 
 Flow:
-  Dashboard → Testimonials → Testimonial List
-           ↓
-           → Add Testimonial → Form → Save → Draft Created
-           ↓
-           → Edit Testimonial → Form → Update → Updated
-           ↓
-           → Publish Testimonial → Publish → Published
-           ↓
-           → Delete Testimonial → Confirm → Deleted
+  Testimonials → List → Create/Edit/Publish/Delete
 
 Features:
 - List Testimonials (dengan status filter)
 - Create Testimonial (form)
-- Edit Testimonial (update form)
-- Delete Testimonial (dengan confirmation)
-- Publish/Unpublish Testimonial (status management)
+- Edit Testimonial (update)
+- Delete Testimonial (confirmation)
+- Publish/Unpublish
 
 Testimonial Fields:
 - Client name (required)
 - Client company (required)
-- Client position/title (optional)
+- Client position (optional)
 - Client photo (file upload)
-- Testimonial text (required, textarea/rich text)
+- Testimonial text (required)
 - Rating (1-5 stars)
-- Project (select dari projects - optional)
+- Project (select dari projects)
 - Status (Draft, Published)
-- Featured (checkbox untuk highlight testimonial)
-- Published date (auto-set saat publish)
+- Featured (checkbox untuk highlight)
+- Published date (auto-set)
 
 Pages:
 - /testimonials (list)
 - /testimonials/new (create)
 - /testimonials/:id/edit (edit)
 
-Components:
-- TestimonialList (table/card view)
-- TestimonialForm (create/edit form)
-- TestimonialCard (display testimonial dengan rating)
-- TestimonialStatusBadge (visual status indicator)
-
 API Endpoints:
-- GET /api/testimonials (list dengan status filter)
+- GET /api/testimonials (list)
 - GET /api/testimonials/:id (detail)
 - POST /api/testimonials (create)
 - PUT /api/testimonials/:id (update)
@@ -492,33 +915,28 @@ API Endpoints:
 - PUT /api/testimonials/:id/publish (publish)
 - PUT /api/testimonials/:id/unpublish (unpublish)
 
+---
+
 9. DOCUMENTS MODULE
-================================================================================
+===================
 
 Flow:
-  Dashboard → Documents → Document List
-           ↓
-           → Upload Document → Form → Save → Document Uploaded
-           ↓
-           → Download Document → Download → File Downloaded
-           ↓
-           → Delete Document → Confirm → Document Deleted
+  Documents → List → Upload/Download/Delete
 
 Features:
 - List Documents (dengan search, filter by type)
 - Upload Document (dengan file validation)
-- Download Document (trigger file download)
-- Delete Document (dengan confirmation)
-- File metadata display (size, upload date, uploader)
+- Download Document (trigger download)
+- Delete Document (confirmation)
 
 Document Fields:
 - Document name (required)
 - File (required, file upload)
-- Description (optional, textarea)
-- Category/Type (dropdown: Proposal, Report, Contract, Portfolio, Other)
-- Related project (optional, select dari projects)
+- Description (optional)
+- Category/Type (Proposal, Report, Contract, Portfolio, Other)
+- Related project (optional)
 - Upload date (auto-set)
-- Uploader/Author (auto-set dari logged-in user)
+- Uploader/Author (auto-set)
 - File size (auto-captured)
 - Status (Active, Archived)
 
@@ -526,31 +944,27 @@ Pages:
 - /documents (list)
 - /documents/new (upload)
 
-Components:
-- DocumentList (table view)
-- DocumentUploadForm (file upload form)
-- DocumentTypeIcon (visual file type indicator)
-- DocumentFilter (filter by category)
-
 API Endpoints:
-- GET /api/documents (list dengan filter)
-- POST /api/documents/upload (upload file - multipart form)
+- GET /api/documents (list)
+- POST /api/documents/upload (multipart form)
 - DELETE /api/documents/:id (delete)
-- GET /api/documents/:id/download (download file)
+- GET /api/documents/:id/download (download)
+
+---
 
 10. SETTINGS MODULE
-================================================================================
+===================
 
 Flow:
-  Dashboard → Settings → Edit Settings → Save → Settings Updated
+  Settings → Edit sections → Save
 
 Features:
 - Edit company information
 - Edit contact information
 - Manage social media links
 - Upload company logo
-- Account settings (change password)
-- General settings (site preferences)
+- Change password
+- General preferences
 
 Settings Sections:
 
@@ -560,8 +974,7 @@ A. COMPANY INFORMATION
    - Established year
    - Company phone
    - Company email
-   - Company address
-   - Company website
+   - Address
 
 B. CONTACT INFORMATION
    - Email address
@@ -580,31 +993,24 @@ C. SOCIAL MEDIA
 D. LOGO & BRANDING
    - Logo upload
    - Logo preview
-   - Logo alt text
+   - Alt text
 
 E. ACCOUNT SETTINGS
    - Current password
    - New password
    - Confirm password
-   - Two-factor authentication (optional)
 
 Pages:
-- /settings (main settings)
-- /settings/account (account settings)
+- /settings (main)
+- /settings/account (account)
 - /settings/company (company info)
-- /settings/contact (contact info)
+- /settings/contact (contact)
 - /settings/social (social media)
-- /settings/branding (logo & branding)
-
-Components:
-- SettingsForm (generic form untuk settings)
-- LogoUpload (dengan preview)
-- PasswordChangeForm (dengan validation)
-- SocialMediaInput (reusable social media field)
+- /settings/branding (logo)
 
 API Endpoints:
-- GET /api/settings (get all settings)
-- PUT /api/settings (update settings)
+- GET /api/settings (get all)
+- PUT /api/settings (update)
 - PUT /api/settings/password (change password)
 - POST /api/settings/logo (upload logo)
 
@@ -613,6 +1019,12 @@ FRONTEND FOLDER STRUCTURE
 ================================================================================
 
 src/
+│
+├── config/
+│   ├── auth.config.js          ← Better Auth setup
+│   ├── api.config.js           ← Axios + interceptors
+│   └── constants.js            ← App constants & role enums
+│
 ├── pages/
 │   ├── Login/
 │   │   └── LoginPage.jsx
@@ -645,6 +1057,8 @@ src/
 │   │   ├── SettingsPage.jsx
 │   │   ├── AccountSettingsPage.jsx
 │   │   └── CompanyInfoPage.jsx
+│   ├── Unauthorized/
+│   │   └── UnauthorizedPage.jsx
 │   └── NotFound/
 │       └── NotFoundPage.jsx
 │
@@ -690,6 +1104,9 @@ src/
 │   │   ├── ConfirmModal.jsx
 │   │   ├── DetailModal.jsx
 │   │   └── FormModal.jsx
+│   ├── guards/
+│   │   ├── RoleGuard.jsx       ← Role-based rendering
+│   │   └── TeamGuard.jsx       ← Team-based rendering (magang)
 │   ├── common/
 │   │   ├── Button.jsx
 │   │   ├── Input.jsx
@@ -710,7 +1127,7 @@ src/
 │       └── ChartContainer.jsx
 │
 ├── services/
-│   ├── api.js (axios configuration)
+│   ├── api.js (re-export dari api.config.js)
 │   ├── authApi.js
 │   ├── projectApi.js
 │   ├── caseStudyApi.js
@@ -723,7 +1140,10 @@ src/
 │   └── dashboardApi.js
 │
 ├── hooks/
-│   ├── useAuth.js
+│   ├── useAuth.js              ← Auth hook (Better Auth)
+│   ├── useRole.js              ← Role utilities & permissions
+│   ├── useTeamAccess.js        ← Team-based access (magang)
+│   ├── useProjectAccess.js     ← Project assignment check
 │   ├── useFetch.js
 │   ├── useForm.js
 │   ├── usePagination.js
@@ -731,14 +1151,16 @@ src/
 │   └── useModal.js
 │
 ├── routes/
-│   ├── ProtectedRoute.jsx
+│   ├── ProtectedRoute.jsx      ← Route-level access control
 │   └── routes.js
 │
 ├── context/
-│   ├── AuthContext.js
+│   ├── AuthContext.js          ← Better Auth context
 │   └── NotificationContext.js
 │
 ├── utils/
+│   ├── roles.js                ← Role constants & labels
+│   ├── permissions.js          ← Permission matrix logic
 │   ├── validators.js
 │   ├── formatters.js
 │   ├── constants.js
@@ -756,75 +1178,26 @@ src/
 └── tailwind.config.js
 
 ================================================================================
-REUSABLE COMPONENTS CHECKLIST
-================================================================================
-
-Layout Components:
-✓ Sidebar (dengan navigation items)
-✓ Navbar (dengan search, notification, user menu)
-✓ MainLayout (wrapper untuk dashboard)
-
-Form Components:
-✓ Input field (text, email, number, password)
-✓ Select dropdown (dengan search)
-✓ Textarea (untuk descriptions)
-✓ File upload (single & multiple)
-✓ Date picker
-✓ Rich text editor (untuk Case Study & Testimonials)
-✓ Form validation messages
-
-Table Components:
-✓ Data table dengan sorting & pagination
-✓ Search & filter functionality
-✓ Action buttons (edit, delete, view)
-✓ Status badges
-
-Card Components:
-✓ Stat card (dengan trend)
-✓ Project card (recent projects)
-✓ Team member card
-✓ Testimonial card (dengan rating)
-
-Modal/Dialog:
-✓ Confirmation modal (delete, publish actions)
-✓ Detail view modal
-✓ Form modal
-
-Chart Components:
-✓ Line chart (Project Overview)
-✓ Pie/Doughnut chart (Projects by Category)
-✓ Bar chart (Top Technologies)
-✓ Trend mini-charts (dalam stat cards)
-
-Common Components:
-✓ Button (primary, secondary, danger variants)
-✓ Loader/Spinner
-✓ Alert messages (success, error, warning, info)
-✓ Breadcrumb navigation
-✓ Badge/Tag (untuk status, categories)
-✓ Tooltip
-✓ Empty state message
-✓ 404 page
-
-================================================================================
 PROJECT TIMELINE
 ================================================================================
 
 Total Duration: 4 weeks (28 days)
+Target: Production-ready dashboard
 
 WEEK 1: Authentication & Dashboard
-================================
-Days 1-3:
+==================================
+
+Days 1-3: Setup & Auth
 - Setup project (Vite, Tailwind CSS, routing)
-- Create folder structure
-- Setup Axios & API client
+- Create folder structure & config
+- Setup Better Auth integration
+- Setup Axios with interceptors
 - Create authentication context
 - Create Login page & form
 - Create Protected Route HOC
 - Create MainLayout (Sidebar + Navbar)
-- Setup authentication service
 
-Days 4-7:
+Days 4-7: Dashboard Page
 - Create Dashboard page
 - Build Statistics Cards component
 - Build Dashboard charts:
@@ -837,41 +1210,51 @@ Days 4-7:
 - Connect to Dashboard API endpoints
 - Add loading & error states
 
-Deliverable: ✓ Login system working + Dashboard complete
+Deliverable: ✓ Login system + Dashboard complete
+
+───────────────────────────
 
 WEEK 2: Projects & Case Studies
-================================
-Days 8-10:
+===============================
+
+Days 8-10: Projects Module
 - Create Projects List page
 - Build ProjectTable component
 - Build ProjectForm (create & edit)
 - Build ProjectFilter & search
 - Add file upload untuk project thumbnail
 - Create Projects API service
-- Add CRUD operations untuk Projects
+- Add CRUD operations
+- Developer: Add progress update fields
 
-Days 11-14:
+Days 11-14: Case Studies Module
 - Create Case Studies List page
 - Build CaseStudyTable component
 - Build CaseStudyForm dengan rich text editor
 - Add publish/unpublish functionality
 - Create Case Study API service
-- Add CRUD operations untuk Case Studies
+- Add CRUD operations
 - Add status management
 
-Deliverable: ✓ Projects module complete + Case Studies module complete
+Deliverable: ✓ Projects module + Case Studies module complete
 
-WEEK 3: Team Members, Testimonials & Services
-=============================================
-Days 15-17:
+───────────────────────────
+
+WEEK 3: Team, Testimonials & Services
+====================================
+
+Days 15-17: Team Members & Services
 - Create Team Members List page
 - Build TeamMemberTable component
 - Build TeamMemberForm
 - Add team member photo upload
 - Create Team API service
-- Add CRUD operations untuk Team
+- Add CRUD operations
+- Create Services List page
+- Build ServiceTable & ServiceForm
+- Create Services API service
 
-Days 18-21:
+Days 18-21: Testimonials & Prep
 - Create Testimonials List page
 - Build TestimonialTable component
 - Build TestimonialForm
@@ -879,298 +1262,397 @@ Days 18-21:
 - Build rating stars component
 - Create Testimonials API service
 - Add CRUD operations
+- Implement role-based UI conditionals
 
-- Create Services List page
-- Build ServiceTable component
-- Build ServiceForm
-- Create Services API service
-- Add CRUD operations
+Deliverable: ✓ Team + Testimonials + Services modules complete
 
-Deliverable: ✓ Team module complete + Testimonials module complete + Services module complete
+───────────────────────────
 
-WEEK 4: Technologies, Documents, Settings & Integration
-======================================================
-Days 22-24:
+WEEK 4: Advanced Modules & Integration
+=====================================
+
+Days 22-24: Technologies & Documents
 - Create Technologies List page
-- Build TechnologyTable component
-- Build TechnologyForm
-- Add icon upload untuk technologies
+- Build TechnologyTable & TechnologyForm
 - Create Technologies API service
-- Add CRUD operations
-
 - Create Documents List page
-- Build DocumentTable component
-- Build DocumentUploadForm
+- Build DocumentTable & DocumentUploadForm
 - Add file download functionality
 - Create Documents API service
 
-Days 25-28:
-- Create Settings pages (company info, contact, social media, account)
-- Build SettingsForm components untuk setiap section
+Days 25-28: Settings & Final Integration
+- Create Settings pages (all sections)
+- Build SettingsForm components
 - Build account settings (password change)
 - Create Settings API service
-- Logo upload & management
-
-- API Integration testing untuk semua modules
-- Add loading states
-- Add error handling & validation
+- Final API integration testing
+- Add comprehensive error handling
+- Add loading states across modules
 - Fix responsive design issues
 - Performance optimization
-- Bug fixing & QA
-- Final testing
+- Comprehensive testing
+- Bug fixes & QA
 
-Deliverable: ✓ All modules complete + All connected to backend + Ready for demo/UAT
-
-================================================================================
-COMPONENT CREATION STRATEGY
-================================================================================
-
-Priority Order (based on reusability & dependencies):
-
-Phase 1 - Core Components (Week 1):
-1. Layout: Sidebar, Navbar, MainLayout
-2. Common: Button, Input, Select, Textarea, Loader, Alert
-3. Forms: LoginForm
-4. Dashboard: StatCard, Charts (LineChart, PieChart, BarChart)
-
-Phase 2 - CRUD Components (Week 2-3):
-5. Tables: Generic DataTable component
-6. Forms: ProjectForm, CaseStudyForm, ServiceForm, etc.
-7. Modals: ConfirmModal, DetailModal
-8. Cards: ProjectCard, TeamMemberCard, TestimonialCard
-
-Phase 3 - Advanced Components (Week 3-4):
-9. FileUpload component
-10. RichTextEditor integration
-11. Settings forms
-12. Charts updates
-
-Key Principles:
-- Extract common patterns ke reusable components
-- Props-driven untuk maximum flexibility
-- Consistent styling menggunakan Tailwind CSS
-- Proper prop validation menggunakan PropTypes atau TypeScript
-- Create utility hooks (useForm, useFetch, usePagination)
+Deliverable: ✓ All modules complete + Fully integrated + Ready for UAT
 
 ================================================================================
-API INTEGRATION STRATEGY
+REUSABLE COMPONENTS
 ================================================================================
 
-Authentication:
-- Store JWT token di localStorage atau httpOnly cookie (discuss dengan backend)
-- Include token dalam semua API requests (axios interceptor)
-- Implement token refresh logic
-- Logout saat token expired
+Core Components (Priority Order):
+
+Layout:
+✓ Sidebar (dengan role-based navigation)
+✓ Navbar (dengan user menu & notifications)
+✓ MainLayout (wrapper)
+✓ DashboardLayout
+
+Forms:
+✓ Input (text, email, number, password)
+✓ Select (dengan search)
+✓ Textarea
+✓ File upload (single & multiple)
+✓ Date picker
+✓ Rich text editor (untuk Case Study & Testimonials)
+✓ Form validation messages
+
+Tables:
+✓ Generic DataTable component
+✓ Search & filter
+✓ Sorting & pagination
+✓ Action buttons
+
+Cards:
+✓ Stat card (dengan trend)
+✓ Project card
+✓ Team member card
+✓ Testimonial card (dengan rating)
+
+Modals:
+✓ Confirmation modal
+✓ Detail view modal
+✓ Form modal
+
+Charts:
+✓ Line chart
+✓ Pie/Doughnut chart
+✓ Bar chart
+✓ Trend charts
+
+Guards:
+✓ RoleGuard (role-based rendering)
+✓ TeamGuard (team-based access untuk magang)
+✓ ProtectedRoute (route-level access)
+
+Common:
+✓ Button (variants: primary, secondary, danger)
+✓ Loader/Spinner
+✓ Alert messages
+✓ Breadcrumb
+✓ Badge/Tag
+✓ Tooltip
+✓ Empty state
+✓ 404 page
+✓ Unauthorized page
+
+================================================================================
+API INTEGRATION
+================================================================================
+
+Backend Base URL:
+https://ppms-backend-api.up.railway.app
+
+Authentication Endpoints (Better Auth):
+POST   /auth/sign-in              ← Email & password login
+POST   /auth/sign-out             ← Logout
+POST   /auth/refresh-session      ← Refresh token
+GET    /auth/session              ← Get current session
+POST   /auth/forgot-password      ← Password reset (optional)
+
+Data API Endpoints:
+
+PROJECTS:
+GET    /api/projects?page=1&limit=10&search=&filter=
+GET    /api/projects/:id
+POST   /api/projects
+PUT    /api/projects/:id
+DELETE /api/projects/:id
+PUT    /api/projects/:id/progress (Developer update)
+
+CASE STUDIES:
+GET    /api/case-studies?status=draft|published
+GET    /api/case-studies/:id
+POST   /api/case-studies
+PUT    /api/case-studies/:id
+DELETE /api/case-studies/:id
+PUT    /api/case-studies/:id/publish
+PUT    /api/case-studies/:id/unpublish
+
+SERVICES:
+GET    /api/services
+GET    /api/services/:id
+POST   /api/services
+PUT    /api/services/:id
+DELETE /api/services/:id
+
+TECHNOLOGIES:
+GET    /api/technologies
+GET    /api/technologies/:id
+POST   /api/technologies
+PUT    /api/technologies/:id
+DELETE /api/technologies/:id
+
+TEAM MEMBERS:
+GET    /api/team-members
+GET    /api/team-members/:id
+POST   /api/team-members
+PUT    /api/team-members/:id
+DELETE /api/team-members/:id
+GET    /api/team-members/by-project/:projectId
+
+TESTIMONIALS:
+GET    /api/testimonials?status=draft|published
+GET    /api/testimonials/:id
+POST   /api/testimonials
+PUT    /api/testimonials/:id
+DELETE /api/testimonials/:id
+PUT    /api/testimonials/:id/publish
+PUT    /api/testimonials/:id/unpublish
+
+DOCUMENTS:
+GET    /api/documents?category=&search=
+POST   /api/documents/upload (multipart form)
+GET    /api/documents/:id/download
+DELETE /api/documents/:id
+
+SETTINGS:
+GET    /api/settings
+PUT    /api/settings
+PUT    /api/settings/password
+POST   /api/settings/logo
+
+DASHBOARD:
+GET    /api/statistics/summary
+GET    /api/projects/overview
+GET    /api/projects/by-category
+GET    /api/technologies/top
+GET    /api/client-satisfaction
+GET    /api/projects/recent
+
+USER MANAGEMENT (CEO/ADMIN):
+GET    /api/users
+GET    /api/users/:id
+POST   /api/users
+PUT    /api/users/:id
+DELETE /api/users/:id
+PUT    /api/users/:id/role
+PUT    /api/users/:id/team
+PUT    /api/users/:id/magang-tier
+
+TEAM ENDPOINTS (untuk magang):
+GET    /api/teams
+GET    /api/teams/:team_id
+GET    /api/teams/:team_id/projects
+GET    /api/teams/:team_id/members
+GET    /api/teams/:team_id/documents
 
 Error Handling:
-- Centralized error handling via axios interceptor
-- Display user-friendly error messages
-- Log errors untuk debugging
-- Retry logic untuk failed requests (optional)
-
-Loading States:
-- Global loading state untuk page transitions
-- Component-level loading state untuk data fetching
-- Proper skeleton loaders atau spinners
-
-Data Caching:
-- Cache data untuk mengurangi API calls
-- Invalidate cache saat data berubah
-- Consider using React Query untuk advanced caching
-
-API Contract Template (Pending Backend Confirmation):
-
-```
-Authentication:
-POST /api/auth/login
-{
-  email: string,
-  password: string
-}
-
-Projects:
-GET /api/projects?page=1&limit=10&search=&filter=
-POST /api/projects
-PUT /api/projects/:id
-DELETE /api/projects/:id
-
-[Lengkap untuk semua modules]
-```
+- 401 Unauthorized → Redirect to login
+- 403 Forbidden → Redirect to unauthorized page
+- 404 Not Found → Redirect to 404 page
+- 500 Server Error → Display error message dengan retry option
 
 ================================================================================
-REQUIREMENTS & CONSTRAINTS
+IMPLEMENTATION REQUIREMENTS
 ================================================================================
 
 Non-Functional Requirements:
-- Loading time: < 2 seconds untuk initial load
+- Initial load time: < 2 seconds
 - Responsive design: Mobile (320px), Tablet (768px), Desktop (1024px+)
 - Browser support: Chrome, Firefox, Safari, Edge (latest 2 versions)
-- SEO: Meta tags, semantic HTML (untuk public website)
 - Accessibility: WCAG 2.1 Level AA compliance
 
 Code Quality:
-- Follow React best practices
-- Use functional components + hooks
+- Follow React best practices (functional components + hooks)
 - Proper error handling & validation
-- Code organization & naming conventions
+- Code organization & consistent naming
 - Comments untuk complex logic
-- ESLint configuration
+- ESLint + Prettier configuration
 
 Security:
 - Input validation & sanitization
 - Prevent XSS attacks
-- CSRF token (if needed)
-- Secure storage untuk sensitive data
-- Rate limiting (backend)
+- Secure token storage (Better Auth handles this)
+- Proper authentication & authorization
 
 Performance:
 - Code splitting & lazy loading
 - Image optimization
 - Minification & compression
-- Caching strategy
+- Proper caching strategy
 
-Constraints:
-- 1 month timeline (28 days)
-- Free tier tools/libraries preferred
-- Reusable components mandatory
-- Must follow design specifications
-- API contract must be confirmed before Week 2
-
-================================================================================
-IMPORTANT NOTES & ASSUMPTIONS
-================================================================================
-
-1. Frontend menggunakan React.js (Vite untuk faster development)
-2. Backend team menyediakan REST API (contract pending confirmation)
-3. Gunakan reusable components sebanyak mungkin (DRY principle)
-4. Fokus pada admin dashboard saja (public website di-handle team lain)
-5. SEMUA CRUD operations harus memiliki:
-   - Loading state (spinner/skeleton)
-   - Error state (error message dengan retry option)
-   - Success feedback (toast/alert message)
-   - Confirmation modal untuk delete actions
-   - Form validation & error messages
-
-6. Responsive design wajib (mobile-first approach)
-7. Follow modern React practices (hooks, context API)
-8. Use Tailwind CSS untuk styling (consistency & faster development)
-9. Implement proper error handling & user feedback
-10. Test integration dengan backend di Week 4
-
-Open Questions untuk Client/Product Owner:
-- Apakah Services & Technologies modules memang bagian frontend scope?
-- API contract specifications (sudah ready atau masih pending?)
-- Apakah perlu two-factor authentication?
-- Backup/export functionality diperlukan?
-- User management (multiple admin accounts)?
-- Activity logging/audit trail?
-- Multi-language support (Indonesian + English)?
-- Dark mode support?
-- Real-time updates (WebSocket)?
-- Analytics dashboard?
-- File size limits untuk uploads?
-- Image optimization strategy?
-
-================================================================================
-FOLDER STRUCTURE CREATION CHECKLIST
-================================================================================
-
-□ Create src/ directory
-□ Create pages/ subdirectories (Login, Dashboard, Projects, etc.)
-□ Create components/ subdirectories (layout, forms, tables, cards, modals, common, charts, dashboard)
-□ Create services/ directory
-□ Create hooks/ directory
-□ Create routes/ directory
-□ Create context/ directory
-□ Create utils/ directory
-□ Create assets/ directory (images, icons, styles)
-□ Create .env file (API_BASE_URL, etc.)
-□ Create .gitignore file
-□ Initialize Git repository
-□ Create package.json dengan dependencies
-
-Dependencies to Install:
-- react
-- react-router-dom
-- axios
-- tailwindcss
-- recharts (atau chart.js)
-- react-hook-form
-- sweetalert2 (atau custom modal)
-- date-fns (untuk date handling)
-- clsx (atau classnames untuk conditional CSS)
-- prop-types
-
-Dev Dependencies:
-- vite
-- @vitejs/plugin-react
-- tailwindcss
-- postcss
-- autoprefixer
-- eslint
-- prettier
+Testing:
+- Test login dengan berbagai roles
+- Test sidebar menu per role
+- Test API requests dengan auth token
+- Test token refresh flow
+- Test all CRUD operations
+- Test role-based UI rendering
+- Test team-based access (magang)
 
 ================================================================================
 SUCCESS CRITERIA
 ================================================================================
 
-Week 1 (Authentication & Dashboard):
-✓ Login page fully functional
+Week 1:
+✓ Login fully functional dengan Better Auth
 ✓ Protected routes working
 ✓ Dashboard layout & design match spec
-✓ All dashboard charts & statistics display correctly
-✓ Quick actions buttons navigate properly
+✓ All dashboard charts display correctly
+✓ Quick actions navigate properly
 ✓ Responsive design on mobile & tablet
 
-Week 2 (Projects & Case Studies):
+Week 2:
 ✓ Projects CRUD complete dengan validation
-✓ Case Studies CRUD complete dengan publish/unpublish
-✓ File uploads working (project thumbnails)
+✓ Case Studies CRUD complete
+✓ Developer dapat update project progress
+✓ File uploads working
 ✓ Table filtering & search working
 ✓ Pagination functional
 ✓ Loading & error states implemented
 
-Week 3 (Team, Testimonials, Services):
+Week 3:
 ✓ Team Members CRUD complete
 ✓ Testimonials CRUD dengan rating
 ✓ Publish/unpublish testimonials working
 ✓ Services CRUD complete
 ✓ Status management working
-✓ All forms with validation
+✓ All forms dengan validation
 
-Week 4 (Technologies, Documents, Settings & Integration):
+Week 4:
 ✓ Technologies CRUD complete
 ✓ Documents upload & download working
 ✓ Settings pages functional
 ✓ All modules connected ke backend
 ✓ All API endpoints integrated
 ✓ Error handling comprehensive
-✓ Responsive design across all modules
+✓ Role-based UI rendering working
+✓ Magang tier-based access working
+✓ Team-based isolation working (magang)
 ✓ No console errors
 ✓ Ready untuk UAT/demo
 
 ================================================================================
-NEXT STEPS
+MIGRATION & SETUP CHECKLIST
 ================================================================================
 
-Before Starting Development:
+Before Starting:
 
-1. □ Confirm API contract dengan backend team
-2. □ Confirm Services & Technologies modules in scope
-3. □ Get design specifications (colors, fonts, exact layouts)
-4. □ Confirm file upload limitations (size, formats)
-5. □ Clarify authentication method (JWT, session, etc.)
-6. □ Setup development environment
-7. □ Create project repository
-8. □ Setup CI/CD (optional but recommended)
-9. □ Create detailed component specifications
-10. □ Get approval dari PO/client
+Configuration:
+☐ Confirm API contract dengan backend
+☐ Confirm all role names & tier definitions
+☐ Confirm permission matrix dengan PO
+☐ Confirm team structure & naming
+☐ Confirm magang tier progression criteria
+☐ Test Better Auth setup dengan backend
+
+Development Setup:
+☐ Initialize Vite project
+☐ Setup folder structure
+☐ Install dependencies (including better-auth)
+☐ Setup ESLint & Prettier
+☐ Create .env.local
+☐ Initialize Git repository
+☐ Setup CI/CD (optional)
+
+During Development:
+
+Week 1:
+☐ Better Auth integration
+☐ Create auth config & context
+☐ Update api.config.js dengan interceptors
+☐ Create role constants & permission system
+☐ Build login page
+☐ Build dashboard
+
+Week 2-3:
+☐ Implement all CRUD pages
+☐ Add role-based UI conditionals
+☐ Implement Developer progress update
+☐ Test role permissions
+
+Week 4:
+☐ Final API integration
+☐ Comprehensive error handling
+☐ Performance optimization
+☐ Full testing all roles
+☐ Bug fixes
+☐ Prepare demo/UAT
+
+Post-Development:
+☐ UAT dengan berbagai roles
+☐ Security audit
+☐ Load testing
+☐ Final documentation
+☐ Deployment preparation
+
+================================================================================
+IMPORTANT NOTES
+================================================================================
+
+1. Frontend menggunakan React.js + Vite (build tool)
+2. Better Auth Client untuk authentication (modern & simpler)
+3. Backend URL: https://ppms-backend-api.up.railway.app
+4. 7 roles dengan detailed permissions (not just simple yes/no)
+5. Developer role: Bisa update project progress & upload docs
+6. Magang role: Team-based access dengan 3 tier progression
+7. Semua CRUD harus punya:
+   - Loading state (spinner/skeleton)
+   - Error state (message + retry option)
+   - Success feedback (toast/alert)
+   - Confirmation modal untuk delete
+   - Form validation
+
+8. Responsive design wajib (mobile-first approach)
+9. Follow modern React practices (hooks, context API)
+10. Use Tailwind CSS untuk styling
+
+Open Questions untuk Client/PO:
+- API contract details untuk semua endpoints?
+- Better Auth endpoints sudah ready di backend?
+- Exact role names & tier definitions confirmed?
+- Team assignment logic from backend?
+- Magang tier progression based on what criteria?
+- File upload size limits?
+- Image optimization requirements?
+- Multi-language support needed?
+- Dark mode support?
+- Real-time updates needed?
+
+================================================================================
+DOCUMENT INFORMATION
+================================================================================
+
+Project Name: SH-02 Portfolio Management System
+Document: Full Project Context (Complete Version)
+Version: 3.0 (Developer & Magang Updates Integrated)
+Last Updated: June 27, 2026
+Status: Ready for Development
+
+Changes from Previous Versions:
+v1.0 → v2.0: Added 7 roles + Better Auth
+v2.0 → v3.0: Developer write permissions + Magang tier system
+
+Next Steps:
+1. Confirm backend API contract
+2. Setup development environment
+3. Begin Week 1 development
+4. Weekly progress tracking
+
+Contact: Yogi Nugraha
+GitHub: zethboy
+Portfolio: giogi.vercel.app
 
 ================================================================================
 END OF DOCUMENT
 ================================================================================
-
-Version: 1.0
-Last Updated: June 24, 2026
-Author: Yogi Nugraha
-Status: Ready for Development
