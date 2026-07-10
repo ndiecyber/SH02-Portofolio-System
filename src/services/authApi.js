@@ -1,9 +1,9 @@
 import api from './api';
 import { ROLES, MAGANG_TIERS } from '../config/constants';
-import { initMockDb } from '../utils/mockDb';
+import * as mockDb from '../utils/mockDb';
 
 // Initialize mock DB on load
-initMockDb();
+mockDb.initMockDb();
 
 const USE_MOCK_AUTH = true;
 
@@ -135,13 +135,19 @@ export const login = async (email, password) => {
   if (USE_MOCK_AUTH) {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    const match = MOCK_CREDENTIALS.find(
-      (c) => c.email.toLowerCase() === email.toLowerCase() && c.password === password
+    const users = mockDb.dbGetUsers();
+    const match = users.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
     );
 
     if (match) {
-      const mockToken = `mock_jwt_token_sh02_${match.user.role}_${match.user.id}`;
-      return { user: match.user, token: mockToken };
+      if (match.status === 'Inactive') {
+        throw new Error('Akun Anda dinonaktifkan. Silakan hubungi CEO.');
+      }
+      const mockToken = `mock_jwt_token_sh02_${match.role}_${match.id}`;
+      // Return user details without password
+      const { password: _, ...userWithoutPassword } = match;
+      return { user: userWithoutPassword, token: mockToken };
     } else {
       throw new Error('Email atau password salah.');
     }

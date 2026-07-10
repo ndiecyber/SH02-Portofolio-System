@@ -15,7 +15,8 @@ import {
   LogOut,
   X,
   Calendar,
-  CheckSquare
+  CheckSquare,
+  UserCheck
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import clsx from 'clsx';
@@ -48,15 +49,16 @@ const Sidebar = ({ isOpen, onClose }) => {
     {
       title: 'MANAGEMENT',
       items: [
-        { name: 'Team Members', path: '/team', icon: Users, show: showTeam },
+        { name: 'Manajemen Tim', path: '/team', icon: Users, show: showTeam },
         { name: 'Documents', path: '/documents', icon: FileText, show: showDocuments },
-        { name: 'Tasks', path: '#tasks', icon: CheckSquare, isMock: true, show: !roleChecker.isClient },
-        { name: 'Calendar', path: '#calendar', icon: Calendar, isMock: true, show: !roleChecker.isClient },
+        { name: 'Tasks', path: '/tasks', icon: CheckSquare, show: !roleChecker.isClient },
+        { name: 'Calendar', path: '/calendar', icon: Calendar, show: !roleChecker.isClient },
       ].filter(item => item.show)
     },
     {
       title: 'SYSTEM',
       items: [
+        { name: 'Manajemen User', path: '/users', icon: UserCheck, show: roleChecker.canViewUserManagement() },
         { name: 'Settings', path: '/settings', icon: Settings, show: roleChecker.canViewSettings() },
       ].filter(item => item.show)
     }
@@ -129,9 +131,6 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-black/10">
           <div className="flex items-center space-x-2.5">
             <img src={lexaLogo} alt="LEXA Logo" className="h-7 object-contain brightness-0 invert" />
-            <span className="text-[9px] text-blue-400 font-bold bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20 uppercase">
-              SH-02
-            </span>
           </div>
           {/* Close Button on Mobile */}
           <button

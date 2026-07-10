@@ -12,6 +12,9 @@ import TeamListPage from '../pages/TeamMembers/TeamListPage';
 import TestimonialListPage from '../pages/Testimonials/TestimonialListPage';
 import DocumentListPage from '../pages/Documents/DocumentListPage';
 import SettingsPage from '../pages/Settings/SettingsPage';
+import UserManagementPage from '../pages/UserManagement/UserManagementPage';
+import TasksPage from '../pages/Tasks/TasksPage';
+import CalendarPage from '../pages/Calendar/CalendarPage';
 import UnauthorizedPage from '../pages/Unauthorized/UnauthorizedPage';
 import NotFoundPage from '../pages/NotFound/NotFoundPage';
 
@@ -83,6 +86,18 @@ export const routesConfig = [
       {
         path: 'settings',
         element: <SettingsPage />,
+      },
+      {
+        path: 'users',
+        element: <UserManagementPage />,
+      },
+      {
+        path: 'tasks',
+        element: <TasksPage />,
+      },
+      {
+        path: 'calendar',
+        element: <CalendarPage />,
       },
       {
         path: 'unauthorized',

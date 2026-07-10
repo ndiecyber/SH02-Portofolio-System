@@ -190,3 +190,84 @@ export const INITIAL_CLIENT_SATISFACTION = {
     1: 0
   }
 };
+
+export const INITIAL_SERVICES = [
+  { id: 'srv-1', name: 'Web Development', slug: 'web-development', description: 'Membangun aplikasi web berkinerja tinggi, aman, dan responsif dengan arsitektur modern.', icon: 'Code', sortOrder: 1, status: 'Active' },
+  { id: 'srv-2', name: 'Mobile App Development', slug: 'mobile-app-development', description: 'Pengembangan aplikasi mobile native & cross-platform untuk iOS dan Android.', icon: 'Smartphone', sortOrder: 2, status: 'Active' },
+  { id: 'srv-3', name: 'UI/UX Design', slug: 'ui-ux-design', description: 'Riset pengguna, pembuatan wireframe, prototyping, dan desain antarmuka yang memukau.', icon: 'Palette', sortOrder: 3, status: 'Active' },
+  { id: 'srv-4', name: 'System Integration', slug: 'system-integration', description: 'Integrasi sistem enterprise, API development, migrasi database, dan optimasi backend.', icon: 'Cpu', sortOrder: 4, status: 'Active' }
+];
+
+export const INITIAL_TESTIMONIALS = [
+  {
+    id: 'test-1',
+    clientName: 'Lexa Retail Corp',
+    quote: 'LEXA mengirimkan platform e-commerce kami tepat waktu dengan kualitas kode yang luar biasa. UI barunya sangat cantik dan konversi penjualan kami meningkat tajam!',
+    rating: 5,
+    projectId: 'proj-1',
+    status: 'Published'
+  },
+  {
+    id: 'test-2',
+    clientName: 'TransNasional Cargo',
+    quote: 'Aplikasi pelacakan armada real-time sangat membantu operasional pengemudi kami di lapangan. Tim Flutter LEXA sangat kompeten dan responsif terhadap masukan.',
+    rating: 4,
+    projectId: 'proj-2',
+    status: 'Published'
+  },
+  {
+    id: 'test-3',
+    clientName: 'Sinergi Mega Utama',
+    quote: 'Integrasi payroll sistem dengan database internal kami berjalan lancar dengan sistem keamanan audit trails yang kokoh. Kerja sama yang luar biasa.',
+    rating: 5,
+    projectId: 'proj-3',
+    status: 'Draft'
+  }
+];
+
+export const INITIAL_DOCUMENTS = [
+  {
+    id: 'doc-1',
+    name: 'Spesifikasi_API_V1.pdf',
+    category: 'API Spec',
+    size: '1.2 MB',
+    uploadDate: '2026-03-15',
+    uploadedBy: 'Sarah Chen',
+    url: 'data:application/pdf;base64,JVBERi0xLjQKJdOl...',
+    projectId: 'proj-1',
+    teamId: 'team-a'
+  },
+  {
+    id: 'doc-2',
+    name: 'Figma_UI_Mockup_Final.fig',
+    category: 'Design',
+    size: '4.5 MB',
+    uploadDate: '2026-04-20',
+    uploadedBy: 'Elena Rostova',
+    url: 'data:application/octet-stream;base64,RklHTUEy...',
+    projectId: 'proj-2',
+    teamId: 'team-b'
+  },
+  {
+    id: 'doc-3',
+    name: 'Database_Schema_Diagram.png',
+    category: 'Architecture',
+    size: '850 KB',
+    uploadDate: '2026-05-10',
+    uploadedBy: 'Rudy Hartono',
+    url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+    projectId: 'proj-3',
+    teamId: 'team-c'
+  }
+];
+
+export const INITIAL_SETTINGS = {
+  companyName: 'LEXA Software House',
+  companyEmail: 'info@lexa.com',
+  companyPhone: '+62 21 5555 1234',
+  companyAddress: 'Gedung Lexa Lt. 3, Jl. Sudirman No. 45, Jakarta Selatan',
+  primaryColor: '#2563eb',
+  secondaryColor: '#1e293b',
+  logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80'
+};
+
