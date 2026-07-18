@@ -1,13 +1,17 @@
 export const ROLES = {
   ADMIN: 'ADMIN',
-  CEO: 'CEO',
-  PROJECT_MANAGER: 'PROJECT_MANAGER',
-  DEVELOPER: 'DEVELOPER',
-  UIUX_DESIGNER: 'UIUX_DESIGNER',
-  QA_TESTER: 'QA_TESTER',
-  CLIENT: 'CLIENT',
-  INTERN: 'INTERN'
+  DEVELOPER: 'DEVELOPER'
 };
+
+export const DEPARTMENTS = [
+  'UI/UX',
+  'Front End',
+  'Back End',
+  'QA Testing',
+  'DevOps',
+  'Project Management'
+];
+
 
 export const MAGANG_TIERS = {
   LEARNING: 'LEARNING',
@@ -52,12 +56,12 @@ export const INITIAL_TEAMS = [
 ];
 
 export const INITIAL_TEAM_MEMBERS = [
-  { id: 'mem-1', name: 'Alex Johnson', email: 'alex@lexa.com', role: 'PROJECT_MANAGER', department: 'Management', status: 'Active' },
-  { id: 'mem-2', name: 'Sarah Chen', email: 'sarah@lexa.com', role: 'DEVELOPER', department: 'Frontend', status: 'Active' },
-  { id: 'mem-3', name: 'Rudy Hartono', email: 'rudy@lexa.com', role: 'DEVELOPER', department: 'Backend', status: 'Active' },
-  { id: 'mem-4', name: 'Elena Rostova', email: 'elena@lexa.com', role: 'UIUX_DESIGNER', department: 'Design', status: 'Active' },
-  { id: 'mem-5', name: 'Budi Santoso', email: 'budi@lexa.com', role: 'QA_TESTER', department: 'QA', status: 'Active' },
-  { id: 'mem-6', name: 'Dewi Lestari', email: 'dewi.intern@lexa.com', role: 'INTERN', magang_tier: 'LEARNING', team_id: 'team-a', department: 'Frontend', status: 'Active' }
+  { id: 'mem-1', name: 'Alex Johnson', email: 'alex@lexa.com', role: 'DEVELOPER', department: 'Project Management', status: 'Active' },
+  { id: 'mem-2', name: 'Sarah Chen', email: 'sarah@lexa.com', role: 'DEVELOPER', department: 'Front End', status: 'Active' },
+  { id: 'mem-3', name: 'Rudy Hartono', email: 'rudy@lexa.com', role: 'DEVELOPER', department: 'Back End', status: 'Active' },
+  { id: 'mem-4', name: 'Elena Rostova', email: 'elena@lexa.com', role: 'DEVELOPER', department: 'UI/UX', status: 'Active' },
+  { id: 'mem-5', name: 'Budi Santoso', email: 'budi@lexa.com', role: 'DEVELOPER', department: 'QA Testing', status: 'Active' },
+  { id: 'mem-6', name: 'Dewi Lestari', email: 'dewi.intern@lexa.com', role: 'DEVELOPER', team_id: 'team-a', department: 'Front End', status: 'Active' }
 ];
 
 export const INITIAL_PROJECTS = [

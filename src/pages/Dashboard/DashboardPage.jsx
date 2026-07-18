@@ -27,7 +27,6 @@ const DashboardPage = () => {
     setLoading(true);
     setError(null);
     try {
-      // Run parallel calls
       const [sum, over, cat, tech, sat, rec] = await Promise.all([
         dashboardApi.getDashboardSummary(),
         dashboardApi.getProjectsOverview(),
@@ -36,7 +35,6 @@ const DashboardPage = () => {
         dashboardApi.getClientSatisfaction(),
         dashboardApi.getRecentProjects(),
       ]);
-
       setSummary(sum);
       setOverviewData(over);
       setCategoryData(cat);
@@ -57,22 +55,22 @@ const DashboardPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4">
+      <div className="h-full flex flex-col items-center justify-center space-y-3">
         <Loader size="lg" />
-        <p className="text-sm font-semibold text-slate-400">Memuat analisis statistik & visualisasi...</p>
+        <p className="text-xs font-semibold text-slate-400">Memuat data dashboard...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Alert type="error" message={error} />
         <button
           onClick={fetchData}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-md transition-all active:scale-95"
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-md transition-all active:scale-95"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-3.5 h-3.5" />
           <span>Coba Lagi</span>
         </button>
       </div>
@@ -80,44 +78,24 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Title & Introduction */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="text-left">
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Master Dashboard</h1>
-          <p className="text-xs text-slate-500 font-semibold mt-1">
-            Selamat datang kembali, <span className="text-blue-600 font-bold">{user?.name}</span>. Berikut ringkasan proyek LEXA Software House.
-          </p>
-        </div>
-        <button
-          onClick={fetchData}
-          className="self-start flex items-center space-x-2 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 rounded-lg text-xs font-bold border border-slate-200 shadow-sm transition-all duration-200"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>Refresh Data</span>
-        </button>
-      </div>
-
-      {/* Quick Actions Shortcuts for Admins/PM */}
-      <QuickActionsSection />
-
-      {/* Statistics Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div className="space-y-2 lg:space-y-0 lg:flex lg:flex-col lg:gap-2 lg:h-full">
+      {/* Row 1: Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:flex-shrink-0">
         <StatCard
           title="Total Projects"
           value={summary?.totalProjects || 0}
           icon={Briefcase}
           color="blue"
-          trend="+12% dari bulan lalu"
+          trend="+12% bulan ini"
           trendType="up"
           trendData={[10, 14, 17, 21, 25, summary?.totalProjects || 28]}
         />
         <StatCard
-          title="Completed Projects"
+          title="Completed"
           value={summary?.completedProjects || 0}
           icon={CheckCircle2}
           color="green"
-          trend="+17% dari bulan lalu"
+          trend="+17% bulan ini"
           trendType="up"
           trendData={[5, 8, 10, 11, 13, summary?.completedProjects || 15]}
         />
@@ -126,7 +104,7 @@ const DashboardPage = () => {
           value={summary?.inProgressProjects || 0}
           icon={RefreshCw}
           color="orange"
-          trend="+8% dari bulan lalu"
+          trend="+8% bulan ini"
           trendType="up"
           trendData={[2, 5, 8, 6, 9, summary?.inProgressProjects || 8]}
         />
@@ -135,33 +113,38 @@ const DashboardPage = () => {
           value={summary?.totalClients || 0}
           icon={Users}
           color="purple"
-          trend="+5% dari bulan lalu"
+          trend="+5% bulan ini"
           trendType="up"
           trendData={[12, 14, 15, 18, 20, summary?.totalClients || 21]}
         />
       </div>
 
-      {/* Grid of Main Charts (Row 1) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      {/* Row 2: Charts - mobile: fixed height, desktop: flex-1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 lg:flex-1 lg:min-h-0">
+        <div className="lg:col-span-2 lg:min-h-0">
           <ProjectOverviewChart data={overviewData} />
         </div>
-        <div>
+        <div className="lg:min-h-0">
           <ProjectCategoryChart data={categoryData} />
         </div>
       </div>
 
-      {/* Grid of Secondary Widgets (Row 2) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div>
+      {/* Row 3: Secondary Widgets - mobile: fixed height, desktop: flex-1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 lg:flex-1 lg:min-h-0">
+        <div className="lg:min-h-0">
           <TopTechnologiesChart data={techData} />
         </div>
-        <div>
+        <div className="lg:min-h-0">
           <ClientSatisfactionCard data={satisfactionData} />
         </div>
-        <div className="lg:col-span-1">
+        <div className="lg:min-h-0">
           <RecentProjectsList projects={recentProjects} />
         </div>
+      </div>
+
+      {/* Row 4: Quick Actions */}
+      <div className="lg:flex-shrink-0">
+        <QuickActionsSection />
       </div>
     </div>
   );

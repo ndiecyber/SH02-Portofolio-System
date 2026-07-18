@@ -48,22 +48,22 @@ const QuickActionsSection = () => {
   if (actions.length === 0) return null;
 
   return (
-    <div className="glass rounded-xl p-5 border border-slate-200 shadow-sm text-left">
+    <div className="glass rounded-xl p-2.5 border border-slate-200 shadow-sm text-left">
       <div>
-        <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Quick Actions</h3>
+        <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-2">Quick Actions</h3>
       </div>
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
         {actions.map((act) => {
           const Icon = act.icon;
           return (
             <button
               key={act.name}
               onClick={act.onClick}
-              className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all duration-200 active:scale-95 space-y-2 text-center ${act.color}`}
+              className={`flex items-center justify-center gap-1.5 p-2 rounded-lg border transition-all duration-200 active:scale-95 text-center ${act.color}`}
             >
-              <Icon className="w-5.5 h-5.5" />
-              <span className="text-[10px] font-extrabold uppercase tracking-wider">{act.name}</span>
+              <Icon className="w-3.5 h-3.5" />
+              <span className="text-[9px] font-extrabold uppercase tracking-wider">{act.name}</span>
             </button>
           );
         })}

@@ -238,17 +238,17 @@ const CalendarPage = () => {
           <Alert type="error" message={error} />
         </div>
       ) : (
-        <div className="flex gap-5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-          {/* ─── MAIN CALENDAR ─── */}
-          <div className="flex-1 min-w-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          {/* ─── MAIN COMPACT CALENDAR (Col Span 7) ─── */}
+          <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
 
             {/* Calendar Day Headers */}
-            <div className="grid grid-cols-7 border-b border-slate-100">
+            <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-800">
               {DAYS_SHORT.map((d, i) => (
                 <div
                   key={d}
-                  className={`py-3 text-center text-[10px] font-extrabold uppercase tracking-widest ${
+                  className={`py-2 text-center text-[10px] font-extrabold uppercase tracking-widest ${
                     i === 0 ? 'text-rose-400' : 'text-slate-400'
                   }`}
                 >
@@ -258,7 +258,7 @@ const CalendarPage = () => {
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 divide-x divide-y divide-slate-100">
+            <div className="grid grid-cols-7 divide-x divide-y divide-slate-100 dark:divide-slate-800/80">
               {cells.map((cell, idx) => {
                 const cellDateStr = formatDateString(cell.year, cell.month, cell.day);
                 const cellEvents = getEventsForDate(cellDateStr);
@@ -270,21 +270,20 @@ const CalendarPage = () => {
                   <div
                     key={idx}
                     onClick={() => handleCellClick(cellDateStr, cellEvents)}
-                    className={`min-h-[108px] p-2 flex flex-col transition-all group
-                      ${hasEvents ? 'cursor-pointer' : ''}
-                      ${!cell.isCurrentMonth ? 'bg-slate-50/60' : isWeekend ? 'bg-rose-50/20' : 'bg-white'}
-                      ${hasEvents && cell.isCurrentMonth ? 'hover:bg-blue-50/30' : ''}
+                    className={`min-h-[72px] p-1.5 flex flex-col transition-all group cursor-pointer
+                      ${!cell.isCurrentMonth ? 'bg-slate-50/60 dark:bg-slate-900/30' : isWeekend ? 'bg-rose-50/10 dark:bg-rose-950/5' : 'bg-white dark:bg-slate-900'}
+                      ${selectedDateStr === cellDateStr ? 'bg-blue-50/50 dark:bg-blue-950/20 ring-1 ring-blue-500/20' : 'hover:bg-slate-50/50 dark:hover:bg-slate-850/50'}
                     `}
                   >
                     {/* Day Number */}
                     <div className="flex items-start justify-between">
                       <span
-                        className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full transition-all
+                        className={`text-[10px] font-extrabold w-5.5 h-5.5 flex items-center justify-center rounded-full transition-all
                           ${isToday
                             ? 'bg-blue-600 text-white shadow-sm'
                             : cell.isCurrentMonth
-                              ? isWeekend ? 'text-rose-400' : 'text-slate-700'
-                              : 'text-slate-300'
+                              ? isWeekend ? 'text-rose-400' : 'text-slate-650 dark:text-slate-300'
+                              : 'text-slate-300 dark:text-slate-600'
                           }
                         `}
                       >
@@ -293,20 +292,20 @@ const CalendarPage = () => {
                       {hasEvents && (
                         <div className="flex gap-0.5 mt-0.5">
                           {cellEvents.slice(0, 3).map((ev, i) => (
-                            <span key={i} className={`w-1.5 h-1.5 rounded-full ${EVENT_CONFIG[ev.type]?.dot || 'bg-slate-400'}`} />
+                            <span key={i} className={`w-1 h-1 rounded-full ${EVENT_CONFIG[ev.type]?.dot || 'bg-slate-400'}`} />
                           ))}
                         </div>
                       )}
                     </div>
 
                     {/* Event Pills */}
-                    <div className="mt-1.5 flex flex-col gap-0.5 flex-1">
+                    <div className="mt-1 flex flex-col gap-0.5 flex-1">
                       {cellEvents.slice(0, 2).map((ev, evIdx) => {
                         const cfg = EVENT_CONFIG[ev.type] || {};
                         return (
                           <div
                             key={evIdx}
-                            className={`text-[9px] font-bold py-0.5 px-1.5 rounded-r-md truncate leading-tight ${cfg.pill || ''}`}
+                            className={`text-[8px] font-bold py-0.5 px-1 rounded-r truncate leading-tight ${cfg.pill || ''}`}
                             title={ev.title}
                           >
                             {ev.title}
@@ -314,7 +313,7 @@ const CalendarPage = () => {
                         );
                       })}
                       {cellEvents.length > 2 && (
-                        <div className="text-[8px] font-bold text-slate-400 pl-1">
+                        <div className="text-[7.5px] font-extrabold text-slate-400 dark:text-slate-500 pl-1">
                           +{cellEvents.length - 2} lainnya
                         </div>
                       )}
@@ -325,154 +324,142 @@ const CalendarPage = () => {
             </div>
           </div>
 
-          {/* ─── SIDEBAR ─── */}
-          <div className="w-[210px] flex-shrink-0 space-y-3">
+          {/* ─── DETAILED SIDEBAR PANEL (Col Span 5) ─── */}
+          <div className="lg:col-span-5 space-y-3.5 flex flex-col">
+            
+            {selectedDateStr ? (
+              /* Selected Day's Task Details Card */
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-4 animate-fade-in text-left">
+                <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                  <div>
+                    <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Detail Agenda</p>
+                    <h3 className="text-xs font-extrabold text-slate-800 dark:text-slate-100 mt-0.5">
+                      {parseFormattedDate(selectedDateStr)}
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setSelectedDateStr(null)}
+                    className="p-1 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg transition-all"
+                    title="Kembali ke Ringkasan"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
 
-            {/* Month Summary */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-                Ringkasan Bulan Ini
-              </p>
-              <div className="space-y-2">
-                {[
-                  { cfg: EVENT_CONFIG['project-start'], count: projStartCount, label: 'Mulai Proyek' },
-                  { cfg: EVENT_CONFIG['project-end'],   count: projEndCount,   label: 'Rilis Proyek' },
-                  { cfg: EVENT_CONFIG['task-high'],      count: taskHighCount,  label: 'Task High' },
-                  { cfg: EVENT_CONFIG['task-medium'],    count: taskOtherCount, label: 'Task Lainnya' },
-                ].map(({ cfg, count, label }) => (
-                  <div key={label} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.color}`} />
-                      <span className="text-[10px] font-semibold text-slate-600">{label}</span>
+                <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
+                  {selectedEvents.length === 0 ? (
+                    <div className="py-12 text-center text-slate-450 dark:text-slate-500 text-xs font-semibold">
+                      Tidak ada agenda terjadwal untuk tanggal ini.
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800">{count}</span>
+                  ) : (
+                    selectedEvents.map((ev, idx) => {
+                      const cfg = EVENT_CONFIG[ev.type] || {};
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-start gap-2.5 p-3 rounded-xl border ${
+                            ev.type === 'project-start' ? 'bg-blue-50/60 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/50' :
+                            ev.type === 'project-end' ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/50' :
+                            ev.type === 'task-high' ? 'bg-rose-50/60 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/50' :
+                            'bg-amber-50/60 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/50'
+                          }`}
+                        >
+                          <div className="mt-0.5">{cfg.icon}</div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-slate-850 dark:text-slate-100 leading-snug">{ev.title}</p>
+                            <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">{ev.subtitle}</p>
+                            {ev.priority && (
+                              <div className="flex gap-1.5 mt-1.5">
+                                <span className={`text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded ${
+                                  ev.priority === 'High' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
+                                }`}>
+                                  {ev.priority}
+                                </span>
+                                <span className="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-300">
+                                  {ev.status}
+                                </span>
+                              </div>
+                            )}
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-2 border-t border-slate-100 dark:border-slate-800 pt-2 leading-relaxed">
+                              {ev.description}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Month Summary Card */
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-3">
+                <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  Ringkasan Bulan Ini
+                </p>
+                <div className="space-y-2">
+                  {[
+                    { cfg: EVENT_CONFIG['project-start'], count: projStartCount, label: 'Mulai Proyek' },
+                    { cfg: EVENT_CONFIG['project-end'],   count: projEndCount,   label: 'Rilis Proyek' },
+                    { cfg: EVENT_CONFIG['task-high'],      count: taskHighCount,  label: 'Task High' },
+                    { cfg: EVENT_CONFIG['task-medium'],    count: taskOtherCount, label: 'Task Lainnya' },
+                  ].map(({ cfg, count, label }) => (
+                    <div key={label} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.color}`} />
+                        <span className="text-[10px] font-bold text-slate-650 dark:text-slate-300">{label}</span>
+                      </div>
+                      <span className="text-xs font-extrabold text-slate-850 dark:text-slate-100">{count}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-500">Total Agenda</span>
+                    <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400">
+                      {projStartCount + projEndCount + taskHighCount + taskOtherCount}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Legend Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-2">
+              <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">
+                Keterangan Warna
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.values(EVENT_CONFIG).map(cfg => (
+                  <div key={cfg.label} className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.color}`} />
+                    <span className="text-[9px] font-bold text-slate-650 dark:text-slate-350">{cfg.label}</span>
                   </div>
                 ))}
               </div>
-              <div className="pt-2 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-slate-500">Total Agenda</span>
-                  <span className="text-xs font-extrabold text-blue-600">
-                    {projStartCount + projEndCount + taskHighCount + taskOtherCount}
-                  </span>
-                </div>
-              </div>
             </div>
 
-            {/* Legend */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-2">
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">
-                Keterangan
-              </p>
-              {Object.values(EVENT_CONFIG).map(cfg => (
-                <div key={cfg.label} className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.color}`} />
-                  <span className="text-[10px] font-semibold text-slate-600">{cfg.label}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Quick Nav */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-2">
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">
+            {/* Quick Nav Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-2">
+              <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">
                 Navigasi Cepat
               </p>
-              {[
-                { label: 'Manajemen Task', path: '/tasks' },
-                { label: 'Daftar Proyek',  path: '/projects' },
-              ].map(({ label, path }) => (
-                <button
-                  key={path}
-                  onClick={() => navigate(path)}
-                  className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 border border-slate-100 text-left transition-all group"
-                >
-                  <span className="text-[10px] font-bold text-slate-600 group-hover:text-blue-600">{label}</span>
-                  <ArrowRight className="w-3 h-3 text-slate-300 group-hover:text-blue-500" />
-                </button>
-              ))}
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ─── EVENT DETAIL MODAL ─── */}
-      {selectedDateStr && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
-          onClick={() => setSelectedDateStr(null)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-5 flex items-start justify-between">
-              <div>
-                <p className="text-[10px] font-bold text-blue-200 uppercase tracking-widest">Agenda</p>
-                <h3 className="text-lg font-extrabold text-white mt-0.5">
-                  {parseFormattedDate(selectedDateStr)}
-                </h3>
-                <p className="text-xs text-blue-200 mt-1 font-semibold">
-                  {selectedEvents.length} agenda terjadwal
-                </p>
-              </div>
-              <button
-                onClick={() => setSelectedDateStr(null)}
-                className="p-1.5 hover:bg-white/20 text-white/80 hover:text-white rounded-lg transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-5 space-y-3 max-h-[60vh] overflow-y-auto">
-              {selectedEvents.map((ev, idx) => {
-                const cfg = EVENT_CONFIG[ev.type] || {};
-                return (
-                  <div
-                    key={idx}
-                    className={`flex items-start gap-3 p-3.5 rounded-xl border ${
-                      ev.type === 'project-start' ? 'bg-blue-50/60 border-blue-100' :
-                      ev.type === 'project-end' ? 'bg-emerald-50/60 border-emerald-100' :
-                      ev.type === 'task-high' ? 'bg-rose-50/60 border-rose-100' :
-                      'bg-amber-50/60 border-amber-100'
-                    }`}
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Manajemen Task', path: '/tasks' },
+                  { label: 'Daftar Proyek',  path: '/projects' },
+                ].map(({ label, path }) => (
+                  <button
+                    key={path}
+                    onClick={() => navigate(path)}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850 border border-slate-100 dark:border-slate-800 text-left transition-all group"
                   >
-                    <div className="mt-0.5">{cfg.icon}</div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-extrabold text-slate-800 leading-snug">{ev.title}</p>
-                      <p className="text-[10px] font-semibold text-slate-500 mt-0.5">{ev.subtitle}</p>
-                      {ev.priority && (
-                        <div className="flex gap-1.5 mt-1.5">
-                          <span className={`text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded-md ${
-                            ev.priority === 'High' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
-                          }`}>
-                            {ev.priority}
-                          </span>
-                          <span className="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600">
-                            {ev.status}
-                          </span>
-                        </div>
-                      )}
-                      <p className="text-[10px] text-slate-500 font-medium mt-2 leading-relaxed border-t border-slate-100/80 pt-2">
-                        {ev.description}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+                    <span className="text-[9px] font-bold text-slate-600 group-hover:text-blue-600">{label}</span>
+                    <ArrowRight className="w-3 h-3 text-slate-350 dark:text-slate-500 group-hover:text-blue-500" />
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Modal Footer */}
-            <div className="px-5 py-4 border-t border-slate-100 flex justify-end">
-              <Button
-                onClick={() => setSelectedDateStr(null)}
-                className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm px-6 text-xs font-bold"
-              >
-                Tutup
-              </Button>
-            </div>
           </div>
         </div>
       )}

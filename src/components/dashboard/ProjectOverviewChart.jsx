@@ -12,11 +12,11 @@ import {
 
 const ProjectOverviewChart = ({ data = [] }) => {
   return (
-    <div className="glass rounded-xl p-5 border border-slate-200 h-96 flex flex-col justify-between shadow-sm">
-      <div className="flex items-center justify-between mb-4">
+    <div className="glass rounded-xl p-2.5 border border-slate-200 h-52 lg:h-full flex flex-col shadow-sm">
+      <div className="flex items-center justify-between mb-1.5">
         <div className="text-left">
-          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Project Overview</h3>
-          <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Timeline trends for the past 6 months</p>
+          <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Project Overview</h3>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Timeline trends for the past 6 months</p>
         </div>
       </div>
 

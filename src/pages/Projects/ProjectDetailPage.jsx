@@ -5,7 +5,7 @@ import { useRole } from '../../hooks/useRole';
 import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
 import Button from '../../components/common/Button';
-import { ChevronRight, Calendar, DollarSign, Tag, Users, CheckCircle2, ArrowLeft, PenSquare } from 'lucide-react';
+import { ChevronRight, Calendar, DollarSign, Tag, Users, CheckCircle2, ArrowLeft, PenSquare, Share2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const ProjectDetailPage = () => {
@@ -157,6 +157,24 @@ const ProjectDetailPage = () => {
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali</span>
           </Link>
+
+          <button
+            onClick={() => {
+              const code = project.trackingCode || project.id;
+              const link = window.location.origin + '/track?code=' + code;
+              navigator.clipboard.writeText(link);
+              Swal.fire({
+                title: 'Tautan Tracking Disalin!',
+                html: `Tautan pelacakan proyek untuk klien berhasil disalin:<br/><b class="text-blue-500 text-xs">${link}</b>`,
+                icon: 'success',
+                confirmButtonColor: '#2563eb'
+              });
+            }}
+            className="flex items-center space-x-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-md transition-all active:scale-95 duration-200"
+          >
+            <Share2 className="w-4 h-4" />
+            <span>Salin Link Tracking</span>
+          </button>
           
           {canEditProject(project) && (
             <Link

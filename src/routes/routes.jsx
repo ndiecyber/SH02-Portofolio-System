@@ -16,12 +16,18 @@ import UserManagementPage from '../pages/UserManagement/UserManagementPage';
 import TasksPage from '../pages/Tasks/TasksPage';
 import CalendarPage from '../pages/Calendar/CalendarPage';
 import UnauthorizedPage from '../pages/Unauthorized/UnauthorizedPage';
+import TrackProjectPage from '../pages/Track/TrackProjectPage';
 import NotFoundPage from '../pages/NotFound/NotFoundPage';
 
 export const routesConfig = [
   {
     path: '/login',
     element: <LoginPage />,
+    isProtected: false,
+  },
+  {
+    path: '/track',
+    element: <TrackProjectPage />,
     isProtected: false,
   },
   {

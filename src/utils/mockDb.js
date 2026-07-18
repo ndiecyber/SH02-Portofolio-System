@@ -32,7 +32,8 @@ const INITIAL_USERS = [
     name: 'Yogi Nugraha (CEO)',
     email: 'admin@lexa.com',
     password: 'admin123',
-    role: 'CEO',
+    role: 'ADMIN',
+    department: 'Project Management',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: [],
     team_id: null,
@@ -43,7 +44,8 @@ const INITIAL_USERS = [
     name: 'Alex Johnson (PM)',
     email: 'pm@lexa.com',
     password: 'pm1234',
-    role: 'PROJECT_MANAGER',
+    role: 'DEVELOPER',
+    department: 'Project Management',
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-1', 'proj-2', 'proj-5'],
     team_id: 'team-a',
@@ -55,6 +57,7 @@ const INITIAL_USERS = [
     email: 'dev@lexa.com',
     password: 'dev1234',
     role: 'DEVELOPER',
+    department: 'Front End',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-1', 'proj-5'],
     team_id: 'team-a',
@@ -65,7 +68,8 @@ const INITIAL_USERS = [
     name: 'Elena Rostova (UI/UX)',
     email: 'designer@lexa.com',
     password: 'design123',
-    role: 'UIUX_DESIGNER',
+    role: 'DEVELOPER',
+    department: 'UI/UX',
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-1', 'proj-4'],
     team_id: 'team-a',
@@ -76,55 +80,20 @@ const INITIAL_USERS = [
     name: 'Budi Santoso (QA)',
     email: 'qa@lexa.com',
     password: 'qa1234',
-    role: 'QA_TESTER',
+    role: 'DEVELOPER',
+    department: 'QA Testing',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-1', 'proj-2'],
     team_id: 'team-b',
     status: 'Active'
   },
   {
-    id: 'user-client',
-    name: 'Urban Space (Client)',
-    email: 'client@lexa.com',
-    password: 'client123',
-    role: 'CLIENT',
-    clientName: 'Urban Space Properties',
-    avatar: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    assignedProjects: ['proj-4'],
-    team_id: null,
-    status: 'Active'
-  },
-  {
     id: 'mem-6',
-    name: 'Dewi Lestari (Intern T1)',
+    name: 'Dewi Lestari (Dev)',
     email: 'learning.intern@lexa.com',
     password: 'intern123',
-    role: 'INTERN',
-    magang_tier: 'LEARNING',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    assignedProjects: ['proj-3'],
-    team_id: 'team-c',
-    status: 'Active'
-  },
-  {
-    id: 'mem-7',
-    name: 'Dewi Lestari (Intern T2)',
-    email: 'apprentice.intern@lexa.com',
-    password: 'intern123',
-    role: 'INTERN',
-    magang_tier: 'APPRENTICE',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    assignedProjects: ['proj-3'],
-    team_id: 'team-c',
-    status: 'Active'
-  },
-  {
-    id: 'mem-8',
-    name: 'Dewi Lestari (Intern T3)',
-    email: 'junior.intern@lexa.com',
-    password: 'intern123',
-    role: 'INTERN',
-    magang_tier: 'JUNIOR',
+    role: 'DEVELOPER',
+    department: 'Front End',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-3'],
     team_id: 'team-c',
@@ -241,6 +210,20 @@ export const initMockDb = () => {
   getFromStorage(DB_KEYS.SETTINGS, INITIAL_SETTINGS);
   getFromStorage(DB_KEYS.USERS, INITIAL_USERS);
   getFromStorage(DB_KEYS.TASKS, INITIAL_TASKS);
+
+  // --- Data Migration: Fix stale admin user role (CEO → ADMIN) ---
+  const users = JSON.parse(localStorage.getItem(DB_KEYS.USERS) || '[]');
+  let migrationNeeded = false;
+  const migratedUsers = users.map(u => {
+    if (u.id === 'user-ceo' && (u.role === 'CEO' || u.role === undefined || u.role === null)) {
+      migrationNeeded = true;
+      return { ...INITIAL_USERS[0] }; // Reset admin to initial correct data
+    }
+    return u;
+  });
+  if (migrationNeeded) {
+    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(migratedUsers));
+  }
 };
 
 // PROJECTS

@@ -123,12 +123,22 @@ const Sidebar = ({ isOpen, onClose }) => {
       {/* Sidebar Container */}
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 w-64 bg-[#0d1b3e] flex flex-col z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen',
+          'fixed inset-y-0 left-0 w-64 bg-[#0d1b3e] dark:bg-transparent flex flex-col z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
+        style={undefined}
       >
+        {/* Dark mode: gradient sidebar with accent top glow */}
+        <div className="hidden dark:block absolute inset-0 pointer-events-none" style={{
+          background: 'linear-gradient(180deg, #0d0d10 0%, #111113 100%)'
+        }} />
+        <div className="hidden dark:block absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{
+          background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.18) 0%, transparent 70%)'
+        }} />
+        {/* Light mode sidebar stays as original navy */}
+        <div className="dark:hidden absolute inset-0 bg-[#0d1b3e] pointer-events-none" />
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-black/10">
+        <div className="relative z-10 h-12 flex items-center justify-between px-4 border-b border-white/5 bg-black/10">
           <div className="flex items-center space-x-2.5">
             <img src={lexaLogo} alt="LEXA Logo" className="h-7 object-contain brightness-0 invert" />
           </div>
@@ -142,7 +152,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         </div>
 
         {/* Navigation Groups */}
-        <div className="flex-1 px-4 py-6 space-y-6 overflow-y-auto">
+        <div className="relative z-10 flex-1 px-3 py-3 space-y-4 overflow-y-auto">
           {menuGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-1.5">
               <h3 className="px-4 text-[9px] font-extrabold text-slate-500 tracking-widest uppercase">
@@ -174,7 +184,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                       }}
                       className={({ isActive }) =>
                         clsx(
-                          'flex items-center px-4 py-2.5 rounded-lg text-xs font-bold transition-all duration-200 group border-l-2',
+                          'flex items-center px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 group border-l-2',
                           isActive
                             ? 'bg-blue-600 text-white border-transparent'
                             : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -200,10 +210,10 @@ const Sidebar = ({ isOpen, onClose }) => {
           ))}
         </div>
 
-        {/* Sidebar Footer (Figma Profile Card style) */}
+        {/* Sidebar Footer */}
         {user && (
-          <div className="p-4 border-t border-white/5 bg-black/10">
-            <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
+          <div className="relative z-10 p-3 border-t border-white/5 bg-black/10">
+            <div className="flex items-center justify-between bg-black/20 dark:bg-white/4 p-2.5 rounded-xl border border-white/5 dark:border-white/8 dark:hover:border-indigo-500/20 transition-colors">
               <div className="flex items-center space-x-3 min-w-0">
                 <img
                   src={user.avatar}

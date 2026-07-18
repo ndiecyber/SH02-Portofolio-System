@@ -10,7 +10,7 @@ import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import { Plus, Search, RefreshCw, Edit, Trash2, X, Shield, Key, Mail, CheckCircle2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { ROLES, MAGANG_TIERS } from '../../config/constants';
+import { ROLES, DEPARTMENTS } from '../../config/constants';
 
 const UserManagementPage = () => {
   const navigate = useNavigate();
@@ -42,8 +42,8 @@ const UserManagementPage = () => {
     email: '',
     password: '',
     role: 'DEVELOPER',
+    department: 'Front End',
     team_id: '',
-    magang_tier: 'LEARNING',
     status: 'Active',
     assignedProjects: []
   });
@@ -80,8 +80,8 @@ const UserManagementPage = () => {
       email: '',
       password: '',
       role: 'DEVELOPER',
+      department: 'Front End',
       team_id: '',
-      magang_tier: 'LEARNING',
       status: 'Active',
       assignedProjects: []
     });
@@ -95,8 +95,8 @@ const UserManagementPage = () => {
       email: user.email || '',
       password: '', // Kept empty, only updated if filled
       role: user.role || 'DEVELOPER',
+      department: user.department || 'Front End',
       team_id: user.team_id || '',
-      magang_tier: user.magang_tier || 'LEARNING',
       status: user.status || 'Active',
       assignedProjects: user.assignedProjects || []
     });
@@ -134,8 +134,8 @@ const UserManagementPage = () => {
       // Clear password if empty in edit mode (don't overwrite original)
       ...(editingUser && !formData.password ? { password: editingUser.password } : {}),
       // Clean up intern fields if not intern
-      magang_tier: formData.role === ROLES.INTERN ? formData.magang_tier : null,
-      team_id: [ROLES.CEO, ROLES.ADMIN, ROLES.CLIENT].includes(formData.role) ? null : formData.team_id || null
+      magang_tier: null,
+      team_id: formData.role === ROLES.ADMIN ? null : formData.team_id || null
     };
 
     try {
@@ -194,18 +194,10 @@ const UserManagementPage = () => {
 
   const getRoleBadgeClass = (role) => {
     switch (role) {
-      case ROLES.CEO:
-        return 'bg-red-500/10 text-red-600 border border-red-500/20';
       case ROLES.ADMIN:
         return 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
-      case ROLES.PROJECT_MANAGER:
-        return 'bg-purple-500/10 text-purple-600 border border-purple-500/20';
       case ROLES.DEVELOPER:
         return 'bg-blue-500/10 text-blue-600 border border-blue-500/20';
-      case ROLES.CLIENT:
-        return 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20';
-      case ROLES.INTERN:
-        return 'bg-indigo-500/10 text-indigo-600 border border-indigo-500/20';
       default:
         return 'bg-slate-100 text-slate-700 border border-slate-200';
     }
@@ -213,14 +205,8 @@ const UserManagementPage = () => {
 
   const getRoleLabel = (role) => {
     switch (role) {
-      case ROLES.CEO: return 'CEO';
       case ROLES.ADMIN: return 'Admin';
-      case ROLES.PROJECT_MANAGER: return 'Project Manager';
       case ROLES.DEVELOPER: return 'Developer';
-      case ROLES.UIUX_DESIGNER: return 'UI/UX Designer';
-      case ROLES.QA_TESTER: return 'QA Tester';
-      case ROLES.CLIENT: return 'Client';
-      case ROLES.INTERN: return 'Internship';
       default: return role;
     }
   };
@@ -329,7 +315,7 @@ const UserManagementPage = () => {
                   <th className="py-3.5 px-4">Nama & Email</th>
                   <th className="py-3.5 px-4">Role System</th>
                   <th className="py-3.5 px-4">Team</th>
-                  <th className="py-3.5 px-4">Progresi Magang</th>
+                  <th className="py-3.5 px-4">Departemen</th>
                   <th className="py-3.5 px-4">Status Akun</th>
                   <th className="py-3.5 px-4 text-right">Aksi</th>
                 </tr>
@@ -379,14 +365,8 @@ const UserManagementPage = () => {
                           )}
                         </td>
 
-                        <td className="py-4 px-4">
-                          {u.role === ROLES.INTERN ? (
-                            <span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-bold border border-indigo-100">
-                              Tier {u.magang_tier === 'LEARNING' ? '1: Learning' : u.magang_tier === 'APPRENTICE' ? '2: Apprentice' : '3: Junior'}
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 font-medium">-</span>
-                          )}
+                        <td className="py-4 px-4 text-slate-550 font-bold">
+                          {u.department || <span className="text-slate-400 font-medium">-</span>}
                         </td>
 
                         <td className="py-4 px-4">
@@ -529,6 +509,20 @@ const UserManagementPage = () => {
                   </select>
                 </div>
 
+                {/* Department Selection */}
+                <div className="space-y-1 text-left">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Departemen *</label>
+                  <select
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
+                  >
+                    {DEPARTMENTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Team Selection */}
                 <div className="space-y-1 text-left">
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Struktur Tim</label>
@@ -536,27 +530,12 @@ const UserManagementPage = () => {
                     value={formData.team_id}
                     onChange={(e) => setFormData({ ...formData, team_id: e.target.value })}
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                    disabled={[ROLES.CEO, ROLES.ADMIN, ROLES.CLIENT].includes(formData.role)}
+                    disabled={formData.role === ROLES.ADMIN}
                   >
                     <option value="">Belum Memiliki Tim</option>
                     {teams.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
-                  </select>
-                </div>
-
-                {/* Intern progression */}
-                <div className="space-y-1 text-left">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Magang Tier</label>
-                  <select
-                    value={formData.magang_tier}
-                    onChange={(e) => setFormData({ ...formData, magang_tier: e.target.value })}
-                    className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                    disabled={formData.role !== ROLES.INTERN}
-                  >
-                    <option value={MAGANG_TIERS.LEARNING}>Tier 1: Learning</option>
-                    <option value={MAGANG_TIERS.APPRENTICE}>Tier 2: Apprentice</option>
-                    <option value={MAGANG_TIERS.JUNIOR}>Tier 3: Junior</option>
                   </select>
                 </div>
               </div>

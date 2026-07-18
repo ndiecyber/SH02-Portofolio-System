@@ -7,10 +7,10 @@ const ProjectCategoryChart = ({ data = [] }) => {
   const total = data.reduce((sum, entry) => sum + entry.value, 0);
 
   return (
-    <div className="glass rounded-xl p-5 border border-slate-200 h-96 flex flex-col justify-between shadow-sm relative">
+    <div className="glass rounded-xl p-2.5 border border-slate-200 h-48 lg:h-full flex flex-col shadow-sm relative">
       <div className="text-left">
-        <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Projects by Category</h3>
-        <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Distribution across services</p>
+        <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Projects by Category</h3>
+        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Distribution across services</p>
       </div>
 
       <div className="flex-1 w-full relative flex items-center justify-center">
@@ -20,8 +20,8 @@ const ProjectCategoryChart = ({ data = [] }) => {
           <>
             {/* Centered Total Projects Count */}
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Total</span>
-              <span className="text-2xl font-extrabold text-slate-800">{total}</span>
+              <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total</span>
+              <span className="text-xl font-extrabold text-slate-800 dark:text-white">{total}</span>
             </div>
             
             <ResponsiveContainer width="100%" height="100%">
@@ -30,8 +30,8 @@ const ProjectCategoryChart = ({ data = [] }) => {
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={40}
+                  outerRadius={55}
                   paddingAngle={5}
                   dataKey="value"
                 >

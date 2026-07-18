@@ -37,8 +37,8 @@ const StatCard = ({ title, value, icon: Icon, color = 'blue', trend, trendType =
 
   return (
     <div className={clsx(
-      "rounded-2xl p-5 border flex items-center justify-between hover:border-slate-350 transition-all duration-300 shadow-sm relative overflow-hidden group",
-      currentTheme.card
+      "rounded-xl p-3 border flex items-center justify-between hover:border-slate-350 dark:hover:border-slate-600 transition-all duration-300 shadow-sm relative overflow-hidden group",
+      "bg-white dark:bg-[#161b22] border-slate-200 dark:border-[#30363d] text-slate-800 dark:text-slate-100"
     )}>
       {/* Background glow animation */}
       <div className={clsx(
@@ -46,15 +46,15 @@ const StatCard = ({ title, value, icon: Icon, color = 'blue', trend, trendType =
         currentTheme.glow
       )} />
 
-      <div className="space-y-2 relative z-10 flex-1 min-w-0 text-left">
-        <span className="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase block">{title}</span>
-        <div className="flex items-baseline space-x-2">
-          <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{value}</span>
+      <div className="space-y-0.5 relative z-10 flex-1 min-w-0 text-left">
+        <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">{title}</span>
+        <div className="flex items-baseline space-x-1">
+          <span className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{value}</span>
         </div>
         {trend && (
           <span className={clsx(
-            "text-[10px] font-bold px-1.5 py-0.5 rounded-full inline-block",
-            trendType === 'up' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'
+            "text-[9px] font-bold px-1 py-0.5 rounded-full inline-block",
+            trendType === 'up' ? 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400'
           )}>
             {trend}
           </span>
@@ -62,7 +62,7 @@ const StatCard = ({ title, value, icon: Icon, color = 'blue', trend, trendType =
       </div>
 
       {/* Sparkline Miniature Trend Line Chart */}
-      <div className="w-20 h-10 mx-2 flex-shrink-0 relative z-10 hidden sm:block">
+      <div className="w-16 h-8 mx-1.5 flex-shrink-0 relative z-10 hidden sm:block">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={formattedChartData} margin={{ top: 2, bottom: 2, left: 2, right: 2 }}>
             <Line
@@ -78,8 +78,8 @@ const StatCard = ({ title, value, icon: Icon, color = 'blue', trend, trendType =
       </div>
 
       {/* Icon block */}
-      <div className={clsx("p-3 rounded-xl border relative z-10 flex-shrink-0", currentTheme.iconContainer)}>
-        <Icon className="w-5.5 h-5.5" />
+      <div className={clsx("p-2 rounded-lg border relative z-10 flex-shrink-0", currentTheme.iconContainer)}>
+        <Icon className="w-4 h-4" />
       </div>
     </div>
   );

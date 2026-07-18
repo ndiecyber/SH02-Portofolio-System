@@ -15,7 +15,7 @@ const MOCK_CREDENTIALS = [
       id: 'user-ceo',
       name: 'Yogi Nugraha (CEO)',
       email: 'admin@lexa.com',
-      role: ROLES.CEO,
+      role: ROLES.ADMIN,
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       assignedProjects: [],
       team_id: null
@@ -144,10 +144,15 @@ export const login = async (email, password) => {
       if (match.status === 'Inactive') {
         throw new Error('Akun Anda dinonaktifkan. Silakan hubungi CEO.');
       }
-      const mockToken = `mock_jwt_token_sh02_${match.role}_${match.id}`;
+      // Normalize legacy 'CEO' role to 'ADMIN' (from stale localStorage data)
+      const normalizedRole = match.role === 'CEO' ? 'ADMIN' : match.role;
+      if (normalizedRole !== 'ADMIN' && normalizedRole !== 'DEVELOPER') {
+        throw new Error('Hanya Admin dan Developer yang diizinkan masuk ke portal. Silakan hubungi Administrator atau gunakan Tracking Link.');
+      }
+      const mockToken = `mock_jwt_token_sh02_${normalizedRole}_${match.id}`;
       // Return user details without password
       const { password: _, ...userWithoutPassword } = match;
-      return { user: userWithoutPassword, token: mockToken };
+      return { user: { ...userWithoutPassword, role: normalizedRole }, token: mockToken };
     } else {
       throw new Error('Email atau password salah.');
     }

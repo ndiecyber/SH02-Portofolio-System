@@ -13,39 +13,29 @@ import {
   Shield, Star, Code, Palette, ClipboardCheck, GraduationCap, User
 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { ROLES, MAGANG_TIERS } from '../../config/constants';
+import { ROLES, DEPARTMENTS } from '../../config/constants';
 
 // ── Role Display helpers ──────────────────────────────────────────
 const getRoleLabel = (role) => {
   const map = {
-    CEO: 'CEO', ADMIN: 'Admin', PROJECT_MANAGER: 'Project Manager',
-    DEVELOPER: 'Developer', UIUX_DESIGNER: 'UI/UX Designer',
-    QA_TESTER: 'QA Tester', CLIENT: 'Client', INTERN: 'Intern'
+    ADMIN: 'Admin',
+    DEVELOPER: 'Developer'
   };
   return map[role] || role;
 };
 
 const getRoleIcon = (role) => {
   const map = {
-    CEO: <Shield className="w-3 h-3" />,
-    PROJECT_MANAGER: <Star className="w-3 h-3" />,
-    DEVELOPER: <Code className="w-3 h-3" />,
-    UIUX_DESIGNER: <Palette className="w-3 h-3" />,
-    QA_TESTER: <ClipboardCheck className="w-3 h-3" />,
-    INTERN: <GraduationCap className="w-3 h-3" />,
+    ADMIN: <Shield className="w-3 h-3" />,
+    DEVELOPER: <Code className="w-3 h-3" />
   };
   return map[role] || <User className="w-3 h-3" />;
 };
 
 const getRoleBadge = (role) => {
   const map = {
-    CEO: 'bg-purple-50 text-purple-700 border-purple-200',
-    PROJECT_MANAGER: 'bg-blue-50 text-blue-700 border-blue-200',
-    DEVELOPER: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    UIUX_DESIGNER: 'bg-pink-50 text-pink-700 border-pink-200',
-    QA_TESTER: 'bg-amber-50 text-amber-700 border-amber-200',
-    INTERN: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    CLIENT: 'bg-slate-50 text-slate-600 border-slate-200',
+    ADMIN: 'bg-amber-50 text-amber-700 border-amber-200',
+    DEVELOPER: 'bg-blue-50 text-blue-700 border-blue-200'
   };
   return map[role] || 'bg-slate-50 text-slate-600 border-slate-200';
 };
@@ -442,7 +432,7 @@ const TeamListPage = () => {
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                   >
                     <option value="">Semua Peran</option>
-                    {Object.values(ROLES).filter(r => r !== 'CLIENT' && r !== 'ADMIN').map(r => (
+                    {Object.values(ROLES).map(r => (
                       <option key={r} value={r}>{getRoleLabel(r)}</option>
                     ))}
                   </select>
@@ -455,7 +445,7 @@ const TeamListPage = () => {
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                   >
                     <option value="">Semua Departemen</option>
-                    {['Management', 'Frontend', 'Backend', 'Design', 'QA'].map(d => (
+                    {DEPARTMENTS.map(d => (
                       <option key={d} value={d}>{d}</option>
                     ))}
                   </select>
