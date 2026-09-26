@@ -1,7 +1,5 @@
-import api from './api';
+import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
-
-const USE_MOCK = true;
 
 export const getTestimonials = async (params = {}) => {
   if (USE_MOCK) {
@@ -57,8 +55,25 @@ export const getTestimonials = async (params = {}) => {
     };
   }
 
-  const response = await api.get('/api/testimonials', { params });
-  return response.data;
+  const queryParams = {
+    ...params,
+    status: params.status ? params.status.toLowerCase() : 'published',
+  };
+  const response = await api.get('/api/testimonials', { params: queryParams });
+  const raw = response.data;
+  if (Array.isArray(raw)) {
+    return { testimonials: raw, total: raw.length };
+  }
+  if (Array.isArray(raw?.data)) {
+    return {
+      testimonials: raw.data,
+      total: raw.meta?.total ?? raw.total ?? raw.data.length,
+    };
+  }
+  if (raw?.testimonials) {
+    return raw;
+  }
+  return { testimonials: [], total: 0 };
 };
 
 export const getTestimonial = async (id) => {
@@ -70,7 +85,7 @@ export const getTestimonial = async (id) => {
   }
 
   const response = await api.get(`/api/testimonials/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const createTestimonial = async (testimonialData) => {
@@ -80,7 +95,7 @@ export const createTestimonial = async (testimonialData) => {
   }
 
   const response = await api.post('/api/testimonials', testimonialData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const updateTestimonial = async (id, testimonialData) => {
@@ -90,7 +105,7 @@ export const updateTestimonial = async (id, testimonialData) => {
   }
 
   const response = await api.put(`/api/testimonials/${id}`, testimonialData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const deleteTestimonial = async (id) => {
@@ -101,7 +116,7 @@ export const deleteTestimonial = async (id) => {
   }
 
   const response = await api.delete(`/api/testimonials/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const publishTestimonial = async (id) => {
@@ -113,7 +128,7 @@ export const publishTestimonial = async (id) => {
   }
 
   const response = await api.put(`/api/testimonials/${id}/publish`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const unpublishTestimonial = async (id) => {
@@ -125,5 +140,5 @@ export const unpublishTestimonial = async (id) => {
   }
 
   const response = await api.put(`/api/testimonials/${id}/unpublish`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };

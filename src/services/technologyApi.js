@@ -1,7 +1,5 @@
-import api from './api';
+import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
-
-const USE_MOCK = true;
 
 export const getTechnologies = async (params = {}) => {
   if (USE_MOCK) {
@@ -23,7 +21,7 @@ export const getTechnologies = async (params = {}) => {
   }
 
   const response = await api.get('/api/technologies', { params });
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const getTechnology = async (id) => {
@@ -35,7 +33,7 @@ export const getTechnology = async (id) => {
   }
 
   const response = await api.get(`/api/technologies/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const createTechnology = async (techData) => {
@@ -45,7 +43,7 @@ export const createTechnology = async (techData) => {
   }
 
   const response = await api.post('/api/technologies', techData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const updateTechnology = async (id, techData) => {
@@ -55,7 +53,7 @@ export const updateTechnology = async (id, techData) => {
   }
 
   const response = await api.put(`/api/technologies/${id}`, techData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const deleteTechnology = async (id) => {
@@ -66,5 +64,5 @@ export const deleteTechnology = async (id) => {
   }
 
   const response = await api.delete(`/api/technologies/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };

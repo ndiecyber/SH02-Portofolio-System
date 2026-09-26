@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 
 const TechnologyListPage = () => {
   const navigate = useNavigate();
-  const { isCEO, isPM, isDeveloper, isIntern, role: currentUserRole } = useRole();
+  const { isCEO, isPM, isDeveloper, isIntern } = useRole();
 
   // Access checks
   // Allowed: CEO, PM, Developer, Intern (Read-only for PM, Dev, Intern. CRUD for CEO/Admin)
@@ -33,7 +33,7 @@ const TechnologyListPage = () => {
     name: '',
     category: 'Frontend',
     proficiency: 'Intermediate',
-    status: 'Active'
+    isActive: true
   });
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const TechnologyListPage = () => {
       name: '',
       category: 'Frontend',
       proficiency: 'Intermediate',
-      status: 'Active'
+      isActive: true
     });
     setIsModalOpen(true);
   };
@@ -80,7 +80,7 @@ const TechnologyListPage = () => {
       name: tech.name || '',
       category: tech.category || 'Frontend',
       proficiency: tech.proficiency || 'Intermediate',
-      status: tech.status || 'Active'
+      isActive: tech.isActive !== false
     });
     setIsModalOpen(true);
   };
@@ -268,11 +268,11 @@ const TechnologyListPage = () => {
 
                       <td className="py-4 px-4">
                         <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
-                          tech.status === 'Active'
+                          tech.isActive
                             ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
                             : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
                         }`}>
-                          {tech.status}
+                          {tech.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
 
@@ -374,8 +374,8 @@ const TechnologyListPage = () => {
               <div className="space-y-1 text-left">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</label>
                 <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  value={formData.isActive ? "Active" : "Inactive"}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'Active' })}
                   className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                 >
                   <option value="Active">Active</option>

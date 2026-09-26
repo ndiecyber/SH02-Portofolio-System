@@ -23,7 +23,7 @@ const IconMap = {
 
 const ServiceListPage = () => {
   const navigate = useNavigate();
-  const { isCEO, isPM, role: currentUserRole } = useRole();
+  const { isCEO, isPM } = useRole();
 
   // Route protection
   const hasAccess = isCEO || isPM;

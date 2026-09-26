@@ -1,7 +1,5 @@
-import api from './api';
+import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
-
-const USE_MOCK = true;
 
 export const getUsers = async (params = {}) => {
   if (USE_MOCK) {
@@ -19,8 +17,8 @@ export const getUsers = async (params = {}) => {
       users = users.filter((u) => u.role === params.role);
     }
 
-    if (params.status) {
-      users = users.filter((u) => u.status === params.status);
+    if (params.isActive !== undefined) {
+      users = users.filter((u) => u.isActive === params.isActive);
     }
 
     return {
@@ -30,7 +28,20 @@ export const getUsers = async (params = {}) => {
   }
 
   const response = await api.get('/api/users', { params });
-  return response.data;
+  const raw = response.data;
+  if (Array.isArray(raw)) {
+    return { users: raw, total: raw.length };
+  }
+  if (Array.isArray(raw?.data)) {
+    return {
+      users: raw.data,
+      total: raw.meta?.total ?? raw.total ?? raw.data.length,
+    };
+  }
+  if (raw?.users) {
+    return raw;
+  }
+  return { users: [], total: 0 };
 };
 
 export const getUser = async (id) => {
@@ -42,7 +53,7 @@ export const getUser = async (id) => {
   }
 
   const response = await api.get(`/api/users/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const createUser = async (userData) => {
@@ -52,7 +63,7 @@ export const createUser = async (userData) => {
   }
 
   const response = await api.post('/api/users', userData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const updateUser = async (id, userData) => {
@@ -62,7 +73,7 @@ export const updateUser = async (id, userData) => {
   }
 
   const response = await api.put(`/api/users/${id}`, userData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const deleteUser = async (id) => {
@@ -73,5 +84,5 @@ export const deleteUser = async (id) => {
   }
 
   const response = await api.delete(`/api/users/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };

@@ -40,13 +40,13 @@ export const CASE_STUDY_STATUS = {
 };
 
 export const INITIAL_TECHNOLOGIES = [
-  { id: 'tech-1', name: 'React', category: 'Frontend', proficiency: 'Advanced', status: 'Active' },
-  { id: 'tech-2', name: 'Vue.js', category: 'Frontend', proficiency: 'Intermediate', status: 'Active' },
-  { id: 'tech-3', name: 'Laravel', category: 'Backend', proficiency: 'Advanced', status: 'Active' },
-  { id: 'tech-4', name: 'Node.js', category: 'Backend', proficiency: 'Advanced', status: 'Active' },
-  { id: 'tech-5', name: 'Flutter', category: 'Mobile', proficiency: 'Intermediate', status: 'Active' },
-  { id: 'tech-6', name: 'Docker', category: 'DevOps', proficiency: 'Intermediate', status: 'Active' },
-  { id: 'tech-7', name: 'PostgreSQL', category: 'Database', proficiency: 'Advanced', status: 'Active' }
+  { id: 'tech-1', name: 'React', category: 'Frontend', proficiency: 'Advanced', isActive: true },
+  { id: 'tech-2', name: 'Vue.js', category: 'Frontend', proficiency: 'Intermediate', isActive: true },
+  { id: 'tech-3', name: 'Laravel', category: 'Backend', proficiency: 'Advanced', isActive: true },
+  { id: 'tech-4', name: 'Node.js', category: 'Backend', proficiency: 'Advanced', isActive: true },
+  { id: 'tech-5', name: 'Flutter', category: 'Mobile', proficiency: 'Intermediate', isActive: true },
+  { id: 'tech-6', name: 'Docker', category: 'DevOps', proficiency: 'Intermediate', isActive: true },
+  { id: 'tech-7', name: 'PostgreSQL', category: 'Database', proficiency: 'Advanced', isActive: true }
 ];
 
 export const INITIAL_TEAMS = [
@@ -56,19 +56,19 @@ export const INITIAL_TEAMS = [
 ];
 
 export const INITIAL_TEAM_MEMBERS = [
-  { id: 'mem-1', name: 'Alex Johnson', email: 'alex@lexa.com', role: 'DEVELOPER', department: 'Project Management', status: 'Active' },
-  { id: 'mem-2', name: 'Sarah Chen', email: 'sarah@lexa.com', role: 'DEVELOPER', department: 'Front End', status: 'Active' },
-  { id: 'mem-3', name: 'Rudy Hartono', email: 'rudy@lexa.com', role: 'DEVELOPER', department: 'Back End', status: 'Active' },
-  { id: 'mem-4', name: 'Elena Rostova', email: 'elena@lexa.com', role: 'DEVELOPER', department: 'UI/UX', status: 'Active' },
-  { id: 'mem-5', name: 'Budi Santoso', email: 'budi@lexa.com', role: 'DEVELOPER', department: 'QA Testing', status: 'Active' },
-  { id: 'mem-6', name: 'Dewi Lestari', email: 'dewi.intern@lexa.com', role: 'DEVELOPER', team_id: 'team-a', department: 'Front End', status: 'Active' }
+  { id: 'mem-1', name: 'Alex Johnson', email: 'alex@lexa.com', role: 'DEVELOPER', department: 'Project Management', isActive: true },
+  { id: 'mem-2', name: 'Sarah Chen', email: 'sarah@lexa.com', role: 'DEVELOPER', department: 'Front End', isActive: true },
+  { id: 'mem-3', name: 'Rudy Hartono', email: 'rudy@lexa.com', role: 'DEVELOPER', department: 'Back End', isActive: true },
+  { id: 'mem-4', name: 'Elena Rostova', email: 'elena@lexa.com', role: 'DEVELOPER', department: 'UI/UX', isActive: true },
+  { id: 'mem-5', name: 'Budi Santoso', email: 'budi@lexa.com', role: 'DEVELOPER', department: 'QA Testing', isActive: true },
+  { id: 'mem-6', name: 'Dewi Lestari', email: 'dewi.intern@lexa.com', role: 'DEVELOPER', team_id: 'team-a', department: 'Front End', isActive: true }
 ];
 
 export const INITIAL_PROJECTS = [
   {
     id: 'proj-1',
     name: 'E-Commerce Marketplace Redesign',
-    client: 'Lexa Retail Corp',
+    clientName: 'Lexa Retail Corp',
     description: 'Rebuilding the core e-commerce storefront with React and Node.js for high performance and premium animations.',
     category: 'Web Dev',
     technologies: ['React', 'Node.js', 'PostgreSQL'],
@@ -85,7 +85,7 @@ export const INITIAL_PROJECTS = [
   {
     id: 'proj-2',
     name: 'Logistics Fleet Tracking App',
-    client: 'TransNasional Cargo',
+    clientName: 'TransNasional Cargo',
     description: 'Development of a real-time mobile tracking application for cargo drivers and fleet coordinators using Flutter.',
     category: 'Mobile Dev',
     technologies: ['Flutter', 'Node.js', 'Docker'],
@@ -102,7 +102,7 @@ export const INITIAL_PROJECTS = [
   {
     id: 'proj-3',
     name: 'HR & Payroll Core Platform',
-    client: 'Sinergi Mega Utama',
+    clientName: 'Sinergi Mega Utama',
     description: 'Enterprise internal payroll, shift planning, and employee management system with robust security audit trails.',
     category: 'System Dev',
     technologies: ['Laravel', 'PostgreSQL', 'Docker'],
@@ -119,7 +119,7 @@ export const INITIAL_PROJECTS = [
   {
     id: 'proj-4',
     name: 'Real Estate SaaS landing Page & UI',
-    client: 'Urban Space Properties',
+    clientName: 'Urban Space Properties',
     description: 'UI/UX research, wireframing, and visual redesign of property listing portals.',
     category: 'UI/UX',
     technologies: ['React'],
@@ -136,7 +136,7 @@ export const INITIAL_PROJECTS = [
   {
     id: 'proj-5',
     name: 'IoT Home Automation Hub',
-    client: 'SmartLife Systems',
+    clientName: 'SmartLife Systems',
     description: 'Smart dashboard development for embedded microcontrollers in home security devices.',
     category: 'System Dev',
     technologies: ['Vue.js', 'Node.js'],
@@ -232,7 +232,7 @@ export const INITIAL_TESTIMONIALS = [
 export const INITIAL_DOCUMENTS = [
   {
     id: 'doc-1',
-    name: 'Spesifikasi_API_V1.pdf',
+    fileName: 'Spesifikasi_API_V1.pdf',
     category: 'API Spec',
     size: '1.2 MB',
     uploadDate: '2026-03-15',
@@ -243,7 +243,7 @@ export const INITIAL_DOCUMENTS = [
   },
   {
     id: 'doc-2',
-    name: 'Figma_UI_Mockup_Final.fig',
+    fileName: 'Figma_UI_Mockup_Final.fig',
     category: 'Design',
     size: '4.5 MB',
     uploadDate: '2026-04-20',
@@ -254,7 +254,7 @@ export const INITIAL_DOCUMENTS = [
   },
   {
     id: 'doc-3',
-    name: 'Database_Schema_Diagram.png',
+    fileName: 'Database_Schema_Diagram.png',
     category: 'Architecture',
     size: '850 KB',
     uploadDate: '2026-05-10',
@@ -274,4 +274,63 @@ export const INITIAL_SETTINGS = {
   secondaryColor: '#1e293b',
   logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80'
 };
+
+export const INITIAL_CLIENTS = [
+  {
+    id: '0c1aa765-fbee-41d2-9ea1-ada46ebb2365',
+    name: 'PT Digital Nusantara',
+    company_name: 'PT Digital Nusantara',
+    industry: 'Financial Technology & Retail',
+    contact_name: 'Budi Santoso',
+    email: 'contact@digitalnusantara.id',
+    phone: '+62 811 2345 6789',
+    website: 'https://digitalnusantara.id',
+    logo: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&w=128&q=80',
+    active: true,
+    createdAt: '2026-06-01T08:00:00.000Z',
+    updatedAt: '2026-06-01T08:00:00.000Z'
+  },
+  {
+    id: 'client-2',
+    name: 'CV Maju Bersama',
+    company_name: 'CV Maju Bersama',
+    industry: 'Logistics & Supply Chain',
+    contact_name: 'Dewi Lestari',
+    email: 'info@majubersama.co.id',
+    phone: '+62 812 9876 5432',
+    website: 'https://majubersama.co.id',
+    logo: 'https://images.unsplash.com/photo-1516876437184-593fda40c7ce?auto=format&fit=crop&w=128&q=80',
+    active: true,
+    createdAt: '2026-06-15T09:30:00.000Z',
+    updatedAt: '2026-06-15T09:30:00.000Z'
+  },
+  {
+    id: 'client-3',
+    name: 'Bank Mandiri',
+    company_name: 'Bank Mandiri',
+    industry: 'Banking & Finance',
+    contact_name: 'Rian Pratama',
+    email: 'corporate@bankmandiri.co.id',
+    phone: '+62 21 526 5045',
+    website: 'https://bankmandiri.co.id',
+    logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=128&q=80',
+    active: true,
+    createdAt: '2026-07-01T10:00:00.000Z',
+    updatedAt: '2026-07-01T10:00:00.000Z'
+  },
+  {
+    id: 'client-4',
+    name: 'Telkom Indonesia',
+    company_name: 'Telkom Indonesia',
+    industry: 'Telecommunications',
+    contact_name: 'Siti Rahma',
+    email: 'partnership@telkom.co.id',
+    phone: '+62 21 521 5115',
+    website: 'https://telkom.co.id',
+    logo: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?auto=format&fit=crop&w=128&q=80',
+    active: true,
+    createdAt: '2026-07-20T11:00:00.000Z',
+    updatedAt: '2026-07-20T11:00:00.000Z'
+  }
+];
 

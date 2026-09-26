@@ -1,7 +1,5 @@
-import api from './api';
+import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
-
-const USE_MOCK = true;
 
 export const getProjects = async (params = {}) => {
   if (USE_MOCK) {
@@ -24,7 +22,7 @@ export const getProjects = async (params = {}) => {
           projects = projects.filter((p) => p.teamId === user.team_id);
         } else if (isClient) {
           // Client: filter by client name match
-          projects = projects.filter((p) => p.client === user.clientName);
+          projects = projects.filter((p) => p.clientName === user.clientName);
         } else {
           // PM, Dev, Designer, QA: filter by assigned project ids or teamMembers
           const assignedIds = user.assignedProjects || [];
@@ -39,7 +37,7 @@ export const getProjects = async (params = {}) => {
     if (params.search) {
       const q = params.search.toLowerCase();
       projects = projects.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.client.toLowerCase().includes(q)
+        (p) => p.name.toLowerCase().includes(q) || p.clientName.toLowerCase().includes(q)
       );
     }
 
@@ -60,7 +58,20 @@ export const getProjects = async (params = {}) => {
   }
 
   const response = await api.get('/api/projects', { params });
-  return response.data;
+  const raw = response.data;
+  if (Array.isArray(raw)) {
+    return { projects: raw, total: raw.length };
+  }
+  if (Array.isArray(raw?.data)) {
+    return {
+      projects: raw.data,
+      total: raw.meta?.total ?? raw.total ?? raw.data.length,
+    };
+  }
+  if (raw?.projects) {
+    return raw;
+  }
+  return { projects: [], total: 0 };
 };
 
 export const getProject = async (id) => {
@@ -72,7 +83,7 @@ export const getProject = async (id) => {
   }
 
   const response = await api.get(`/api/projects/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const createProject = async (projectData) => {
@@ -82,7 +93,7 @@ export const createProject = async (projectData) => {
   }
 
   const response = await api.post('/api/projects', projectData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const updateProject = async (id, projectData) => {
@@ -92,7 +103,7 @@ export const updateProject = async (id, projectData) => {
   }
 
   const response = await api.put(`/api/projects/${id}`, projectData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const deleteProject = async (id) => {
@@ -103,7 +114,7 @@ export const deleteProject = async (id) => {
   }
 
   const response = await api.delete(`/api/projects/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const updateProjectProgress = async (id, progressData) => {
@@ -122,5 +133,5 @@ export const updateProjectProgress = async (id, progressData) => {
   }
 
   const response = await api.put(`/api/projects/${id}/progress`, progressData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };

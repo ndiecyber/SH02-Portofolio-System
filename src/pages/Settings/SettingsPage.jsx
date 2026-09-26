@@ -5,11 +5,11 @@ import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { Building, Shield, Save, Lock, X } from 'lucide-react';
+import { Building, Shield, Save, Lock } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const SettingsPage = () => {
-  const { isCEO, isPM, user } = useRole();
+  const { isCEO } = useRole();
 
   const isCompanySettingsAllowed = isCEO;
 

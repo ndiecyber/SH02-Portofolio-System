@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import * as dashboardApi from '../../services/dashboardApi';
 import StatCard from '../../components/dashboard/StatCard';
 import ProjectOverviewChart from '../../components/dashboard/ProjectOverviewChart';
@@ -13,7 +12,6 @@ import Alert from '../../components/common/Alert';
 import { Briefcase, CheckCircle2, RefreshCw, Users } from 'lucide-react';
 
 const DashboardPage = () => {
-  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -77,45 +75,58 @@ const DashboardPage = () => {
     );
   }
 
+  const totalProj = summary?.totalProjects || 0;
+  const completedProj = summary?.completedProjects || 0;
+  const inProgressProj = summary?.inProgressProjects || 0;
+  const totalClients = summary?.totalClients || 0;
+
+  const completedPct = totalProj > 0 ? Math.round((completedProj / totalProj) * 100) : 0;
+  const inProgressPct = totalProj > 0 ? Math.round((inProgressProj / totalProj) * 100) : 0;
+
+  const totalTrendData = overviewData.length > 0 ? overviewData.map((d) => d['Total Projects']) : [1, 2, 3, 4, 5, totalProj];
+  const completedTrendData = overviewData.length > 0 ? overviewData.map((d) => d['Completed']) : [0, 0, 1, 1, 1, completedProj];
+  const inProgressTrendData = overviewData.length > 0 ? overviewData.map((d) => d['In Progress']) : [1, 1, 2, 2, 2, inProgressProj];
+  const clientTrendData = [1, 1, 1, 2, 2, totalClients];
+
   return (
     <div className="space-y-2 lg:space-y-0 lg:flex lg:flex-col lg:gap-2 lg:h-full">
       {/* Row 1: Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:flex-shrink-0">
         <StatCard
           title="Total Projects"
-          value={summary?.totalProjects || 0}
+          value={totalProj}
           icon={Briefcase}
           color="blue"
-          trend="+12% bulan ini"
+          trend={`${completedProj} proyek selesai`}
           trendType="up"
-          trendData={[10, 14, 17, 21, 25, summary?.totalProjects || 28]}
+          trendData={totalTrendData}
         />
         <StatCard
           title="Completed"
-          value={summary?.completedProjects || 0}
+          value={completedProj}
           icon={CheckCircle2}
           color="green"
-          trend="+17% bulan ini"
+          trend={`${completedPct}% tingkat selesai`}
           trendType="up"
-          trendData={[5, 8, 10, 11, 13, summary?.completedProjects || 15]}
+          trendData={completedTrendData}
         />
         <StatCard
           title="In Progress"
-          value={summary?.inProgressProjects || 0}
+          value={inProgressProj}
           icon={RefreshCw}
           color="orange"
-          trend="+8% bulan ini"
+          trend={`${inProgressPct}% sedang berjalan`}
           trendType="up"
-          trendData={[2, 5, 8, 6, 9, summary?.inProgressProjects || 8]}
+          trendData={inProgressTrendData}
         />
         <StatCard
           title="Total Clients"
-          value={summary?.totalClients || 0}
+          value={totalClients}
           icon={Users}
           color="purple"
-          trend="+5% bulan ini"
+          trend={`${totalClients} mitra aktif`}
           trendType="up"
-          trendData={[12, 14, 15, 18, 20, summary?.totalClients || 21]}
+          trendData={clientTrendData}
         />
       </div>
 

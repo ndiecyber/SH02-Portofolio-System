@@ -1,7 +1,5 @@
-import api from './api';
+import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
-
-const USE_MOCK = true;
 
 export const getSettings = async () => {
   if (USE_MOCK) {

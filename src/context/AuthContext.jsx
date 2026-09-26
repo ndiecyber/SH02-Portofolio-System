@@ -9,13 +9,23 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
-        const storedToken = localStorage.getItem('sh02_auth_token');
         const storedUser = localStorage.getItem('sh02_auth_user');
 
-        if (storedToken && storedUser) {
+        if (storedUser) {
           setUser(JSON.parse(storedUser));
+        } else {
+          // If no stored user, try fetching current session from backend cookie
+          try {
+            const profile = await authApi.getProfile();
+            if (profile && profile.id) {
+              localStorage.setItem('sh02_auth_user', JSON.stringify(profile));
+              setUser(profile);
+            }
+          } catch {
+            // Not logged in or error, ignore
+          }
         }
       } catch (err) {
         console.error('Failed to parse stored auth session:', err);

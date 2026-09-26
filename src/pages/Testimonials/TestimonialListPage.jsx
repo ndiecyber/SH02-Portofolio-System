@@ -475,7 +475,7 @@ const TestimonialListPage = () => {
                   >
                     <option value="">Pilih Proyek...</option>
                     {projects.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.client})</option>
+                      <option key={p.id} value={p.id}>{p.name} ({p.clientName})</option>
                     ))}
                   </select>
                 </div>

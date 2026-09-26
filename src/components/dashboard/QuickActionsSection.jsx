@@ -25,16 +25,16 @@ const QuickActionsSection = () => {
     {
       name: 'Add Testimonial',
       icon: MessageSquare,
-      color: 'bg-emerald-50/60 hover:bg-emerald-100/80 text-emerald-600 border-emerald-200',
+      color: 'bg-emerald-50/60 hover:bg-emerald-100/80 text-emerald-650 border-emerald-200',
       show: true,
-      onClick: () => alert('Testimonials module is scheduled for Week 3.')
+      onClick: () => navigate('/testimonials')
     },
     {
       name: 'Upload Document',
       icon: FileText,
-      color: 'bg-amber-50/60 hover:bg-amber-100/80 text-amber-600 border-amber-200',
+      color: 'bg-amber-50/60 hover:bg-amber-100/80 text-amber-650 border-amber-200',
       show: true,
-      onClick: () => alert('Documents module is scheduled for Week 4.')
+      onClick: () => navigate('/documents')
     },
     {
       name: 'View Reports',

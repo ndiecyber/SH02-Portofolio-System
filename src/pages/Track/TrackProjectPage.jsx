@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as mockDb from '../../utils/mockDb';
-import { Briefcase, Calendar, CheckSquare, Clock, Cpu, User, Users, ClipboardCopy, Search, ArrowLeft } from 'lucide-react';
+import { Briefcase, Calendar, CheckSquare, Clock, Cpu, Users, ClipboardCopy, Search, ArrowLeft } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Alert from '../../components/common/Alert';
 import lexaLogo from '../../assets/lexa.svg';
@@ -149,7 +149,7 @@ const TrackProjectPage = () => {
                     {project.name}
                   </h2>
                   <p className="text-xs text-slate-500 mt-1 font-semibold">
-                    Client: <span className="text-slate-800 dark:text-slate-300 font-bold">{project.client}</span>
+                    Client: <span className="text-slate-800 dark:text-slate-300 font-bold">{project.clientName}</span>
                   </p>
                 </div>
 

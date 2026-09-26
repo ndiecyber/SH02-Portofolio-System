@@ -1,7 +1,5 @@
-import api from './api';
+import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
-
-const USE_MOCK = true;
 
 export const getDocuments = async (params = {}) => {
   if (USE_MOCK) {
@@ -32,7 +30,7 @@ export const getDocuments = async (params = {}) => {
     if (params.search) {
       const q = params.search.toLowerCase();
       docs = docs.filter(
-        (d) => d.name.toLowerCase().includes(q) || d.category.toLowerCase().includes(q)
+        (d) => d.fileName.toLowerCase().includes(q) || d.category.toLowerCase().includes(q)
       );
     }
 
@@ -51,7 +49,20 @@ export const getDocuments = async (params = {}) => {
   }
 
   const response = await api.get('/api/documents', { params });
-  return response.data;
+  const raw = response.data;
+  if (Array.isArray(raw)) {
+    return { documents: raw, total: raw.length };
+  }
+  if (Array.isArray(raw?.data)) {
+    return {
+      documents: raw.data,
+      total: raw.meta?.total ?? raw.total ?? raw.data.length,
+    };
+  }
+  if (raw?.documents) {
+    return raw;
+  }
+  return { documents: [], total: 0 };
 };
 
 export const createDocument = async (docData) => {
@@ -72,7 +83,7 @@ export const createDocument = async (docData) => {
 
   // multipart upload usually, but we keep it mock/json for simplicity
   const response = await api.post('/api/documents/upload', docData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const deleteDocument = async (id) => {
@@ -83,7 +94,7 @@ export const deleteDocument = async (id) => {
   }
 
   const response = await api.delete(`/api/documents/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const downloadDocument = async (id) => {
@@ -95,10 +106,10 @@ export const downloadDocument = async (id) => {
     // Simulate file download by returning file metadata & mock download url
     return {
       url: doc.url || 'data:text/plain;base64,TW9jayBmaWxlIGNvbnRlbnQ=',
-      name: doc.name
+      fileName: doc.fileName
     };
   }
 
   const response = await api.get(`/api/documents/${id}/download`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };

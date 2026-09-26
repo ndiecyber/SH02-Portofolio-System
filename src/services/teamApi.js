@@ -1,7 +1,5 @@
-import api from './api';
+import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
-
-const USE_MOCK = true;
 
 export const getTeamMembers = async (params = {}) => {
   if (USE_MOCK) {
@@ -36,8 +34,24 @@ export const getTeamMembers = async (params = {}) => {
     };
   }
 
-  const response = await api.get('/api/team-members', { params });
-  return response.data;
+  try {
+    const response = await api.get('/api/team-members', { params });
+    const raw = response.data;
+    if (Array.isArray(raw)) return { members: raw, total: raw.length };
+    if (Array.isArray(raw?.data)) return { members: raw.data, total: raw.meta?.total ?? raw.total ?? raw.data.length };
+    if (raw?.members) return raw;
+    return { members: [], total: 0 };
+  } catch (err) {
+    // If endpoint doesn't exist, try fallback to /api/users
+    try {
+      const uRes = await api.get('/api/users');
+      const uRaw = uRes.data?.data ?? uRes.data?.users ?? uRes.data ?? [];
+      if (Array.isArray(uRaw)) return { members: uRaw, total: uRaw.length };
+    } catch {
+      // ignore fallback error
+    }
+    throw err;
+  }
 };
 
 export const getTeamMember = async (id) => {
@@ -49,7 +63,7 @@ export const getTeamMember = async (id) => {
   }
 
   const response = await api.get(`/api/team-members/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const createTeamMember = async (memberData) => {
@@ -59,7 +73,7 @@ export const createTeamMember = async (memberData) => {
   }
 
   const response = await api.post('/api/team-members', memberData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const updateTeamMember = async (id, memberData) => {
@@ -69,7 +83,7 @@ export const updateTeamMember = async (id, memberData) => {
   }
 
   const response = await api.put(`/api/team-members/${id}`, memberData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const deleteTeamMember = async (id) => {
@@ -80,7 +94,7 @@ export const deleteTeamMember = async (id) => {
   }
 
   const response = await api.delete(`/api/team-members/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const getTeams = async () => {
@@ -90,7 +104,7 @@ export const getTeams = async () => {
   }
 
   const response = await api.get('/api/teams');
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const createTeam = async (teamData) => {
@@ -100,7 +114,7 @@ export const createTeam = async (teamData) => {
   }
 
   const response = await api.post('/api/teams', teamData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const updateTeam = async (id, teamData) => {
@@ -110,7 +124,7 @@ export const updateTeam = async (id, teamData) => {
   }
 
   const response = await api.put(`/api/teams/${id}`, teamData);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const deleteTeam = async (id) => {
@@ -121,5 +135,5 @@ export const deleteTeam = async (id) => {
   }
 
   const response = await api.delete(`/api/teams/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };

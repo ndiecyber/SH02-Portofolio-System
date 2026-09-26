@@ -16,7 +16,9 @@ import {
   X,
   Calendar,
   CheckSquare,
-  UserCheck
+  UserCheck,
+  Building,
+  Building2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import clsx from 'clsx';
@@ -31,6 +33,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const showServices = roleChecker.isCEO || roleChecker.isPM;
   const showTechnologies = roleChecker.isCEO || roleChecker.isPM || roleChecker.isDeveloper || roleChecker.isIntern;
   const showTestimonials = roleChecker.isCEO || roleChecker.isPM || roleChecker.isClient || roleChecker.isJuniorIntern;
+  const showClients = roleChecker.isCEO || roleChecker.isPM || roleChecker.isDeveloper;
   const showTeam = !roleChecker.isClient; // Clients see names inside projects, hide general directory
   const showDocuments = !roleChecker.isClient; // Clients have no access to docs
 
@@ -49,6 +52,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     {
       title: 'MANAGEMENT',
       items: [
+        { name: 'Klien', path: '/clients', icon: Building2, show: showClients },
         { name: 'Manajemen Tim', path: '/team', icon: Users, show: showTeam },
         { name: 'Documents', path: '/documents', icon: FileText, show: showDocuments },
         { name: 'Tasks', path: '/tasks', icon: CheckSquare, show: !roleChecker.isClient },
@@ -59,6 +63,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       title: 'SYSTEM',
       items: [
         { name: 'Manajemen User', path: '/users', icon: UserCheck, show: roleChecker.canViewUserManagement() },
+        { name: 'Manajemen Departemen', path: '/departments', icon: Building, show: roleChecker.canViewUserManagement() },
         { name: 'Settings', path: '/settings', icon: Settings, show: roleChecker.canViewSettings() },
       ].filter(item => item.show)
     }
@@ -107,6 +112,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     if (roleChecker.isIntern) {
       return `Intern - ${user.magang_tier}`;
     }
+    if (user.role === 'ADMIN') return 'Admin / Management';
     return user.role.replace(/_/g, ' ');
   };
 

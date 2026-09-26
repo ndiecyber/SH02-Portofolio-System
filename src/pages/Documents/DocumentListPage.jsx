@@ -6,8 +6,7 @@ import { useRole } from '../../hooks/useRole';
 import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
 import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import { Search, RefreshCw, Trash2, Download, Upload, X, FileText, Image, AlertCircle, FileCode, CheckCircle2 } from 'lucide-react';
+import { Search, RefreshCw, Trash2, Download, Upload, X, FileText, Image, FileCode, CheckCircle2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const DocumentListPage = () => {
@@ -134,7 +133,7 @@ const DocumentListPage = () => {
           const teamId = project ? project.teamId : 'team-a';
           
           const payload = {
-            name: selectedFile.name,
+            fileName: selectedFile.name,
             category: formData.category,
             size: (selectedFile.size / 1024 > 1000) 
               ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB` 
@@ -176,7 +175,7 @@ const DocumentListPage = () => {
       // Simulate click download
       const link = window.document.createElement('a');
       link.href = res.url;
-      link.download = res.name || fileName;
+      link.download = res.fileName || fileName;
       window.document.body.appendChild(link);
       link.click();
       window.document.body.removeChild(link);
@@ -221,6 +220,7 @@ const DocumentListPage = () => {
   };
 
   const getFileIcon = (fileName) => {
+    if (!fileName) return <FileText className="w-5 h-5 text-blue-500" />;
     const ext = fileName.split('.').pop().toLowerCase();
     if (['fig', 'sketch', 'xd', 'png', 'jpg', 'jpeg', 'svg'].includes(ext)) {
       return <Image className="w-5 h-5 text-indigo-500" />;
@@ -363,8 +363,8 @@ const DocumentListPage = () => {
                       <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors group">
                         {/* Name with icon */}
                         <td className="py-4 px-4 font-bold text-slate-800 flex items-center space-x-2.5 max-w-[240px]">
-                          {getFileIcon(doc.name)}
-                          <span className="truncate" title={doc.name}>{doc.name}</span>
+                          {getFileIcon(doc.fileName)}
+                          <span className="truncate" title={doc.fileName}>{doc.fileName}</span>
                         </td>
 
                         {/* Category */}
@@ -388,7 +388,7 @@ const DocumentListPage = () => {
                         <td className="py-4 px-4 text-right">
                           <div className="inline-flex space-x-1.5">
                             <button
-                              onClick={() => handleDownload(doc.id, doc.name)}
+                              onClick={() => handleDownload(doc.id, doc.fileName)}
                               title="Download File"
                               className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-550 rounded-lg border border-slate-205 transition-all"
                             >
@@ -397,7 +397,7 @@ const DocumentListPage = () => {
 
                             {canDelete && (
                               <button
-                                onClick={() => handleDelete(doc.id, doc.name)}
+                                onClick={() => handleDelete(doc.id, doc.fileName)}
                                 title="Hapus Dokumen"
                                 className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-all"
                               >

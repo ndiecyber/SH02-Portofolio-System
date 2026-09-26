@@ -146,7 +146,7 @@ const ProjectDetailPage = () => {
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center space-x-2">
             <span>{project.name}</span>
           </h1>
-          <p className="text-xs text-slate-500 font-semibold mt-0.5">Klien: {project.client}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-0.5">Klien: {project.clientName}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">

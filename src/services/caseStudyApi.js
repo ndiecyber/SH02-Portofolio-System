@@ -1,7 +1,5 @@
-import api from './api';
+import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
-
-const USE_MOCK = true;
 
 export const getCaseStudies = async (params = {}) => {
   if (USE_MOCK) {
@@ -62,7 +60,20 @@ export const getCaseStudies = async (params = {}) => {
   }
 
   const response = await api.get('/api/case-studies', { params });
-  return response.data;
+  const raw = response.data;
+  if (Array.isArray(raw)) {
+    return { caseStudies: raw, total: raw.length };
+  }
+  if (Array.isArray(raw?.data)) {
+    return {
+      caseStudies: raw.data,
+      total: raw.meta?.total ?? raw.total ?? raw.data.length,
+    };
+  }
+  if (raw?.caseStudies) {
+    return raw;
+  }
+  return { caseStudies: [], total: 0 };
 };
 
 export const getCaseStudy = async (id) => {
@@ -74,7 +85,7 @@ export const getCaseStudy = async (id) => {
   }
 
   const response = await api.get(`/api/case-studies/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const createCaseStudy = async (data) => {
@@ -84,7 +95,7 @@ export const createCaseStudy = async (data) => {
   }
 
   const response = await api.post('/api/case-studies', data);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const updateCaseStudy = async (id, data) => {
@@ -94,7 +105,7 @@ export const updateCaseStudy = async (id, data) => {
   }
 
   const response = await api.put(`/api/case-studies/${id}`, data);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const deleteCaseStudy = async (id) => {
@@ -105,7 +116,7 @@ export const deleteCaseStudy = async (id) => {
   }
 
   const response = await api.delete(`/api/case-studies/${id}`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const publishCaseStudy = async (id) => {
@@ -119,7 +130,7 @@ export const publishCaseStudy = async (id) => {
   }
 
   const response = await api.put(`/api/case-studies/${id}/publish`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };
 
 export const unpublishCaseStudy = async (id) => {
@@ -133,5 +144,5 @@ export const unpublishCaseStudy = async (id) => {
   }
 
   const response = await api.put(`/api/case-studies/${id}/unpublish`);
-  return response.data;
+  return response.data?.data ?? response.data;
 };

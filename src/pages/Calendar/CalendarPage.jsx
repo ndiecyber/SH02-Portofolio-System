@@ -5,10 +5,9 @@ import * as projectApi from '../../services/projectApi';
 import { useRole } from '../../hooks/useRole';
 import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
-import Button from '../../components/common/Button';
 import {
   ChevronLeft, ChevronRight, X,
-  Briefcase, CheckSquare, CalendarDays, Clock,
+  CheckSquare,
   Rocket, FlagTriangleRight, Flame, ArrowRight
 } from 'lucide-react';
 
@@ -135,9 +134,9 @@ const CalendarPage = () => {
         list.push({
           type: 'project-start',
           title: p.name,
-          subtitle: `Mulai · ${p.client}`,
+          subtitle: `Mulai · ${p.clientName}`,
           projectName: p.name,
-          client: p.client,
+          clientName: p.clientName,
           description: `Tanggal dimulainya pengerjaan proyek ${p.name}.`,
         });
       }
@@ -145,9 +144,9 @@ const CalendarPage = () => {
         list.push({
           type: 'project-end',
           title: p.name,
-          subtitle: `Rilis · ${p.client}`,
+          subtitle: `Rilis · ${p.clientName}`,
           projectName: p.name,
-          client: p.client,
+          clientName: p.clientName,
           description: `Batas akhir penyerahan / rilis produk proyek ${p.name}.`,
         });
       }
@@ -184,7 +183,6 @@ const CalendarPage = () => {
   };
 
   // --- Stats for sidebar ---
-  const currentMonthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
   const monthEvents = cells
     .filter(c => c.isCurrentMonth)
     .flatMap(c => getEventsForDate(formatDateString(c.year, c.month, c.day)));

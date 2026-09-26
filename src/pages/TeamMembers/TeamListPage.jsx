@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import * as teamApi from '../../services/teamApi';
 import * as projectApi from '../../services/projectApi';
 import { useRole } from '../../hooks/useRole';
@@ -9,16 +8,17 @@ import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import {
   Plus, Search, RefreshCw, Edit, Trash2, X,
-  Users, Briefcase, UserMinus, UserPlus, ChevronDown, ChevronUp,
-  Shield, Star, Code, Palette, ClipboardCheck, GraduationCap, User
+  Users, Briefcase, UserMinus, UserPlus,
+  Shield, Code, User
 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { ROLES, DEPARTMENTS } from '../../config/constants';
+import * as departmentApi from '../../services/departmentApi';
+import { ROLES } from '../../config/constants';
 
 // ── Role Display helpers ──────────────────────────────────────────
 const getRoleLabel = (role) => {
   const map = {
-    ADMIN: 'Admin',
+    ADMIN: 'Admin / Management',
     DEVELOPER: 'Developer'
   };
   return map[role] || role;
@@ -54,8 +54,7 @@ const getAvatarColor = (id) => {
 
 // ═════════════════════════════════════════════════════════════════
 const TeamListPage = () => {
-  const navigate = useNavigate();
-  const { isCEO, isIntern } = useRole();
+  const { isCEO } = useRole();
 
   const [activeTab, setActiveTab] = useState('teams'); // 'teams' | 'directory'
   const [loading, setLoading] = useState(true);
@@ -63,6 +62,7 @@ const TeamListPage = () => {
   const [members, setMembers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
   // ── Directory filter ──────────────────────────────────────────
   const [search, setSearch] = useState('');
@@ -86,14 +86,16 @@ const TeamListPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [membersRes, teamsRes, projectsRes] = await Promise.all([
+      const [membersRes, teamsRes, projectsRes, deptsRes] = await Promise.all([
         teamApi.getTeamMembers({ search, role: roleFilter, department: deptFilter }),
         teamApi.getTeams(),
-        projectApi.getProjects()
+        projectApi.getProjects(),
+        departmentApi.getDepartments({ status: 'Active' })
       ]);
       setMembers(membersRes.members);
       setTeams(teamsRes);
       setProjects(projectsRes.projects);
+      setDepartments(deptsRes.departments);
     } catch (err) {
       setError(err.message || 'Gagal memuat data.');
     } finally {
@@ -107,9 +109,11 @@ const TeamListPage = () => {
   useEffect(() => {
     if (selectedTeam) {
       const refreshed = teams.find(t => t.id === selectedTeam.id);
-      if (refreshed) setSelectedTeam(refreshed);
+      if (refreshed && refreshed !== selectedTeam) {
+        setSelectedTeam(refreshed);
+      }
     }
-  }, [teams]);
+  }, [teams, selectedTeam]);
 
   // ── All members (no filter) for team modal lookups ────────────
   const [allMembers, setAllMembers] = useState([]);
@@ -445,8 +449,8 @@ const TeamListPage = () => {
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                   >
                     <option value="">Semua Departemen</option>
-                    {DEPARTMENTS.map(d => (
-                      <option key={d} value={d}>{d}</option>
+                    {departments.map(d => (
+                      <option key={d.id} value={d.name}>{d.name}</option>
                     ))}
                   </select>
                 </div>
@@ -517,11 +521,11 @@ const TeamListPage = () => {
                               </td>
                               <td className="py-3.5 px-4">
                                 <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
-                                  member.status === 'Active'
+                                  member.isActive
                                     ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
                                     : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
                                 }`}>
-                                  {member.status}
+                                  {member.isActive ? 'Active' : 'Inactive'}
                                 </span>
                               </td>
                             </tr>

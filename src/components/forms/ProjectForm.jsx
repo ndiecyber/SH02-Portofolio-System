@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Tag, ShieldCheck, DollarSign, Image, Users, Info } from 'lucide-react';
+import { Calendar, Tag, ShieldCheck, DollarSign, Image, Users, Info, Building2 } from 'lucide-react';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import Alert from '../common/Alert';
 import * as mockDb from '../../utils/mockDb';
+import * as clientApi from '../../services/clientApi';
 import { CATEGORIES, PROJECT_STATUS } from '../../config/constants';
 
 const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
@@ -17,19 +18,34 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
   const [selectedTech, setSelectedTech] = useState(initialData.technologies || []);
   const [selectedMembers, setSelectedMembers] = useState(initialData.teamMembers || []);
 
+  const [availableClients, setAvailableClients] = useState([]);
   const [availableTechs] = useState(mockDb.dbGetTechnologies());
   const [availableMembers] = useState(mockDb.dbGetTeamMembers());
   const [availableTeams] = useState(mockDb.dbGetTeams());
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const res = await clientApi.getClients({ active: true });
+        setAvailableClients(res.clients || []);
+      } catch {
+        setAvailableClients(mockDb.dbGetClients() || []);
+      }
+    };
+    fetchClients();
+  }, []);
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
       name: initialData.name || '',
-      client: initialData.client || '',
+      clientId: initialData.clientId || initialData.client_id || '',
+      clientName: initialData.clientName || initialData.client_name || '',
       description: initialData.description || '',
       category: initialData.category || CATEGORIES[0],
       status: initialData.status || PROJECT_STATUS.PLANNING,
@@ -63,8 +79,16 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
     setIsLoading(true);
     setError(null);
     try {
+      const selectedClient = availableClients.find((c) => c.id === data.clientId);
+      const resolvedClientName = selectedClient
+        ? (selectedClient.company_name || selectedClient.name)
+        : data.clientName;
+
       const payload = {
         ...data,
+        clientId: data.clientId,
+        client_id: data.clientId,
+        clientName: resolvedClientName,
         budget: data.budget ? parseInt(data.budget, 10) : 0,
         technologies: selectedTech,
         teamMembers: selectedMembers,
@@ -98,14 +122,47 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
             {...register('name', { required: 'Project name is required' })}
           />
 
-          <Input
-            id="client"
-            label="Client Name"
-            placeholder="e.g. Bank Mandiri"
-            variant="light"
-            error={errors.client?.message}
-            {...register('client', { required: 'Client name is required' })}
-          />
+          <div className="space-y-1.5 text-left">
+            <div className="flex items-center justify-between">
+              <label htmlFor="clientId" className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                Klien / Perusahaan <span className="text-rose-500">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => navigate('/clients')}
+                className="text-[11px] text-blue-600 hover:underline font-bold flex items-center space-x-1"
+              >
+                <Building2 className="w-3 h-3" />
+                <span>+ Kelola Klien</span>
+              </button>
+            </div>
+            <select
+              id="clientId"
+              className="w-full bg-white text-slate-900 border border-slate-350 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 font-semibold"
+              {...register('clientId', {
+                required: 'Klien wajib dipilih',
+                onChange: (e) => {
+                  const selected = availableClients.find((c) => c.id === e.target.value);
+                  if (selected) {
+                    setValue('clientName', selected.company_name || selected.name);
+                  }
+                },
+              })}
+            >
+              <option value="">-- Pilih Klien Terdaftar --</option>
+              {availableClients.map((client) => {
+                const label = client.company_name || client.name;
+                return (
+                  <option key={client.id} value={client.id}>
+                    {label} {client.industry ? `(${client.industry})` : ''}
+                  </option>
+                );
+              })}
+            </select>
+            {errors.clientId && (
+              <p className="text-xs text-rose-500 font-semibold">{errors.clientId.message}</p>
+            )}
+          </div>
 
           <div className="space-y-1.5 text-left">
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">

@@ -8,7 +8,7 @@ import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { CheckSquare, Plus, Search, RefreshCw, Edit, Trash2, X, Calendar as CalendarIcon, User, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
+import { Plus, Search, RefreshCw, Edit, Trash2, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const TasksPage = () => {

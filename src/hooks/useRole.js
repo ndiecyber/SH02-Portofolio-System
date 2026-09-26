@@ -1,26 +1,27 @@
 import { useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ROLES, MAGANG_TIERS } from '../config/constants';
+import { ROLES } from '../config/constants';
 
 export const useRole = () => {
   const { user } = useAuth();
 
-  const role = user?.role || null;
+  const rawRole = (user?.role || '').toUpperCase();
+  const role = rawRole || null;
   const department = user?.department || null;
 
-  // Role booleans
-  const isAdmin = role === ROLES.ADMIN;
-  const isCEO = role === ROLES.ADMIN;
-  const isPM = false;
-  const isDeveloper = role === ROLES.DEVELOPER;
-  const isUIUX = false;
-  const isQA = false;
-  const isClient = false;
-  const isIntern = false;
+  // Role booleans (robust against casing and SRS/PRD aliases)
+  const isAdmin = role === ROLES.ADMIN || role === 'ADMIN' || role === 'CEO' || role === 'ADMINISTRATOR';
+  const isCEO = isAdmin; // In LEXA PMS, CEO and Admin share top-level administrative access
+  const isPM = role === 'PROJECT_MANAGER' || role === 'PM' || role === 'MANAGER';
+  const isDeveloper = role === ROLES.DEVELOPER || role === 'DEVELOPER' || role === 'DEV' || role === 'TEAM_MEMBER';
+  const isUIUX = role === 'DESIGNER' || role === 'UI_UX_DESIGNER';
+  const isQA = role === 'QA' || role === 'QA_TESTER';
+  const isClient = role === 'CLIENT' || role === 'VIEWER';
+  const isIntern = role === 'INTERN';
 
-  const isLearningIntern = false;
-  const isApprenticeIntern = false;
-  const isJuniorIntern = false;
+  const isLearningIntern = isIntern && user?.magang_tier === 'LEARNING';
+  const isApprenticeIntern = isIntern && user?.magang_tier === 'APPRENTICE';
+  const isJuniorIntern = isIntern && user?.magang_tier === 'JUNIOR';
 
   // Helper check to see if a project is assigned to this user
   const isProjectAssigned = useCallback((project) => {
@@ -34,7 +35,7 @@ export const useRole = () => {
   // General Permissions
   const canCreateProject = isAdmin; 
   
-  const canEditProject = useCallback((project) => {
+  const canEditProject = useCallback((_project) => {
     return isAdmin;
   }, [isAdmin]);
 
@@ -46,7 +47,7 @@ export const useRole = () => {
     return false;
   }, [isAdmin, isDeveloper, isProjectAssigned]);
 
-  const canManageCaseStudies = useCallback((project) => {
+  const canManageCaseStudies = useCallback((_project) => {
     return isAdmin;
   }, [isAdmin]);
 
@@ -110,7 +111,8 @@ export const useRole = () => {
     canDeleteDocument,
     canViewReports,
     canViewSettings,
-    canViewUserManagement
+    canViewUserManagement,
+    canManageClients: isAdmin || isPM
   };
 };
 export default useRole;

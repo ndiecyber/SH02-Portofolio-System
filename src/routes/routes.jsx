@@ -13,11 +13,13 @@ import TestimonialListPage from '../pages/Testimonials/TestimonialListPage';
 import DocumentListPage from '../pages/Documents/DocumentListPage';
 import SettingsPage from '../pages/Settings/SettingsPage';
 import UserManagementPage from '../pages/UserManagement/UserManagementPage';
+import DepartmentListPage from '../pages/Departments/DepartmentListPage';
 import TasksPage from '../pages/Tasks/TasksPage';
 import CalendarPage from '../pages/Calendar/CalendarPage';
 import UnauthorizedPage from '../pages/Unauthorized/UnauthorizedPage';
 import TrackProjectPage from '../pages/Track/TrackProjectPage';
 import NotFoundPage from '../pages/NotFound/NotFoundPage';
+import ClientListPage from '../pages/Clients/ClientListPage';
 
 export const routesConfig = [
   {
@@ -54,6 +56,11 @@ export const routesConfig = [
       {
         path: 'projects/:id/edit',
         element: <ProjectFormPage />,
+      },
+      // Clients Module (PRD FR-41, SRS FR-CLI-01)
+      {
+        path: 'clients',
+        element: <ClientListPage />,
       },
       // Case Studies Module
       {
@@ -96,6 +103,10 @@ export const routesConfig = [
       {
         path: 'users',
         element: <UserManagementPage />,
+      },
+      {
+        path: 'departments',
+        element: <DepartmentListPage />,
       },
       {
         path: 'tasks',

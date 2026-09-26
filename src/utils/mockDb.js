@@ -8,7 +8,8 @@ import {
   INITIAL_SERVICES,
   INITIAL_TESTIMONIALS,
   INITIAL_DOCUMENTS,
-  INITIAL_SETTINGS
+  INITIAL_SETTINGS,
+  INITIAL_CLIENTS
 } from '../config/constants';
 
 const DB_KEYS = {
@@ -23,7 +24,9 @@ const DB_KEYS = {
   DOCUMENTS: 'sh02_db_documents',
   SETTINGS: 'sh02_db_settings',
   USERS: 'sh02_db_users',
-  TASKS: 'sh02_db_tasks'
+  TASKS: 'sh02_db_tasks',
+  DEPARTMENTS: 'sh02_db_departments',
+  CLIENTS: 'sh02_db_clients'
 };
 
 const INITIAL_USERS = [
@@ -37,7 +40,7 @@ const INITIAL_USERS = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: [],
     team_id: null,
-    status: 'Active'
+    isActive: true
   },
   {
     id: 'mem-1',
@@ -49,7 +52,7 @@ const INITIAL_USERS = [
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-1', 'proj-2', 'proj-5'],
     team_id: 'team-a',
-    status: 'Active'
+    isActive: true
   },
   {
     id: 'mem-2',
@@ -61,7 +64,7 @@ const INITIAL_USERS = [
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-1', 'proj-5'],
     team_id: 'team-a',
-    status: 'Active'
+    isActive: true
   },
   {
     id: 'mem-4',
@@ -73,7 +76,7 @@ const INITIAL_USERS = [
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-1', 'proj-4'],
     team_id: 'team-a',
-    status: 'Active'
+    isActive: true
   },
   {
     id: 'mem-5',
@@ -85,7 +88,7 @@ const INITIAL_USERS = [
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-1', 'proj-2'],
     team_id: 'team-b',
-    status: 'Active'
+    isActive: true
   },
   {
     id: 'mem-6',
@@ -97,7 +100,7 @@ const INITIAL_USERS = [
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     assignedProjects: ['proj-3'],
     team_id: 'team-c',
-    status: 'Active'
+    isActive: true
   }
 ];
 
@@ -174,6 +177,15 @@ const INITIAL_TASKS = [
   }
 ];
 
+const INITIAL_DEPARTMENTS = [
+  { id: 'dept-1', name: 'UI/UX', code: 'UIUX', description: 'User Interface & User Experience Design', status: 'Active' },
+  { id: 'dept-2', name: 'Front End', code: 'FE', description: 'Client-side web application development', status: 'Active' },
+  { id: 'dept-3', name: 'Back End', code: 'BE', description: 'Server-side API and database architecture', status: 'Active' },
+  { id: 'dept-4', name: 'QA Testing', code: 'QA', description: 'Quality assurance and software testing procedures', status: 'Active' },
+  { id: 'dept-5', name: 'DevOps', code: 'DO', description: 'Continuous integration, deployment, and cloud infrastructure', status: 'Active' },
+  { id: 'dept-6', name: 'Project Management', code: 'PM', description: 'Project tracking, planning, and client coordination', status: 'Active' }
+];
+
 const getFromStorage = (key, defaultValue) => {
   try {
     const data = localStorage.getItem(key);
@@ -210,6 +222,8 @@ export const initMockDb = () => {
   getFromStorage(DB_KEYS.SETTINGS, INITIAL_SETTINGS);
   getFromStorage(DB_KEYS.USERS, INITIAL_USERS);
   getFromStorage(DB_KEYS.TASKS, INITIAL_TASKS);
+  getFromStorage(DB_KEYS.DEPARTMENTS, INITIAL_DEPARTMENTS);
+  getFromStorage(DB_KEYS.CLIENTS, INITIAL_CLIENTS);
 
   // --- Data Migration: Fix stale admin user role (CEO → ADMIN) ---
   const users = JSON.parse(localStorage.getItem(DB_KEYS.USERS) || '[]');
@@ -223,6 +237,97 @@ export const initMockDb = () => {
   });
   if (migrationNeeded) {
     localStorage.setItem(DB_KEYS.USERS, JSON.stringify(migratedUsers));
+  }
+
+  // --- Data Migration: Align schema with ERD ---
+  // 1. Projects (client -> clientName)
+  const storedProjects = localStorage.getItem(DB_KEYS.PROJECTS);
+  if (storedProjects) {
+    const projects = JSON.parse(storedProjects);
+    let migrated = false;
+    const migratedProjects = projects.map(p => {
+      if ('client' in p && !('clientName' in p)) {
+        migrated = true;
+        const { client, ...rest } = p;
+        return { ...rest, clientName: client };
+      }
+      return p;
+    });
+    if (migrated) {
+      localStorage.setItem(DB_KEYS.PROJECTS, JSON.stringify(migratedProjects));
+    }
+  }
+
+  // 2. Users (status -> isActive)
+  const storedUsers = localStorage.getItem(DB_KEYS.USERS);
+  if (storedUsers) {
+    const usersList = JSON.parse(storedUsers);
+    let migrated = false;
+    const migratedUsersList = usersList.map(u => {
+      if ('status' in u && !('isActive' in u)) {
+        migrated = true;
+        const { status, ...rest } = u;
+        return { ...rest, isActive: status === 'Active' };
+      }
+      return u;
+    });
+    if (migrated) {
+      localStorage.setItem(DB_KEYS.USERS, JSON.stringify(migratedUsersList));
+    }
+  }
+
+  // 3. Team Members (status -> isActive)
+  const storedMembers = localStorage.getItem(DB_KEYS.TEAM_MEMBERS);
+  if (storedMembers) {
+    const members = JSON.parse(storedMembers);
+    let migrated = false;
+    const migratedMembers = members.map(m => {
+      if ('status' in m && !('isActive' in m)) {
+        migrated = true;
+        const { status, ...rest } = m;
+        return { ...rest, isActive: status === 'Active' };
+      }
+      return m;
+    });
+    if (migrated) {
+      localStorage.setItem(DB_KEYS.TEAM_MEMBERS, JSON.stringify(migratedMembers));
+    }
+  }
+
+  // 4. Technologies (status -> isActive)
+  const storedTechs = localStorage.getItem(DB_KEYS.TECHNOLOGIES);
+  if (storedTechs) {
+    const techs = JSON.parse(storedTechs);
+    let migrated = false;
+    const migratedTechs = techs.map(t => {
+      if ('status' in t && !('isActive' in t)) {
+        migrated = true;
+        const { status, ...rest } = t;
+        return { ...rest, isActive: status === 'Active' };
+      }
+      return t;
+    });
+    if (migrated) {
+      localStorage.setItem(DB_KEYS.TECHNOLOGIES, JSON.stringify(migratedTechs));
+    }
+  }
+
+  // 5. Documents (name -> fileName)
+  const storedDocs = localStorage.getItem(DB_KEYS.DOCUMENTS);
+  if (storedDocs) {
+    const docs = JSON.parse(storedDocs);
+    let migrated = false;
+    const migratedDocs = docs.map(d => {
+      if ('name' in d && !('fileName' in d)) {
+        migrated = true;
+        const { name, ...rest } = d;
+        return { ...rest, fileName: name };
+      }
+      return d;
+    });
+    if (migrated) {
+      localStorage.setItem(DB_KEYS.DOCUMENTS, JSON.stringify(migratedDocs));
+    }
   }
 };
 
@@ -312,7 +417,7 @@ export const dbGetDashboardStats = () => {
   const inProgress = projects.filter(p => p.status === 'In Progress').length;
   
   // Unique clients count
-  const clients = new Set(projects.map(p => p.client));
+  const clients = new Set(projects.map(p => p.clientName));
   const totalClients = clients.size;
 
   return {
@@ -374,7 +479,7 @@ export const dbSaveTeamMember = (member) => {
     const newMember = {
       ...member,
       id: `mem-${Date.now()}`,
-      status: member.status || 'Active'
+      isActive: member.isActive !== undefined ? member.isActive : true
     };
     updatedList = [...list, newMember];
   }
@@ -512,7 +617,7 @@ export const dbSaveUser = (user) => {
     const newUser = {
       ...user,
       id: `user-${Date.now()}`,
-      status: user.status || 'Active',
+      isActive: user.isActive !== undefined ? user.isActive : true,
       avatar: user.avatar || `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 1000000)}?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`,
       assignedProjects: user.assignedProjects || [],
       team_id: user.team_id || null,
@@ -587,5 +692,97 @@ export const dbDeleteTask = (id) => {
   const tasks = dbGetTasks();
   const filtered = tasks.filter(t => t.id !== id);
   setToStorage(DB_KEYS.TASKS, filtered);
+};
+
+// DEPARTMENTS CRUD
+export const dbGetDepartments = () => getFromStorage(DB_KEYS.DEPARTMENTS, INITIAL_DEPARTMENTS);
+
+export const dbGetDepartment = (id) => {
+  const list = dbGetDepartments();
+  return list.find(d => d.id === id) || null;
+};
+
+export const dbSaveDepartment = (department) => {
+  const list = dbGetDepartments();
+  let updatedList;
+  
+  if (department.id) {
+    const oldDept = list.find(d => d.id === department.id);
+    updatedList = list.map(d => d.id === department.id ? { ...d, ...department } : d);
+    
+    // Cascade rename
+    if (oldDept && oldDept.name !== department.name) {
+      const users = dbGetUsers();
+      const updatedUsers = users.map(u => u.department === oldDept.name ? { ...u, department: department.name } : u);
+      setToStorage(DB_KEYS.USERS, updatedUsers);
+      
+      const members = dbGetTeamMembers();
+      const updatedMembers = members.map(m => m.department === oldDept.name ? { ...m, department: department.name } : m);
+      setToStorage(DB_KEYS.TEAM_MEMBERS, updatedMembers);
+    }
+  } else {
+    const newDept = {
+      ...department,
+      id: `dept-${Date.now()}`,
+      status: department.status || 'Active'
+    };
+    updatedList = [...list, newDept];
+  }
+  
+  setToStorage(DB_KEYS.DEPARTMENTS, updatedList);
+  return department.id ? department : updatedList[updatedList.length - 1];
+};
+
+export const dbDeleteDepartment = (id) => {
+  const list = dbGetDepartments();
+  const deptToDelete = list.find(d => d.id === id);
+  if (!deptToDelete) return;
+  
+  const filtered = list.filter(d => d.id !== id);
+  setToStorage(DB_KEYS.DEPARTMENTS, filtered);
+  
+  // Cascade delete/reset
+  const users = dbGetUsers();
+  const updatedUsers = users.map(u => u.department === deptToDelete.name ? { ...u, department: '' } : u);
+  setToStorage(DB_KEYS.USERS, updatedUsers);
+  
+  const members = dbGetTeamMembers();
+  const updatedMembers = members.map(m => m.department === deptToDelete.name ? { ...m, department: '' } : m);
+  setToStorage(DB_KEYS.TEAM_MEMBERS, updatedMembers);
+};
+
+// --- CLIENTS ---
+export const dbGetClients = () => {
+  return getFromStorage(DB_KEYS.CLIENTS, INITIAL_CLIENTS);
+};
+
+export const dbGetClient = (id) => {
+  const clients = dbGetClients();
+  return clients.find((c) => c.id === id);
+};
+
+export const dbSaveClient = (client) => {
+  const clients = dbGetClients();
+  let updatedList;
+  if (client.id) {
+    updatedList = clients.map((c) => (c.id === client.id ? { ...c, ...client, updatedAt: new Date().toISOString() } : c));
+  } else {
+    const newClient = {
+      ...client,
+      id: `client-${Date.now()}`,
+      active: client.active !== undefined ? client.active : true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    updatedList = [...clients, newClient];
+  }
+  setToStorage(DB_KEYS.CLIENTS, updatedList);
+  return client.id ? client : updatedList[updatedList.length - 1];
+};
+
+export const dbDeleteClient = (id) => {
+  const clients = dbGetClients();
+  const filtered = clients.filter((c) => c.id !== id);
+  setToStorage(DB_KEYS.CLIENTS, filtered);
 };
 

@@ -3,18 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import * as userApi from '../../services/userApi';
 import * as teamApi from '../../services/teamApi';
 import * as projectApi from '../../services/projectApi';
+import * as departmentApi from '../../services/departmentApi';
 import { useRole } from '../../hooks/useRole';
 import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { Plus, Search, RefreshCw, Edit, Trash2, X, Shield, Key, Mail, CheckCircle2 } from 'lucide-react';
+import { Plus, Search, RefreshCw, Edit, Trash2, X, CheckCircle2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { ROLES, DEPARTMENTS } from '../../config/constants';
+import { ROLES } from '../../config/constants';
 
 const UserManagementPage = () => {
   const navigate = useNavigate();
-  const { isCEO, role: currentUserRole } = useRole();
+  const { isCEO } = useRole();
 
   // Redirect if not CEO/Admin
   useEffect(() => {
@@ -28,6 +29,7 @@ const UserManagementPage = () => {
   const [users, setUsers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
   // Filters State
   const [search, setSearch] = useState('');
@@ -44,7 +46,7 @@ const UserManagementPage = () => {
     role: 'DEVELOPER',
     department: 'Front End',
     team_id: '',
-    status: 'Active',
+    isActive: true,
     assignedProjects: []
   });
 
@@ -52,14 +54,20 @@ const UserManagementPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [usersRes, teamsRes, projectsRes] = await Promise.all([
-        userApi.getUsers({ search, role: roleFilter, status: statusFilter }),
+      const [usersRes, teamsRes, projectsRes, deptsRes] = await Promise.all([
+        userApi.getUsers({
+          search,
+          role: roleFilter,
+          isActive: statusFilter === 'Active' ? true : statusFilter === 'Inactive' ? false : undefined
+        }),
         teamApi.getTeams(),
-        projectApi.getProjects()
+        projectApi.getProjects(),
+        departmentApi.getDepartments({ status: 'Active' })
       ]);
       setUsers(usersRes.users);
       setTeams(teamsRes);
       setProjects(projectsRes.projects);
+      setDepartments(deptsRes.departments);
     } catch (err) {
       setError(err.message || 'Gagal memuat data manajemen user.');
     } finally {
@@ -80,9 +88,9 @@ const UserManagementPage = () => {
       email: '',
       password: '',
       role: 'DEVELOPER',
-      department: 'Front End',
+      department: departments[0]?.name || '',
       team_id: '',
-      status: 'Active',
+      isActive: true,
       assignedProjects: []
     });
     setIsModalOpen(true);
@@ -97,7 +105,7 @@ const UserManagementPage = () => {
       role: user.role || 'DEVELOPER',
       department: user.department || 'Front End',
       team_id: user.team_id || '',
-      status: user.status || 'Active',
+      isActive: user.isActive !== false,
       assignedProjects: user.assignedProjects || []
     });
     setIsModalOpen(true);
@@ -205,7 +213,7 @@ const UserManagementPage = () => {
 
   const getRoleLabel = (role) => {
     switch (role) {
-      case ROLES.ADMIN: return 'Admin';
+      case ROLES.ADMIN: return 'Admin / Management';
       case ROLES.DEVELOPER: return 'Developer';
       default: return role;
     }
@@ -371,11 +379,11 @@ const UserManagementPage = () => {
 
                         <td className="py-4 px-4">
                           <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
-                            u.status === 'Active'
+                            u.isActive
                               ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
                               : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
                           }`}>
-                            {u.status}
+                            {u.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </td>
 
@@ -477,8 +485,8 @@ const UserManagementPage = () => {
                 <div className="space-y-1 text-left">
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status Keaktifan</label>
                   <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    value={formData.isActive ? "Active" : "Inactive"}
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'Active' })}
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                     disabled={editingUser?.id === 'user-ceo'}
                   >
@@ -517,8 +525,9 @@ const UserManagementPage = () => {
                     onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                   >
-                    {DEPARTMENTS.map((d) => (
-                      <option key={d} value={d}>{d}</option>
+                    <option value="">Pilih Departemen</option>
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.name}>{d.name}</option>
                     ))}
                   </select>
                 </div>
@@ -561,7 +570,7 @@ const UserManagementPage = () => {
                       >
                         <div className="min-w-0 pr-2">
                           <p className="text-[10px] font-bold text-slate-850 truncate">{proj.name}</p>
-                          <p className="text-[8px] text-slate-400 font-semibold">Client: {proj.client}</p>
+                          <p className="text-[8px] text-slate-400 font-semibold">Client: {proj.clientName}</p>
                         </div>
                         <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${
                           isChecked ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-350'
