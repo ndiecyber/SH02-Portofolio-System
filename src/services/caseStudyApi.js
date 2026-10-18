@@ -1,5 +1,4 @@
-import api, { USE_MOCK } from './api';
-import * as mockDb from '../utils/mockDb';
+import api from './api';
 import {
   normalizeCaseStudy,
   serializeCaseStudy,
@@ -30,12 +29,6 @@ const buildPartial = (data = {}) => {
 };
 
 export const getCaseStudies = async (params = {}) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const list = mockDb.dbGetCaseStudies();
-    return { caseStudies: list, total: list.length };
-  }
-
   const query = { ...params };
   if (query.status) query.status = contentStatusToApi(query.status);
 
@@ -49,39 +42,21 @@ export const getCaseStudies = async (params = {}) => {
 };
 
 export const getCaseStudy = async (id) => {
-  if (USE_MOCK) {
-    const caseStudy = mockDb.dbGetCaseStudy(id);
-    if (!caseStudy) throw new Error('Case study tidak ditemukan.');
-    return caseStudy;
-  }
   const response = await api.get(`/api/case-studies/${id}`);
   return normalizeCaseStudy(response.data?.data ?? response.data);
 };
 
 export const createCaseStudy = async (data) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockDb.dbSaveCaseStudy(data);
-  }
   const response = await api.post('/api/case-studies', serializeCaseStudy(data));
   return normalizeCaseStudy(response.data?.data ?? response.data);
 };
 
 export const updateCaseStudy = async (id, data) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockDb.dbSaveCaseStudy({ ...data, id });
-  }
   const response = await api.put(`/api/case-studies/${id}`, buildPartial(data));
   return normalizeCaseStudy(response.data?.data ?? response.data);
 };
 
 export const deleteCaseStudy = async (id) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    mockDb.dbDeleteCaseStudy(id);
-    return { success: true };
-  }
   const response = await api.delete(`/api/case-studies/${id}`);
   return response.data?.data ?? response.data;
 };

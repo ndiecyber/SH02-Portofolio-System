@@ -1,5 +1,4 @@
-import api, { USE_MOCK } from './api';
-import * as mockDb from '../utils/mockDb';
+import api from './api';
 import {
   normalizeTestimonial,
   serializeTestimonial,
@@ -18,12 +17,6 @@ const buildPartial = (data = {}) => {
 };
 
 export const getTestimonials = async (params = {}) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    const list = mockDb.dbGetTestimonials();
-    return { testimonials: list, total: list.length };
-  }
-
   const query = { ...params };
   if (params.status) query.status = contentStatusToApi(params.status);
   else delete query.status;
@@ -38,39 +31,21 @@ export const getTestimonials = async (params = {}) => {
 };
 
 export const getTestimonial = async (id) => {
-  if (USE_MOCK) {
-    const testimonial = mockDb.dbGetTestimonial(id);
-    if (!testimonial) throw new Error('Testimonial tidak ditemukan.');
-    return testimonial;
-  }
   const response = await api.get(`/api/testimonials/${id}`);
   return normalizeTestimonial(response.data?.data ?? response.data);
 };
 
 export const createTestimonial = async (testimonialData) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockDb.dbSaveTestimonial(testimonialData);
-  }
   const response = await api.post('/api/testimonials', serializeTestimonial(testimonialData));
   return normalizeTestimonial(response.data?.data ?? response.data);
 };
 
 export const updateTestimonial = async (id, testimonialData) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockDb.dbSaveTestimonial({ ...testimonialData, id });
-  }
   const response = await api.put(`/api/testimonials/${id}`, buildPartial(testimonialData));
   return normalizeTestimonial(response.data?.data ?? response.data);
 };
 
 export const deleteTestimonial = async (id) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    mockDb.dbDeleteTestimonial(id);
-    return { success: true };
-  }
   const response = await api.delete(`/api/testimonials/${id}`);
   return response.data?.data ?? response.data;
 };

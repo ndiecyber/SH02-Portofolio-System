@@ -5,7 +5,6 @@ import { Calendar, Tag, ShieldCheck, DollarSign, Image, Users, Info, Building2, 
 import Input from '../common/Input';
 import Button from '../common/Button';
 import Alert from '../common/Alert';
-import * as mockDb from '../../utils/mockDb';
 import * as clientApi from '../../services/clientApi';
 import * as serviceApi from '../../services/serviceApi';
 import * as technologyApi from '../../services/technologyApi';
@@ -38,7 +37,7 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
         setAvailableClients(clientsRes.clients || []);
         setAvailableServices(servicesRes.services || []);
       } catch {
-        setAvailableClients(mockDb.dbGetClients() || []);
+        setAvailableClients([]);
       }
 
       try {

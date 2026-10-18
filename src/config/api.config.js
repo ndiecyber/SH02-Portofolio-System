@@ -68,6 +68,4 @@ api.interceptors.response.use(
   }
 );
 
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
-
 export default api;

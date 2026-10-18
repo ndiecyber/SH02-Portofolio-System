@@ -1,5 +1,4 @@
-import api, { USE_MOCK } from './api';
-import * as mockDb from '../utils/mockDb';
+import api from './api';
 
 // Short in-memory cache to prevent multiple parallel calls hitting the server simultaneously
 let cachedDashboardPromise = null;
@@ -21,11 +20,6 @@ const fetchDashboardData = async () => {
 };
 
 export const getDashboardSummary = async () => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockDb.dbGetDashboardStats().summary;
-  }
-
   try {
     const data = await fetchDashboardData();
     if (data?.summary) {
@@ -41,25 +35,10 @@ export const getDashboardSummary = async () => {
 };
 
 export const getProjectsOverview = async () => {
-  const getMockOverview = () => {
-    const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
-    return months.map((m, idx) => ({
-      name: m,
-      'Total Projects': 2 + idx,
-      'Completed': idx > 2 ? idx - 1 : 0,
-      'In Progress': 2 + idx - (idx > 2 ? idx - 1 : 0)
-    }));
-  };
-
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return getMockOverview();
-  }
-
   try {
     const data = await fetchDashboardData();
     const trendList = Array.isArray(data?.timelineTrend) ? data.timelineTrend : [];
-    
+
     // Generate a 6-month timeline window up to current month (e.g., 2026-04 to 2026-09)
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const now = new Date();
@@ -109,23 +88,6 @@ export const getProjectsOverview = async () => {
 };
 
 export const getProjectsByCategory = async () => {
-  const getMockCategory = () => {
-    const projects = mockDb.dbGetProjects();
-    const categories = ['Web Dev', 'Mobile Dev', 'System Dev', 'UI/UX', 'Other'];
-    return categories.map(cat => {
-      const count = projects.filter(p => p.category === cat).length;
-      return {
-        name: cat,
-        value: count
-      };
-    }).filter(item => item.value > 0);
-  };
-
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return getMockCategory();
-  }
-
   try {
     const data = await fetchDashboardData();
     if (Array.isArray(data?.projectsByCategory) && data.projectsByCategory.length > 0) {
@@ -144,26 +106,6 @@ export const getProjectsByCategory = async () => {
 };
 
 export const getTopTechnologies = async () => {
-  const getMockTech = () => {
-    const projects = mockDb.dbGetProjects();
-    const counts = {};
-    projects.forEach(p => {
-      p.technologies?.forEach(t => {
-        counts[t] = (counts[t] || 0) + 1;
-      });
-    });
-    const list = Object.keys(counts).map(name => ({
-      name,
-      percentage: Math.round((counts[name] / projects.length) * 100)
-    }));
-    return list.sort((a, b) => b.percentage - a.percentage).slice(0, 5);
-  };
-
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return getMockTech();
-  }
-
   try {
     const data = await fetchDashboardData();
     if (Array.isArray(data?.topTechnologies) && data.topTechnologies.length > 0) {
@@ -193,11 +135,6 @@ export const getTopTechnologies = async () => {
 };
 
 export const getClientSatisfaction = async () => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return mockDb.dbGetDashboardStats().clientSatisfaction;
-  }
-
   try {
     // Attempt to calculate precise rating from actual published testimonials
     let testimonials = [];
@@ -258,12 +195,6 @@ export const getClientSatisfaction = async () => {
 };
 
 export const getRecentProjects = async () => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    const projects = mockDb.dbGetProjects();
-    return projects.slice(0, 5);
-  }
-
   try {
     // First try fetching real projects from /api/projects/ for complete progressPercentage & metadata
     let projectsList = [];

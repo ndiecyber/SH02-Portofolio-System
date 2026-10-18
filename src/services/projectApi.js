@@ -1,5 +1,4 @@
-import api, { USE_MOCK } from './api';
-import * as mockDb from '../utils/mockDb';
+import api from './api';
 import {
   normalizeProject,
   normalizeProjectList,
@@ -68,12 +67,6 @@ export const serializeProjectUpdatePayload = (data = {}) => {
 };
 
 export const getProjects = async (params = {}) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const projects = mockDb.dbGetProjects();
-    return { projects, total: projects.length };
-  }
-
   const response = await api.get('/api/projects', { params });
   const raw = response.data;
   const list = raw?.data ?? raw?.projects ?? (Array.isArray(raw) ? raw : []);
@@ -84,60 +77,26 @@ export const getProjects = async (params = {}) => {
 };
 
 export const getProject = async (id) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const project = mockDb.dbGetProject(id);
-    if (!project) throw new Error('Proyek tidak ditemukan.');
-    return project;
-  }
-
   const response = await api.get(`/api/projects/${id}`);
   return normalizeProject(response.data?.data ?? response.data);
 };
 
 export const createProject = async (projectData) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockDb.dbSaveProject(projectData);
-  }
-
   const response = await api.post('/api/projects', serializeProjectPayload(projectData));
   return normalizeProject(response.data?.data ?? response.data);
 };
 
 export const updateProject = async (id, projectData) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockDb.dbSaveProject({ ...projectData, id });
-  }
-
   const response = await api.put(`/api/projects/${id}`, serializeProjectUpdatePayload(projectData));
   return normalizeProject(response.data?.data ?? response.data);
 };
 
 export const deleteProject = async (id) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    mockDb.dbDeleteProject(id);
-    return { success: true };
-  }
-
   const response = await api.delete(`/api/projects/${id}`);
   return response.data?.data ?? response.data;
 };
 
 export const updateProjectProgress = async (id, progressData) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const project = mockDb.dbGetProject(id);
-    if (!project) throw new Error('Proyek tidak ditemukan.');
-    return mockDb.dbSaveProject({
-      ...project,
-      progress: parseInt(progressData.progressPercentage ?? progressData.progress, 10),
-      progressNotes: progressData.message || progressData.progressNotes || '',
-    });
-  }
-
   const payload = {
     progressPercentage: Number(progressData.progressPercentage ?? progressData.progress) || 0,
     message: progressData.message ?? progressData.progressNotes ?? '',
@@ -147,9 +106,6 @@ export const updateProjectProgress = async (id, progressData) => {
 };
 
 export const getProjectLogs = async (id) => {
-  if (USE_MOCK) {
-    return [];
-  }
   const response = await api.get(`/api/projects/${id}/logs`);
   return response.data?.data ?? response.data ?? [];
 };

@@ -1,5 +1,4 @@
-import api, { USE_MOCK } from './api';
-import * as mockDb from '../utils/mockDb';
+import api from './api';
 import { normalizeDocument, docCategoryToApi } from '../utils/contractMap';
 
 const getStoredUser = () => {
@@ -11,12 +10,6 @@ const getStoredUser = () => {
 };
 
 export const getDocuments = async (params = {}) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    const docs = mockDb.dbGetDocuments();
-    return { documents: docs, total: docs.length };
-  }
-
   const query = { ...params };
   if (query.category) query.category = docCategoryToApi(query.category);
 
@@ -30,11 +23,6 @@ export const getDocuments = async (params = {}) => {
 };
 
 export const createDocument = async (docData = {}) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockDb.dbSaveDocument(docData);
-  }
-
   // Backend expects multipart/form-data with a real File object.
   let file = docData.file;
   if (!file && docData.url && typeof docData.url === 'string' && docData.url.startsWith('data:')) {
@@ -54,23 +42,11 @@ export const createDocument = async (docData = {}) => {
 };
 
 export const deleteDocument = async (id) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    mockDb.dbDeleteDocument(id);
-    return { success: true };
-  }
-
   const response = await api.delete(`/api/documents/${id}`);
   return response.data?.data ?? response.data;
 };
 
 export const downloadDocument = async (id) => {
-  if (USE_MOCK) {
-    const doc = mockDb.dbGetDocument(id);
-    if (!doc) throw new Error('Dokumen tidak ditemukan.');
-    return { url: doc.url, fileName: doc.fileName };
-  }
-
   const response = await api.get(`/api/documents/${id}/download`);
   const data = response.data?.data ?? response.data;
   return { url: data.downloadUrl ?? data.url, fileName: data.fileName };
