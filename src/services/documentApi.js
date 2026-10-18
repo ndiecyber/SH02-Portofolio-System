@@ -1,94 +1,61 @@
 import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
+import { normalizeDocument, docCategoryToApi } from '../utils/contractMap';
+
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('sh02_auth_user') || 'null');
+  } catch {
+    return null;
+  }
+};
 
 export const getDocuments = async (params = {}) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    let docs = mockDb.dbGetDocuments();
-
-    // Get logged-in user to check team and assignments
-    const userJson = localStorage.getItem('sh02_auth_user');
-    const user = userJson ? JSON.parse(userJson) : null;
-
-    if (user) {
-      const role = user.role;
-      const isAdmin = role === 'ADMIN' || role === 'CEO';
-      const isIntern = role === 'INTERN';
-
-      if (!isAdmin) {
-        if (isIntern) {
-          // Intern: filter by team isolation
-          docs = docs.filter((d) => d.teamId === user.team_id);
-        } else {
-          // PM, Developer, UIUX, QA: filter by assigned projects
-          const assignedProjects = user.assignedProjects || [];
-          docs = docs.filter((d) => assignedProjects.includes(d.projectId));
-        }
-      }
-    }
-
-    if (params.search) {
-      const q = params.search.toLowerCase();
-      docs = docs.filter(
-        (d) => d.fileName.toLowerCase().includes(q) || d.category.toLowerCase().includes(q)
-      );
-    }
-
-    if (params.category) {
-      docs = docs.filter((d) => d.category === params.category);
-    }
-
-    if (params.projectId) {
-      docs = docs.filter((d) => d.projectId === params.projectId);
-    }
-
-    return {
-      documents: docs,
-      total: docs.length
-    };
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    const docs = mockDb.dbGetDocuments();
+    return { documents: docs, total: docs.length };
   }
 
-  const response = await api.get('/api/documents', { params });
+  const query = { ...params };
+  if (query.category) query.category = docCategoryToApi(query.category);
+
+  const response = await api.get('/api/documents', { params: query });
   const raw = response.data;
-  if (Array.isArray(raw)) {
-    return { documents: raw, total: raw.length };
-  }
-  if (Array.isArray(raw?.data)) {
-    return {
-      documents: raw.data,
-      total: raw.meta?.total ?? raw.total ?? raw.data.length,
-    };
-  }
-  if (raw?.documents) {
-    return raw;
-  }
-  return { documents: [], total: 0 };
+  const list = raw?.data ?? raw?.documents ?? (Array.isArray(raw) ? raw : []);
+  return {
+    documents: list.map(normalizeDocument),
+    total: raw?.meta?.total ?? raw?.total ?? list.length,
+  };
 };
 
-export const createDocument = async (docData) => {
+export const createDocument = async (docData = {}) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    
-    // Auto-populate uploader's name
-    const userJson = localStorage.getItem('sh02_auth_user');
-    const user = userJson ? JSON.parse(userJson) : null;
-    const uploadedBy = user ? user.name : 'Unknown';
-
-    const payload = {
-      ...docData,
-      uploadedBy
-    };
-    return mockDb.dbSaveDocument(payload);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return mockDb.dbSaveDocument(docData);
   }
 
-  // multipart upload usually, but we keep it mock/json for simplicity
-  const response = await api.post('/api/documents/upload', docData);
-  return response.data?.data ?? response.data;
+  // Backend expects multipart/form-data with a real File object.
+  let file = docData.file;
+  if (!file && docData.url && typeof docData.url === 'string' && docData.url.startsWith('data:')) {
+    const res = await fetch(docData.url);
+    const blob = await res.blob();
+    file = new File([blob], docData.fileName || 'upload', { type: blob.type });
+  }
+
+  const form = new FormData();
+  form.append('projectId', docData.projectId);
+  form.append('category', docCategoryToApi(docData.category));
+  form.append('uploadedBy', docData.uploadedBy || getStoredUser()?.id || '');
+  if (file) form.append('file', file);
+
+  const response = await api.post('/api/documents', form);
+  return normalizeDocument(response.data?.data ?? response.data);
 };
 
 export const deleteDocument = async (id) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 200));
     mockDb.dbDeleteDocument(id);
     return { success: true };
   }
@@ -99,17 +66,12 @@ export const deleteDocument = async (id) => {
 
 export const downloadDocument = async (id) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
     const doc = mockDb.dbGetDocument(id);
     if (!doc) throw new Error('Dokumen tidak ditemukan.');
-    
-    // Simulate file download by returning file metadata & mock download url
-    return {
-      url: doc.url || 'data:text/plain;base64,TW9jayBmaWxlIGNvbnRlbnQ=',
-      fileName: doc.fileName
-    };
+    return { url: doc.url, fileName: doc.fileName };
   }
 
   const response = await api.get(`/api/documents/${id}/download`);
-  return response.data?.data ?? response.data;
+  const data = response.data?.data ?? response.data;
+  return { url: data.downloadUrl ?? data.url, fileName: data.fileName };
 };

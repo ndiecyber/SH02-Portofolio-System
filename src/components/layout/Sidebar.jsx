@@ -8,10 +8,8 @@ import {
   BookOpen,
   Layers,
   Cpu,
-  Users,
   MessageSquare,
   FileText,
-  Settings,
   LogOut,
   X,
   Calendar,
@@ -28,13 +26,12 @@ const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const roleChecker = useRole();
 
-  // Dynamic route checking
-  const showCaseStudies = roleChecker.isCEO || roleChecker.isPM || (roleChecker.isIntern && !roleChecker.isLearningIntern);
-  const showServices = roleChecker.isCEO || roleChecker.isPM;
+  // Dynamic route checking (backend grants read access to admin + developer)
+  const showCaseStudies = roleChecker.isCEO || roleChecker.isPM || roleChecker.isDeveloper || (roleChecker.isIntern && !roleChecker.isLearningIntern);
+  const showServices = roleChecker.isCEO;
   const showTechnologies = roleChecker.isCEO || roleChecker.isPM || roleChecker.isDeveloper || roleChecker.isIntern;
-  const showTestimonials = roleChecker.isCEO || roleChecker.isPM || roleChecker.isClient || roleChecker.isJuniorIntern;
-  const showClients = roleChecker.isCEO || roleChecker.isPM || roleChecker.isDeveloper;
-  const showTeam = !roleChecker.isClient; // Clients see names inside projects, hide general directory
+  const showTestimonials = roleChecker.isCEO || roleChecker.isPM || roleChecker.isDeveloper || roleChecker.isClient || roleChecker.isJuniorIntern;
+  const showClients = roleChecker.isCEO;
   const showDocuments = !roleChecker.isClient; // Clients have no access to docs
 
   const menuGroups = [
@@ -53,7 +50,6 @@ const Sidebar = ({ isOpen, onClose }) => {
       title: 'MANAGEMENT',
       items: [
         { name: 'Klien', path: '/clients', icon: Building2, show: showClients },
-        { name: 'Manajemen Tim', path: '/team', icon: Users, show: showTeam },
         { name: 'Documents', path: '/documents', icon: FileText, show: showDocuments },
         { name: 'Tasks', path: '/tasks', icon: CheckSquare, show: !roleChecker.isClient },
         { name: 'Calendar', path: '/calendar', icon: Calendar, show: !roleChecker.isClient },
@@ -64,7 +60,6 @@ const Sidebar = ({ isOpen, onClose }) => {
       items: [
         { name: 'Manajemen User', path: '/users', icon: UserCheck, show: roleChecker.canViewUserManagement() },
         { name: 'Manajemen Departemen', path: '/departments', icon: Building, show: roleChecker.canViewUserManagement() },
-        { name: 'Settings', path: '/settings', icon: Settings, show: roleChecker.canViewSettings() },
       ].filter(item => item.show)
     }
   ].filter(group => group.items.length > 0);
@@ -112,8 +107,8 @@ const Sidebar = ({ isOpen, onClose }) => {
     if (roleChecker.isIntern) {
       return `Intern - ${user.magang_tier}`;
     }
-    if (user.role === 'ADMIN') return 'Admin / Management';
-    return user.role.replace(/_/g, ' ');
+    if (user.role === 'ADMIN' || (user.role || '').toLowerCase() === 'admin') return 'Admin / Management';
+    return (user.role || '').replace(/_/g, ' ');
   };
 
   return (
@@ -222,12 +217,12 @@ const Sidebar = ({ isOpen, onClose }) => {
             <div className="flex items-center justify-between bg-black/20 dark:bg-white/4 p-2.5 rounded-xl border border-white/5 dark:border-white/8 dark:hover:border-indigo-500/20 transition-colors">
               <div className="flex items-center space-x-3 min-w-0">
                 <img
-                  src={user.avatar}
+                  src={user.avatar || user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=2563eb&color=fff`}
                   alt={user.name}
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/20"
                 />
                 <div className="min-w-0 text-left">
-                  <p className="text-xs font-bold text-white truncate max-w-[100px]">{user.name.split(' ')[0]}</p>
+                  <p className="text-xs font-bold text-white truncate max-w-[100px]">{(user.name || 'User').split(' ')[0]}</p>
                   <p className="text-[9px] text-slate-400 truncate font-semibold uppercase tracking-wider">
                     {getRoleLabel()}
                   </p>

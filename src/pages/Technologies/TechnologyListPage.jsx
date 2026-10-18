@@ -32,15 +32,14 @@ const TechnologyListPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     category: 'Frontend',
-    proficiency: 'Intermediate',
     isActive: true
   });
 
   useEffect(() => {
-    if (!hasAccess && !loading) {
-      navigate('/unauthorized');
+    if (!hasAccess) {
+      navigate('/unauthorized', { replace: true });
     }
-  }, [hasAccess, navigate, loading]);
+  }, [hasAccess, navigate]);
 
   const loadTechs = useCallback(async () => {
     if (!hasAccess) return;
@@ -68,7 +67,6 @@ const TechnologyListPage = () => {
     setFormData({
       name: '',
       category: 'Frontend',
-      proficiency: 'Intermediate',
       isActive: true
     });
     setIsModalOpen(true);
@@ -79,7 +77,6 @@ const TechnologyListPage = () => {
     setFormData({
       name: tech.name || '',
       category: tech.category || 'Frontend',
-      proficiency: tech.proficiency || 'Intermediate',
       isActive: tech.isActive !== false
     });
     setIsModalOpen(true);
@@ -132,25 +129,26 @@ const TechnologyListPage = () => {
     });
   };
 
-  const getProficiencyStyle = (prof) => {
-    switch (prof) {
-      case 'Advanced':
+  const getCategoryStyle = (category) => {
+    switch (category) {
+      case 'Frontend':
         return 'bg-blue-500/10 text-blue-600 border border-blue-500/20';
-      case 'Intermediate':
+      case 'Backend':
+        return 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20';
+      case 'Mobile':
         return 'bg-indigo-500/10 text-indigo-600 border border-indigo-500/20';
+      case 'DevOps':
+        return 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
+      case 'Database':
+        return 'bg-purple-500/10 text-purple-600 border border-purple-500/20';
+      case 'Design':
+        return 'bg-rose-500/10 text-rose-600 border border-rose-500/20';
       default:
         return 'bg-slate-500/10 text-slate-650 border border-slate-500/20';
     }
   };
 
-  if (!hasAccess) {
-    return (
-      <div className="py-20 text-center space-y-4">
-        <Loader size="md" />
-        <p className="text-xs text-slate-400 font-semibold">Memeriksa hak akses...</p>
-      </div>
-    );
-  }
+  if (!hasAccess) return null;
 
   return (
     <div className="space-y-6 text-left">
@@ -238,7 +236,6 @@ const TechnologyListPage = () => {
                 <tr className="border-b border-slate-100 text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">
                   <th className="py-3.5 px-4">Nama Teknologi</th>
                   <th className="py-3.5 px-4">Kategori</th>
-                  <th className="py-3.5 px-4">Tingkat Kemahiran</th>
                   <th className="py-3.5 px-4">Status</th>
                   {canWrite && <th className="py-3.5 px-4 text-right">Aksi</th>}
                 </tr>
@@ -246,7 +243,7 @@ const TechnologyListPage = () => {
               <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
                 {technologies.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="py-8 text-center text-slate-500 font-medium">
+                    <td colSpan={canWrite ? 4 : 3} className="py-8 text-center text-slate-500 font-medium">
                       Tidak ada teknologi yang terdaftar.
                     </td>
                   </tr>
@@ -258,11 +255,9 @@ const TechnologyListPage = () => {
                         <span>{tech.name}</span>
                       </td>
 
-                      <td className="py-4 px-4 text-slate-550 font-bold">{tech.category}</td>
-
                       <td className="py-4 px-4">
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-wider ${getProficiencyStyle(tech.proficiency)}`}>
-                          {tech.proficiency}
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-wider ${getCategoryStyle(tech.category)}`}>
+                          {tech.category}
                         </span>
                       </td>
 
@@ -336,38 +331,21 @@ const TechnologyListPage = () => {
                 required
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Category Selector */}
-                <div className="space-y-1 text-left">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kategori</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                  >
-                    <option value="Frontend">Frontend</option>
-                    <option value="Backend">Backend</option>
-                    <option value="Mobile">Mobile</option>
-                    <option value="DevOps">DevOps</option>
-                    <option value="Database">Database</option>
-                    <option value="Design">Design</option>
-                    <option value="Testing">Testing</option>
-                  </select>
-                </div>
-
-                {/* Proficiency Selector */}
-                <div className="space-y-1 text-left">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kemahiran Tim</label>
-                  <select
-                    value={formData.proficiency}
-                    onChange={(e) => setFormData({ ...formData, proficiency: e.target.value })}
-                    className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                  >
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
+              <div className="space-y-1 text-left">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kategori</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
+                >
+                  <option value="Frontend">Frontend</option>
+                  <option value="Backend">Backend</option>
+                  <option value="Mobile">Mobile</option>
+                  <option value="DevOps">DevOps</option>
+                  <option value="Database">Database</option>
+                  <option value="Design">Design</option>
+                  <option value="Testing">Testing</option>
+                </select>
               </div>
 
               {/* Status */}

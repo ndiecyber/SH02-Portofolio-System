@@ -1,144 +1,84 @@
 import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
+import {
+  normalizeTestimonial,
+  serializeTestimonial,
+  contentStatusToApi,
+} from '../utils/contractMap';
+
+const buildPartial = (data = {}) => {
+  const payload = {};
+  if (data.clientName !== undefined) payload.clientName = data.clientName;
+  if (data.rating !== undefined) payload.rating = Number(data.rating);
+  if (data.message !== undefined || data.quote !== undefined) {
+    payload.message = data.message ?? data.quote;
+  }
+  if (data.status !== undefined) payload.status = contentStatusToApi(data.status);
+  return payload;
+};
 
 export const getTestimonials = async (params = {}) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    let testimonials = mockDb.dbGetTestimonials();
-
-    // Get logged-in user to check roles
-    const userJson = localStorage.getItem('sh02_auth_user');
-    const user = userJson ? JSON.parse(userJson) : null;
-
-    if (user) {
-      const role = user.role;
-      const isAdmin = role === 'ADMIN' || role === 'CEO';
-      const isPM = role === 'PROJECT_MANAGER';
-      const isClient = role === 'CLIENT';
-      const isIntern = role === 'INTERN';
-
-      if (!isAdmin && !isPM) {
-        if (isClient) {
-          // Client: see published ones + testimonials they authored
-          testimonials = testimonials.filter(
-            (t) => t.status === 'Published' || t.clientName === user.clientName
-          );
-        } else if (isIntern) {
-          if (user.magang_tier === 'JUNIOR') {
-            // Junior Intern can see testimonials (published only)
-            testimonials = testimonials.filter((t) => t.status === 'Published');
-          } else {
-            // Other interns: no access to testimonials
-            testimonials = [];
-          }
-        } else {
-          // Others: view published only
-          testimonials = testimonials.filter((t) => t.status === 'Published');
-        }
-      }
-    }
-
-    if (params.search) {
-      const q = params.search.toLowerCase();
-      testimonials = testimonials.filter(
-        (t) => t.clientName.toLowerCase().includes(q) || t.quote.toLowerCase().includes(q)
-      );
-    }
-
-    if (params.status) {
-      testimonials = testimonials.filter((t) => t.status === params.status);
-    }
-
-    return {
-      testimonials,
-      total: testimonials.length
-    };
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    const list = mockDb.dbGetTestimonials();
+    return { testimonials: list, total: list.length };
   }
 
-  const queryParams = {
-    ...params,
-    status: params.status ? params.status.toLowerCase() : 'published',
-  };
-  const response = await api.get('/api/testimonials', { params: queryParams });
+  const query = { ...params };
+  if (params.status) query.status = contentStatusToApi(params.status);
+  else delete query.status;
+
+  const response = await api.get('/api/testimonials', { params: query });
   const raw = response.data;
-  if (Array.isArray(raw)) {
-    return { testimonials: raw, total: raw.length };
-  }
-  if (Array.isArray(raw?.data)) {
-    return {
-      testimonials: raw.data,
-      total: raw.meta?.total ?? raw.total ?? raw.data.length,
-    };
-  }
-  if (raw?.testimonials) {
-    return raw;
-  }
-  return { testimonials: [], total: 0 };
+  const list = raw?.data ?? raw?.testimonials ?? (Array.isArray(raw) ? raw : []);
+  return {
+    testimonials: list.map(normalizeTestimonial),
+    total: raw?.meta?.total ?? raw?.total ?? list.length,
+  };
 };
 
 export const getTestimonial = async (id) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
     const testimonial = mockDb.dbGetTestimonial(id);
     if (!testimonial) throw new Error('Testimonial tidak ditemukan.');
     return testimonial;
   }
-
   const response = await api.get(`/api/testimonials/${id}`);
-  return response.data?.data ?? response.data;
+  return normalizeTestimonial(response.data?.data ?? response.data);
 };
 
 export const createTestimonial = async (testimonialData) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     return mockDb.dbSaveTestimonial(testimonialData);
   }
-
-  const response = await api.post('/api/testimonials', testimonialData);
-  return response.data?.data ?? response.data;
+  const response = await api.post('/api/testimonials', serializeTestimonial(testimonialData));
+  return normalizeTestimonial(response.data?.data ?? response.data);
 };
 
 export const updateTestimonial = async (id, testimonialData) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     return mockDb.dbSaveTestimonial({ ...testimonialData, id });
   }
-
-  const response = await api.put(`/api/testimonials/${id}`, testimonialData);
-  return response.data?.data ?? response.data;
+  const response = await api.put(`/api/testimonials/${id}`, buildPartial(testimonialData));
+  return normalizeTestimonial(response.data?.data ?? response.data);
 };
 
 export const deleteTestimonial = async (id) => {
   if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 200));
     mockDb.dbDeleteTestimonial(id);
     return { success: true };
   }
-
   const response = await api.delete(`/api/testimonials/${id}`);
   return response.data?.data ?? response.data;
 };
 
 export const publishTestimonial = async (id) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const test = mockDb.dbGetTestimonial(id);
-    if (!test) throw new Error('Testimonial tidak ditemukan.');
-    return mockDb.dbSaveTestimonial({ ...test, status: 'Published' });
-  }
-
-  const response = await api.put(`/api/testimonials/${id}/publish`);
-  return response.data?.data ?? response.data;
+  return updateTestimonial(id, { status: 'Published' });
 };
 
 export const unpublishTestimonial = async (id) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const test = mockDb.dbGetTestimonial(id);
-    if (!test) throw new Error('Testimonial tidak ditemukan.');
-    return mockDb.dbSaveTestimonial({ ...test, status: 'Draft' });
-  }
-
-  const response = await api.put(`/api/testimonials/${id}/unpublish`);
-  return response.data?.data ?? response.data;
+  return updateTestimonial(id, { status: 'Draft' });
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as taskApi from '../../services/taskApi';
 import * as projectApi from '../../services/projectApi';
-import * as teamApi from '../../services/teamApi';
+import * as userApi from '../../services/userApi';
 import { useRole } from '../../hooks/useRole';
 import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
@@ -51,18 +51,18 @@ const TasksPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [tasksRes, projRes, memRes] = await Promise.all([
+      const [tasksRes, projRes, usersRes] = await Promise.all([
         taskApi.getTasks({
           projectId: projectFilter,
           search
         }),
         projectApi.getProjects(),
-        teamApi.getTeamMembers()
+        userApi.getUsers({ limit: 100 }).catch(() => ({ users: [] }))
       ]);
 
       setTasks(tasksRes);
       setProjects(projRes.projects || []);
-      setMembers(memRes.members || []);
+      setMembers(usersRes.users || []);
     } catch (err) {
       setError(err.message || 'Gagal memuat data papan tugas.');
     } finally {

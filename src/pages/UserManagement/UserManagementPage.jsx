@@ -2,16 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as userApi from '../../services/userApi';
 import * as teamApi from '../../services/teamApi';
-import * as projectApi from '../../services/projectApi';
 import * as departmentApi from '../../services/departmentApi';
 import { useRole } from '../../hooks/useRole';
 import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { Plus, Search, RefreshCw, Edit, Trash2, X, CheckCircle2 } from 'lucide-react';
+import { Plus, Search, RefreshCw, Edit, Trash2, X, UserCircle2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { ROLES } from '../../config/constants';
+
+const ROLE_OPTIONS = [
+  { value: 'admin', label: 'Admin / Management' },
+  { value: 'developer', label: 'Developer' }
+];
 
 const UserManagementPage = () => {
   const navigate = useNavigate();
@@ -28,7 +31,6 @@ const UserManagementPage = () => {
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
   const [teams, setTeams] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [departments, setDepartments] = useState([]);
 
   // Filters State
@@ -43,31 +45,41 @@ const UserManagementPage = () => {
     name: '',
     email: '',
     password: '',
-    role: 'DEVELOPER',
-    department: 'Front End',
-    team_id: '',
-    isActive: true,
-    assignedProjects: []
+    role: 'developer',
+    departmentId: '',
+    teamId: '',
+    isActive: true
   });
 
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [usersRes, teamsRes, projectsRes, deptsRes] = await Promise.all([
-        userApi.getUsers({
-          search,
-          role: roleFilter,
-          isActive: statusFilter === 'Active' ? true : statusFilter === 'Inactive' ? false : undefined
-        }),
-        teamApi.getTeams(),
-        projectApi.getProjects(),
-        departmentApi.getDepartments({ status: 'Active' })
+      const [usersRes, teamsRes, deptsRes] = await Promise.all([
+        userApi.getUsers({ limit: 100 }),
+        teamApi.getTeams().catch(() => []),
+        departmentApi.getDepartments({ limit: 100 }).catch(() => ({ departments: [] }))
       ]);
-      setUsers(usersRes.users);
-      setTeams(teamsRes);
-      setProjects(projectsRes.projects);
-      setDepartments(deptsRes.departments);
+
+      const q = search.trim().toLowerCase();
+      const filtered = (usersRes.users || []).filter((u) => {
+        const matchSearch =
+          !q ||
+          (u.name || '').toLowerCase().includes(q) ||
+          (u.email || '').toLowerCase().includes(q);
+        const matchRole = !roleFilter || u.role === roleFilter;
+        const matchStatus =
+          statusFilter === ''
+            ? true
+            : statusFilter === 'Active'
+            ? u.isActive
+            : !u.isActive;
+        return matchSearch && matchRole && matchStatus;
+      });
+
+      setUsers(filtered);
+      setTeams(Array.isArray(teamsRes) ? teamsRes : teamsRes?.data || []);
+      setDepartments(deptsRes.departments || []);
     } catch (err) {
       setError(err.message || 'Gagal memuat data manajemen user.');
     } finally {
@@ -87,11 +99,10 @@ const UserManagementPage = () => {
       name: '',
       email: '',
       password: '',
-      role: 'DEVELOPER',
-      department: departments[0]?.name || '',
-      team_id: '',
-      isActive: true,
-      assignedProjects: []
+      role: 'developer',
+      departmentId: departments[0]?.id || '',
+      teamId: '',
+      isActive: true
     });
     setIsModalOpen(true);
   };
@@ -101,29 +112,13 @@ const UserManagementPage = () => {
     setFormData({
       name: user.name || '',
       email: user.email || '',
-      password: '', // Kept empty, only updated if filled
-      role: user.role || 'DEVELOPER',
-      department: user.department || 'Front End',
-      team_id: user.team_id || '',
-      isActive: user.isActive !== false,
-      assignedProjects: user.assignedProjects || []
+      password: '',
+      role: user.role || 'developer',
+      departmentId: user.departmentId || '',
+      teamId: user.teams?.[0]?.id || '',
+      isActive: user.isActive !== false
     });
     setIsModalOpen(true);
-  };
-
-  const handleProjectToggle = (projectId) => {
-    const isAssigned = formData.assignedProjects.includes(projectId);
-    if (isAssigned) {
-      setFormData(prev => ({
-        ...prev,
-        assignedProjects: prev.assignedProjects.filter(id => id !== projectId)
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        assignedProjects: [...prev.assignedProjects, projectId]
-      }));
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -137,18 +132,18 @@ const UserManagementPage = () => {
       return;
     }
 
-    const payload = {
-      ...formData,
-      // Clear password if empty in edit mode (don't overwrite original)
-      ...(editingUser && !formData.password ? { password: editingUser.password } : {}),
-      // Clean up intern fields if not intern
-      magang_tier: null,
-      team_id: formData.role === ROLES.ADMIN ? null : formData.team_id || null
+    const base = {
+      name: formData.name,
+      email: formData.email,
+      role: formData.role,
+      departmentId: formData.departmentId || undefined,
+      teamIds: formData.teamId ? [formData.teamId] : [],
+      isActive: formData.isActive
     };
 
     try {
       if (editingUser) {
-        await userApi.updateUser(editingUser.id, payload);
+        await userApi.updateUser(editingUser.id, base);
         Swal.fire({
           title: 'Berhasil!',
           text: 'Akun user berhasil diperbarui.',
@@ -158,7 +153,7 @@ const UserManagementPage = () => {
           confirmButtonColor: '#2563eb'
         });
       } else {
-        await userApi.createUser(payload);
+        await userApi.createUser({ ...base, password: formData.password });
         Swal.fire({
           title: 'Berhasil!',
           text: 'User baru berhasil dibuat.',
@@ -201,10 +196,10 @@ const UserManagementPage = () => {
   };
 
   const getRoleBadgeClass = (role) => {
-    switch (role) {
-      case ROLES.ADMIN:
+    switch ((role || '').toLowerCase()) {
+      case 'admin':
         return 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
-      case ROLES.DEVELOPER:
+      case 'developer':
         return 'bg-blue-500/10 text-blue-600 border border-blue-500/20';
       default:
         return 'bg-slate-100 text-slate-700 border border-slate-200';
@@ -212,9 +207,9 @@ const UserManagementPage = () => {
   };
 
   const getRoleLabel = (role) => {
-    switch (role) {
-      case ROLES.ADMIN: return 'Admin / Management';
-      case ROLES.DEVELOPER: return 'Developer';
+    switch ((role || '').toLowerCase()) {
+      case 'admin': return 'Admin / Management';
+      case 'developer': return 'Developer';
       default: return role;
     }
   };
@@ -274,8 +269,8 @@ const UserManagementPage = () => {
               className="bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1 font-semibold"
             >
               <option value="">Semua Peran</option>
-              {Object.values(ROLES).map((r) => (
-                <option key={r} value={r}>{getRoleLabel(r)}</option>
+              {ROLE_OPTIONS.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
               ))}
             </select>
           </div>
@@ -336,79 +331,78 @@ const UserManagementPage = () => {
                     </td>
                   </tr>
                 ) : (
-                  users.map((u) => {
-                    const assignedTeam = teams.find(t => t.id === u.team_id);
-                    return (
-                      <tr key={u.id} className="hover:bg-slate-50/50 transition-colors group">
-                         <td className="py-4 px-4 max-w-[220px]">
-                          <div className="flex items-center space-x-3">
+                  users.map((u) => (
+                    <tr key={u.id} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="py-4 px-4 max-w-[220px]">
+                        <div className="flex items-center space-x-3">
+                          {u.image ? (
                             <img
-                              src={u.avatar}
+                              src={u.image}
                               alt={u.name}
                               className="w-9 h-9 rounded-full object-cover border border-slate-100 flex-shrink-0"
-                              onError={(e) => {
-                                e.target.src = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
-                              }}
                             />
-                            <div className="min-w-0">
-                              <p className="text-slate-800 font-bold truncate">{u.name}</p>
-                              <p className="text-[10px] text-slate-400 font-semibold truncate">{u.email}</p>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="py-4 px-4">
-                          <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${getRoleBadgeClass(u.role)}`}>
-                            {getRoleLabel(u.role)}
-                          </span>
-                        </td>
-
-                        <td className="py-4 px-4 text-slate-550 font-bold">
-                          {assignedTeam ? (
-                            <span className="text-blue-650 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-                              {assignedTeam.name}
-                            </span>
                           ) : (
-                            <span className="text-slate-400 font-medium">-</span>
+                            <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                              <UserCircle2 className="w-5 h-5" />
+                            </div>
                           )}
-                        </td>
-
-                        <td className="py-4 px-4 text-slate-550 font-bold">
-                          {u.department || <span className="text-slate-400 font-medium">-</span>}
-                        </td>
-
-                        <td className="py-4 px-4">
-                          <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
-                            u.isActive
-                              ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                              : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
-                          }`}>
-                            {u.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-
-                        <td className="py-4 px-4 text-right">
-                          <div className="inline-flex space-x-1.5">
-                            <button
-                              onClick={() => handleOpenEdit(u)}
-                              title="Edit User"
-                              className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg border border-blue-200 transition-all"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              disabled={u.id === 'user-ceo'}
-                              onClick={() => handleDelete(u.id, u.name)}
-                              title={u.id === 'user-ceo' ? 'Cannot delete CEO account' : 'Delete User'}
-                              className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-all disabled:opacity-40 disabled:pointer-events-none"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                          <div className="min-w-0">
+                            <p className="text-slate-800 font-bold truncate">{u.name}</p>
+                            <p className="text-[10px] text-slate-400 font-semibold truncate">{u.email}</p>
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })
+                        </div>
+                      </td>
+
+                      <td className="py-4 px-4">
+                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${getRoleBadgeClass(u.role)}`}>
+                          {getRoleLabel(u.role)}
+                        </span>
+                      </td>
+
+                      <td className="py-4 px-4 text-slate-550 font-bold">
+                        {u.teams && u.teams.length > 0 ? (
+                          <span className="text-blue-650 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                            {u.teams.map((t) => t.name).join(', ')}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 font-medium">-</span>
+                        )}
+                      </td>
+
+                      <td className="py-4 px-4 text-slate-550 font-bold">
+                        {u.department?.name || <span className="text-slate-400 font-medium">-</span>}
+                      </td>
+
+                      <td className="py-4 px-4">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
+                          u.isActive
+                            ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                            : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
+                        }`}>
+                          {u.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+
+                      <td className="py-4 px-4 text-right">
+                        <div className="inline-flex space-x-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(u)}
+                            title="Edit User"
+                            className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg border border-blue-200 transition-all"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(u.id, u.name)}
+                            title="Delete User"
+                            className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
@@ -419,7 +413,7 @@ const UserManagementPage = () => {
       {/* CRUD Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-[2px] animate-fade-in">
-          <div className="bg-white rounded-2xl border border-slate-150 shadow-2xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl border border-slate-150 shadow-2xl max-w-xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
               <div>
@@ -463,24 +457,21 @@ const UserManagementPage = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  disabled={!!editingUser}
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="relative">
-                  <Input
-                    id="password"
-                    label={editingUser ? "Ganti Password (Kosongkan jika tidak diubah)" : "Password Baru *"}
-                    type="password"
-                    placeholder="Minimal 6 karakter..."
-                    variant="light"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    required={!editingUser}
-                  />
-                </div>
-                
+                <Input
+                  id="password"
+                  label={editingUser ? "Ganti Password (Kosongkan jika tidak diubah)" : "Password Baru *"}
+                  type="password"
+                  placeholder="Minimal 8 karakter..."
+                  variant="light"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required={!editingUser}
+                />
+
                 {/* Status Selection */}
                 <div className="space-y-1 text-left">
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status Keaktifan</label>
@@ -488,7 +479,6 @@ const UserManagementPage = () => {
                     value={formData.isActive ? "Active" : "Inactive"}
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'Active' })}
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                    disabled={editingUser?.id === 'user-ceo'}
                   >
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -509,25 +499,24 @@ const UserManagementPage = () => {
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                    disabled={editingUser?.id === 'user-ceo'}
                   >
-                    {Object.values(ROLES).map((r) => (
-                      <option key={r} value={r}>{getRoleLabel(r)}</option>
+                    {ROLE_OPTIONS.map((r) => (
+                      <option key={r.value} value={r.value}>{r.label}</option>
                     ))}
                   </select>
                 </div>
 
                 {/* Department Selection */}
                 <div className="space-y-1 text-left">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Departemen *</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Departemen</label>
                   <select
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    value={formData.departmentId}
+                    onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                   >
                     <option value="">Pilih Departemen</option>
                     {departments.map((d) => (
-                      <option key={d.id} value={d.name}>{d.name}</option>
+                      <option key={d.id} value={d.id}>{d.name}</option>
                     ))}
                   </select>
                 </div>
@@ -536,50 +525,15 @@ const UserManagementPage = () => {
                 <div className="space-y-1 text-left">
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Struktur Tim</label>
                   <select
-                    value={formData.team_id}
-                    onChange={(e) => setFormData({ ...formData, team_id: e.target.value })}
+                    value={formData.teamId}
+                    onChange={(e) => setFormData({ ...formData, teamId: e.target.value })}
                     className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                    disabled={formData.role === ROLES.ADMIN}
                   >
                     <option value="">Belum Memiliki Tim</option>
                     {teams.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
                   </select>
-                </div>
-              </div>
-
-              {/* Projects Assignment Checklist */}
-              <div className="space-y-1 text-left pt-2 border-t border-slate-100">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Tugaskan Proyek (Scope Proyek)
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-32 overflow-y-auto p-1.5 bg-slate-50 border border-slate-200 rounded-lg">
-                  {projects.map((proj) => {
-                    const isChecked = formData.assignedProjects.includes(proj.id);
-                    return (
-                      <button
-                        type="button"
-                        key={proj.id}
-                        onClick={() => handleProjectToggle(proj.id)}
-                        className={`flex items-center justify-between p-2.5 rounded-lg border text-left transition-all ${
-                          isChecked
-                            ? 'bg-white border-blue-500/50 text-slate-800'
-                            : 'bg-white border-slate-205 text-slate-500 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="min-w-0 pr-2">
-                          <p className="text-[10px] font-bold text-slate-850 truncate">{proj.name}</p>
-                          <p className="text-[8px] text-slate-400 font-semibold">Client: {proj.clientName}</p>
-                        </div>
-                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${
-                          isChecked ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-350'
-                        }`}>
-                          {isChecked && <CheckCircle2 className="w-3 h-3" />}
-                        </div>
-                      </button>
-                    );
-                  })}
                 </div>
               </div>
 

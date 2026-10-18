@@ -16,7 +16,6 @@ const ProjectDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [project, setProject] = useState(null);
-  const [allMembers, setAllMembers] = useState([]);
 
   // Developer panel state
   const [updating, setUpdating] = useState(false);
@@ -38,12 +37,19 @@ const ProjectDetailPage = () => {
 
       setProject(proj);
       setProgressVal(proj.progress);
-      setProgressNotesVal(proj.progressNotes || '');
       setStatusVal(proj.status);
 
-      // Load members details
-      const members = JSON.parse(localStorage.getItem('sh02_db_team_members') || '[]');
-      setAllMembers(members);
+      // Load latest progress log for display
+      try {
+        const logs = await projectApi.getProjectLogs(id);
+        if (Array.isArray(logs) && logs.length > 0) {
+          setProgressNotesVal(logs[logs.length - 1]?.message || '');
+        } else {
+          setProgressNotesVal(proj.progressNotes || '');
+        }
+      } catch {
+        setProgressNotesVal(proj.progressNotes || '');
+      }
     } catch (err) {
       setError(err.message || 'Gagal memuat detail proyek.');
     } finally {
@@ -60,10 +66,14 @@ const ProjectDetailPage = () => {
     setUpdating(true);
     try {
       await projectApi.updateProjectProgress(project.id, {
-        progress: progressVal,
-        status: statusVal,
-        progressNotes: progressNotesVal
+        progressPercentage: progressVal,
+        message: progressNotesVal,
       });
+
+      // Status is managed on the project resource, not the progress endpoint.
+      if (statusVal && statusVal !== project.status) {
+        await projectApi.updateProject(project.id, { status: statusVal });
+      }
 
       Swal.fire({
         title: 'Sukses!',
@@ -130,8 +140,8 @@ const ProjectDetailPage = () => {
     );
   }
 
-  // Get project assigned members details
-  const teamDetails = allMembers.filter(m => project.teamMembers?.includes(m.id));
+  // Project assigned members come straight from the project detail response.
+  const teamDetails = project.members || [];
 
   return (
     <div className="space-y-6 text-left">
@@ -201,7 +211,7 @@ const ProjectDetailPage = () => {
             <div className="p-6 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border border-slate-200 px-3 py-1 rounded-full">
-                  Kategori: <b className="text-slate-700">{project.category}</b>
+                  Kategori: <b className="text-slate-700">{project.category || project.serviceName || '-'}</b>
                 </span>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${getStatusStyle(project.status)}`}>
                   {project.status}
@@ -352,10 +362,10 @@ const ProjectDetailPage = () => {
             <div className="flex flex-wrap gap-1.5">
               {project.technologies?.map((tech) => (
                 <span
-                  key={tech}
+                  key={tech.id ?? tech.name ?? tech}
                   className="bg-slate-50 border border-slate-200 text-slate-650 text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors"
                 >
-                  {tech}
+                  {tech.name ?? tech}
                 </span>
               ))}
               {(!project.technologies || project.technologies.length === 0) && (
@@ -374,11 +384,11 @@ const ProjectDetailPage = () => {
               {teamDetails.map((member) => (
                 <div key={member.id} className="flex items-center space-x-3 text-left">
                   <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-extrabold text-slate-600 uppercase border border-slate-200 flex-shrink-0">
-                    {member.name.substring(0, 2)}
+                    {(member.name || '?').substring(0, 2)}
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-slate-800 truncate">{member.name}</p>
-                    <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{member.role.replace(/_/g, ' ')}</p>
+                    <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{(member.role || '').replace(/_/g, ' ')}</p>
                   </div>
                 </div>
               ))}

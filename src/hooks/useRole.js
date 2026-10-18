@@ -84,6 +84,7 @@ export const useRole = () => {
   }, [isAdmin]);
 
   return {
+    user,
     role,
     department,
     isAdmin,

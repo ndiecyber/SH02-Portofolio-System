@@ -1,5 +1,10 @@
 import api, { USE_MOCK } from './api';
 import * as mockDb from '../utils/mockDb';
+import {
+  normalizeTechnology,
+  serializeTechnology,
+  techCategoryToApi,
+} from '../utils/contractMap';
 
 export const getTechnologies = async (params = {}) => {
   if (USE_MOCK) {
@@ -20,8 +25,13 @@ export const getTechnologies = async (params = {}) => {
     return techs;
   }
 
-  const response = await api.get('/api/technologies', { params });
-  return response.data?.data ?? response.data;
+  const query = { ...params, limit: params.limit ?? 100 };
+  if (params.category) query.category = techCategoryToApi(params.category);
+
+  const response = await api.get('/api/technologies', { params: query });
+  const raw = response.data;
+  const list = raw?.data ?? (Array.isArray(raw) ? raw : []);
+  return list.map(normalizeTechnology);
 };
 
 export const getTechnology = async (id) => {
@@ -33,7 +43,7 @@ export const getTechnology = async (id) => {
   }
 
   const response = await api.get(`/api/technologies/${id}`);
-  return response.data?.data ?? response.data;
+  return normalizeTechnology(response.data?.data ?? response.data);
 };
 
 export const createTechnology = async (techData) => {
@@ -42,8 +52,8 @@ export const createTechnology = async (techData) => {
     return mockDb.dbSaveTechnology(techData);
   }
 
-  const response = await api.post('/api/technologies', techData);
-  return response.data?.data ?? response.data;
+  const response = await api.post('/api/technologies', serializeTechnology(techData));
+  return normalizeTechnology(response.data?.data ?? response.data);
 };
 
 export const updateTechnology = async (id, techData) => {
@@ -52,8 +62,8 @@ export const updateTechnology = async (id, techData) => {
     return mockDb.dbSaveTechnology({ ...techData, id });
   }
 
-  const response = await api.put(`/api/technologies/${id}`, techData);
-  return response.data?.data ?? response.data;
+  const response = await api.put(`/api/technologies/${id}`, serializeTechnology(techData));
+  return normalizeTechnology(response.data?.data ?? response.data);
 };
 
 export const deleteTechnology = async (id) => {

@@ -28,16 +28,13 @@ const DepartmentListPage = () => {
 
   // Filter States
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDept, setEditingDept] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    code: '',
-    description: '',
-    status: 'Active'
+    description: ''
   });
 
   const loadData = useCallback(async () => {
@@ -45,17 +42,27 @@ const DepartmentListPage = () => {
     setError(null);
     try {
       const [deptRes, usersRes] = await Promise.all([
-        departmentApi.getDepartments({ search, status: statusFilter }),
-        userApi.getUsers()
+        departmentApi.getDepartments({ limit: 100 }),
+        userApi.getUsers({ limit: 100 }).catch(() => ({ users: [] }))
       ]);
-      setDepartments(deptRes.departments);
+      const q = search.trim().toLowerCase();
+      const list = deptRes.departments || [];
+      setDepartments(
+        q
+          ? list.filter(
+              (d) =>
+                (d.name || '').toLowerCase().includes(q) ||
+                (d.description || '').toLowerCase().includes(q)
+            )
+          : list
+      );
       setUsers(usersRes.users || []);
     } catch (err) {
       setError(err.message || 'Gagal memuat data departemen.');
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter]);
+  }, [search]);
 
   useEffect(() => {
     if (isCEO) {
@@ -65,12 +72,7 @@ const DepartmentListPage = () => {
 
   const handleOpenCreate = () => {
     setEditingDept(null);
-    setFormData({
-      name: '',
-      code: '',
-      description: '',
-      status: 'Active'
-    });
+    setFormData({ name: '', description: '' });
     setIsModalOpen(true);
   };
 
@@ -78,17 +80,15 @@ const DepartmentListPage = () => {
     setEditingDept(dept);
     setFormData({
       name: dept.name || '',
-      code: dept.code || '',
-      description: dept.description || '',
-      status: dept.status || 'Active'
+      description: dept.description || ''
     });
     setIsModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.code) {
-      Swal.fire('Error', 'Nama dan Kode Departemen wajib diisi.', 'error');
+    if (!formData.name) {
+      Swal.fire('Error', 'Nama Departemen wajib diisi.', 'error');
       return;
     }
 
@@ -104,12 +104,6 @@ const DepartmentListPage = () => {
           confirmButtonColor: '#2563eb'
         });
       } else {
-        // Check duplicate code
-        const duplicates = departments.filter(d => d.code.toLowerCase() === formData.code.toLowerCase());
-        if (duplicates.length > 0) {
-          Swal.fire('Error', 'Kode departemen sudah digunakan.', 'error');
-          return;
-        }
         await departmentApi.createDepartment(formData);
         Swal.fire({
           title: 'Berhasil!',
@@ -128,8 +122,7 @@ const DepartmentListPage = () => {
   };
 
   const handleDelete = (id, name) => {
-    const assignedUsers = users.filter(u => u.department === name);
-    const assignedCount = assignedUsers.length;
+    const assignedCount = users.filter((u) => u.departmentId === id).length;
 
     let warningText = `Apakah Anda yakin ingin menghapus departemen <b class="text-red-400">${name}</b>?`;
     if (assignedCount > 0) {
@@ -170,13 +163,8 @@ const DepartmentListPage = () => {
     });
   };
 
-  const handleResetFilters = () => {
-    setSearch('');
-    setStatusFilter('');
-  };
-
-  const getMemberCount = (deptName) => {
-    return users.filter(u => u.department === deptName && u.status === 'Active').length;
+  const getMemberCount = (deptId) => {
+    return users.filter((u) => u.departmentId === deptId).length;
   };
 
   if (!isCEO) return null;
@@ -191,7 +179,7 @@ const DepartmentListPage = () => {
             Manajemen Departemen
           </h1>
           <p className="text-xs text-slate-500 font-semibold mt-1">
-            Kelola data struktur organisasi departemen perusahaan, kode departemen, dan deskripsi tugas.
+            Kelola data struktur organisasi departemen perusahaan dan deskripsinya.
           </p>
         </div>
 
@@ -210,7 +198,7 @@ const DepartmentListPage = () => {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Cari nama atau kode departemen..."
+            placeholder="Cari nama departemen..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-1"
@@ -218,21 +206,9 @@ const DepartmentListPage = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="space-y-1 text-left min-w-[140px]">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full bg-slate-50 text-slate-800 border border-slate-250 rounded-xl py-2 px-3 text-xs font-bold focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-1"
-            >
-              <option value="">Semua Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-
-          {(search || statusFilter) && (
+          {search && (
             <button
-              onClick={handleResetFilters}
+              onClick={() => setSearch('')}
               className="flex items-center space-x-1.5 py-2 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all shadow-sm"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -243,7 +219,7 @@ const DepartmentListPage = () => {
       </div>
 
       {/* Content Section */}
-      {error && <Alert type="error">{error}</Alert>}
+      {error && <Alert type="error" message={error} />}
 
       {loading ? (
         <div className="h-60 flex items-center justify-center">
@@ -263,22 +239,15 @@ const DepartmentListPage = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="px-6 py-4.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Kode</th>
                   <th className="px-6 py-4.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Nama Departemen</th>
                   <th className="px-6 py-4.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Deskripsi</th>
-                  <th className="px-6 py-4.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider text-center">Anggota Aktif</th>
-                  <th className="px-6 py-4.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                  <th className="px-6 py-4.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider text-center">Anggota</th>
                   <th className="px-6 py-4.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {departments.map((dept) => (
                   <tr key={dept.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100">
-                        {dept.code}
-                      </span>
-                    </td>
                     <td className="px-6 py-4">
                       <div className="text-xs font-bold text-slate-800">{dept.name}</div>
                     </td>
@@ -290,19 +259,8 @@ const DepartmentListPage = () => {
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-1.5 text-xs text-slate-700 font-bold">
                         <Users className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{getMemberCount(dept.name)}</span>
+                        <span>{getMemberCount(dept.id)}</span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border ${
-                          dept.status === 'Active'
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                            : 'bg-rose-50 text-rose-600 border-rose-200'
-                        }`}
-                      >
-                        {dept.status}
-                      </span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -368,18 +326,6 @@ const DepartmentListPage = () => {
                   />
                 </div>
 
-                {/* Department Code */}
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kode Departemen *</label>
-                  <Input
-                    type="text"
-                    placeholder="Contoh: ENG, BE"
-                    value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                    required
-                  />
-                </div>
-
                 {/* Description */}
                 <div className="space-y-1">
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Deskripsi Tugas</label>
@@ -390,19 +336,6 @@ const DepartmentListPage = () => {
                     className="w-full bg-slate-50 text-slate-800 border border-slate-250 rounded-xl px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-1 resize-none leading-relaxed"
                     rows={4}
                   />
-                </div>
-
-                {/* Status Selection */}
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status Operasional *</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full bg-slate-50 text-slate-800 border border-slate-250 rounded-xl py-2.5 px-3.5 text-xs font-semibold focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-1"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
                 </div>
               </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as caseStudyApi from '../../services/caseStudyApi';
+import * as projectApi from '../../services/projectApi';
 import { useRole } from '../../hooks/useRole';
 import CaseStudyTable from '../../components/tables/CaseStudyTable';
 import Loader from '../../components/common/Loader';
@@ -16,6 +17,7 @@ const CaseStudyListPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [caseStudies, setCaseStudies] = useState([]);
+  const [projects, setProjects] = useState([]);
 
   // Filters State
   const [status, setStatus] = useState('');
@@ -25,8 +27,12 @@ const CaseStudyListPage = () => {
     setError(null);
     try {
       const params = { status };
-      const res = await caseStudyApi.getCaseStudies(params);
+      const [res, projRes] = await Promise.all([
+        caseStudyApi.getCaseStudies(params),
+        projectApi.getProjects(),
+      ]);
       setCaseStudies(res.caseStudies);
+      setProjects(projRes.projects || []);
     } catch (err) {
       setError(err.message || 'Gagal memuat daftar case studies.');
     } finally {
@@ -180,6 +186,7 @@ const CaseStudyListPage = () => {
         ) : (
           <CaseStudyTable
             caseStudies={caseStudies}
+            projects={projects}
             onPublishToggle={handlePublishToggle}
             onDeleteClick={handleDelete}
           />

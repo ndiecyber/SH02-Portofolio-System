@@ -8,10 +8,8 @@ import CaseStudyListPage from '../pages/CaseStudies/CaseStudyListPage';
 import CaseStudyFormPage from '../pages/CaseStudies/CaseStudyFormPage';
 import ServiceListPage from '../pages/Services/ServiceListPage';
 import TechnologyListPage from '../pages/Technologies/TechnologyListPage';
-import TeamListPage from '../pages/TeamMembers/TeamListPage';
 import TestimonialListPage from '../pages/Testimonials/TestimonialListPage';
 import DocumentListPage from '../pages/Documents/DocumentListPage';
-import SettingsPage from '../pages/Settings/SettingsPage';
 import UserManagementPage from '../pages/UserManagement/UserManagementPage';
 import DepartmentListPage from '../pages/Departments/DepartmentListPage';
 import TasksPage from '../pages/Tasks/TasksPage';
@@ -85,20 +83,12 @@ export const routesConfig = [
         element: <TechnologyListPage />,
       },
       {
-        path: 'team',
-        element: <TeamListPage />,
-      },
-      {
         path: 'testimonials',
         element: <TestimonialListPage />,
       },
       {
         path: 'documents',
         element: <DocumentListPage />,
-      },
-      {
-        path: 'settings',
-        element: <SettingsPage />,
       },
       {
         path: 'users',

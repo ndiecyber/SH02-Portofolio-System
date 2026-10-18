@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as taskApi from '../../services/taskApi';
 import * as projectApi from '../../services/projectApi';
@@ -127,11 +127,15 @@ const CalendarPage = () => {
     new Date().getFullYear(), new Date().getMonth(), new Date().getDate()
   );
 
-  const getEventsForDate = (dateStr) => {
-    const list = [];
-    projects.forEach(p => {
-      if (p.startDate === dateStr) {
-        list.push({
+  // Pre-index events by date once per data change instead of scanning every
+  // project/task for each of the 42 calendar cells on every render.
+  const eventsByDate = useMemo(() => {
+    const map = {};
+    const projectById = {};
+    projects.forEach((p) => {
+      projectById[p.id] = p;
+      if (p.startDate) {
+        (map[p.startDate] ||= []).push({
           type: 'project-start',
           title: p.name,
           subtitle: `Mulai · ${p.clientName}`,
@@ -140,8 +144,8 @@ const CalendarPage = () => {
           description: `Tanggal dimulainya pengerjaan proyek ${p.name}.`,
         });
       }
-      if (p.endDate === dateStr) {
-        list.push({
+      if (p.endDate) {
+        (map[p.endDate] ||= []).push({
           type: 'project-end',
           title: p.name,
           subtitle: `Rilis · ${p.clientName}`,
@@ -151,23 +155,24 @@ const CalendarPage = () => {
         });
       }
     });
-    tasks.forEach(t => {
-      if (t.dueDate === dateStr) {
-        const relatedProj = projects.find(p => p.id === t.projectId);
-        const evType = t.priority === 'High' ? 'task-high' : 'task-medium';
-        list.push({
-          type: evType,
-          title: t.title,
-          subtitle: `${t.priority} · ${relatedProj ? relatedProj.name : 'LEXA'}`,
-          projectName: relatedProj ? relatedProj.name : 'Proyek LEXA',
-          priority: t.priority,
-          status: t.status,
-          description: t.description || 'Tidak ada deskripsi detail.',
-        });
-      }
+    tasks.forEach((t) => {
+      if (!t.dueDate) return;
+      const relatedProj = projectById[t.projectId];
+      const evType = t.priority === 'High' ? 'task-high' : 'task-medium';
+      (map[t.dueDate] ||= []).push({
+        type: evType,
+        title: t.title,
+        subtitle: `${t.priority} · ${relatedProj ? relatedProj.name : 'LEXA'}`,
+        projectName: relatedProj ? relatedProj.name : 'Proyek LEXA',
+        priority: t.priority,
+        status: t.status,
+        description: t.description || 'Tidak ada deskripsi detail.',
+      });
     });
-    return list;
-  };
+    return map;
+  }, [projects, tasks]);
+
+  const getEventsForDate = (dateStr) => eventsByDate[dateStr] || [];
 
   const handleCellClick = (dateStr, events) => {
     if (events.length > 0) {

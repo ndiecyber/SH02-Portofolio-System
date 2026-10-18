@@ -5,7 +5,10 @@ import { useRole } from '../../hooks/useRole';
 
 const QuickActionsSection = () => {
   const navigate = useNavigate();
-  const { canCreateProject, canManageCaseStudies, canViewReports } = useRole();
+  const { canCreateProject, canManageCaseStudies, canViewReports, isDeveloper } = useRole();
+  // Content authoring (case studies & testimonials) is admin-only; documents are
+  // available to developers too.
+  const canManageContent = canManageCaseStudies();
 
   const actions = [
     {
@@ -19,21 +22,21 @@ const QuickActionsSection = () => {
       name: 'Add Case Study',
       icon: BookOpen,
       color: 'bg-purple-50/60 hover:bg-purple-100/80 text-purple-600 border-purple-200',
-      show: canManageCaseStudies(),
+      show: canManageContent,
       onClick: () => navigate('/case-studies/new')
     },
     {
       name: 'Add Testimonial',
       icon: MessageSquare,
       color: 'bg-emerald-50/60 hover:bg-emerald-100/80 text-emerald-650 border-emerald-200',
-      show: true,
+      show: canManageContent,
       onClick: () => navigate('/testimonials')
     },
     {
       name: 'Upload Document',
       icon: FileText,
       color: 'bg-amber-50/60 hover:bg-amber-100/80 text-amber-650 border-amber-200',
-      show: true,
+      show: isDeveloper || canManageContent,
       onClick: () => navigate('/documents')
     },
     {

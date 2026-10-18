@@ -12,18 +12,18 @@ import Swal from 'sweetalert2';
 
 const TestimonialListPage = () => {
   const navigate = useNavigate();
-  const { isCEO, isPM, isClient, isJuniorIntern, user } = useRole();
+  const { isCEO, isPM, isClient, isDeveloper, isJuniorIntern, user } = useRole();
 
-  const hasAccess = isCEO || isPM || isClient || isJuniorIntern;
+  const hasAccess = isCEO || isPM || isDeveloper || isClient || isJuniorIntern;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [testimonials, setTestimonials] = useState([]);
   const [projects, setProjects] = useState([]);
   const [stats, setStats] = useState({
-    rating: 4.8,
-    reviewsCount: 15,
-    breakdown: { 5: 12, 4: 2, 3: 1, 2: 0, 1: 0 }
+    rating: 0,
+    reviewsCount: 0,
+    breakdown: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
   });
 
   // Filter States
@@ -42,10 +42,10 @@ const TestimonialListPage = () => {
   });
 
   useEffect(() => {
-    if (!hasAccess && !loading) {
-      navigate('/unauthorized');
+    if (!hasAccess) {
+      navigate('/unauthorized', { replace: true });
     }
-  }, [hasAccess, navigate, loading]);
+  }, [hasAccess, navigate]);
 
   const loadData = useCallback(async () => {
     if (!hasAccess) return;
@@ -63,28 +63,26 @@ const TestimonialListPage = () => {
       if (isClient && user) {
         // Client can only submit testimonials for their own completed projects
         availableProjects = availableProjects.filter(
-          (p) => p.client === user.clientName && p.status === 'Completed'
+          (p) => (p.clientName || p.client) === user.clientName && p.status === 'Completed'
         );
       }
       setProjects(availableProjects);
 
-      // Calculate rating stats dynamically
+      // Calculate rating stats dynamically from published testimonials
       const published = testRes.testimonials.filter(t => t.status === 'Published');
-      if (published.length > 0) {
-        const totalRating = published.reduce((acc, curr) => acc + curr.rating, 0);
-        const avg = parseFloat((totalRating / published.length).toFixed(1));
-        const breakdown = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-        published.forEach(t => {
-          if (breakdown[t.rating] !== undefined) {
-            breakdown[t.rating]++;
-          }
-        });
-        setStats({
-          rating: avg,
-          reviewsCount: published.length,
-          breakdown
-        });
-      }
+      const totalRating = published.reduce((acc, curr) => acc + (Number(curr.rating) || 0), 0);
+      const avg = published.length > 0 ? parseFloat((totalRating / published.length).toFixed(1)) : 0;
+      const breakdown = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+      published.forEach(t => {
+        if (breakdown[t.rating] !== undefined) {
+          breakdown[t.rating]++;
+        }
+      });
+      setStats({
+        rating: avg,
+        reviewsCount: published.length,
+        breakdown
+      });
     } catch (err) {
       setError(err.message || 'Gagal memuat data testimoni.');
     } finally {
@@ -198,14 +196,7 @@ const TestimonialListPage = () => {
     return <div className="flex items-center space-x-1">{stars}</div>;
   };
 
-  if (!hasAccess) {
-    return (
-      <div className="py-20 text-center space-y-4">
-        <Loader size="md" />
-        <p className="text-xs text-slate-400 font-semibold">Memeriksa hak akses...</p>
-      </div>
-    );
-  }
+  if (!hasAccess) return null;
 
   // Can manage testimonials: CEO and PM
   const canWrite = isCEO || isPM;

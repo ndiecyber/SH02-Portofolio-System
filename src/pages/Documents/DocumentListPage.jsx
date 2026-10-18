@@ -35,15 +35,15 @@ const DocumentListPage = () => {
   const [uploadError, setUploadError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState({
-    category: 'API Spec',
+    category: 'Report',
     projectId: ''
   });
 
   useEffect(() => {
-    if (!hasAccess && !loading) {
-      navigate('/unauthorized');
+    if (!hasAccess) {
+      navigate('/unauthorized', { replace: true });
     }
-  }, [hasAccess, navigate, loading]);
+  }, [hasAccess, navigate]);
 
   const loadData = useCallback(async () => {
     if (!hasAccess) return;
@@ -60,18 +60,11 @@ const DocumentListPage = () => {
       ]);
       setDocuments(docRes.documents);
 
-      // Filter projects based on role for upload selection
-      let availableProjects = projRes.projects;
-      if (isIntern && user) {
-        availableProjects = availableProjects.filter(p => p.teamId === user.team_id);
-      } else if (!isCEO) {
-        const assignedIds = user?.assignedProjects || [];
-        availableProjects = availableProjects.filter(
-          p => assignedIds.includes(p.id) || p.teamMembers?.includes(user?.id)
-        );
-      }
+      // Backend enforces per-project access, so the upload selector can safely
+      // offer every available project.
+      const availableProjects = projRes.projects || [];
       setProjects(availableProjects);
-      
+
       // Auto-set first project in upload form
       if (availableProjects.length > 0) {
         setFormData(prev => ({ ...prev, projectId: availableProjects[0].id }));
@@ -81,7 +74,7 @@ const DocumentListPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [search, categoryFilter, projectFilter, hasAccess, isIntern, isCEO, user]);
+  }, [search, categoryFilter, projectFilter, hasAccess]);
 
   useEffect(() => {
     loadData();
@@ -118,52 +111,24 @@ const DocumentListPage = () => {
       return;
     }
 
-    setUploadProgress('Membaca file...');
+    setUploadProgress('Mengunggah...');
     setUploadError(null);
 
     try {
-      const reader = new FileReader();
-      
-      reader.onload = async () => {
-        try {
-          const base64Data = reader.result;
-          
-          // Get the selected project to populate teamId
-          const project = projects.find(p => p.id === formData.projectId);
-          const teamId = project ? project.teamId : 'team-a';
-          
-          const payload = {
-            fileName: selectedFile.name,
-            category: formData.category,
-            size: (selectedFile.size / 1024 > 1000) 
-              ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB` 
-              : `${Math.round(selectedFile.size / 1024)} KB`,
-            url: base64Data,
-            projectId: formData.projectId,
-            teamId
-          };
+      await documentApi.createDocument({
+        file: selectedFile,
+        fileName: selectedFile.name,
+        category: formData.category,
+        projectId: formData.projectId,
+        uploadedBy: user?.id,
+      });
 
-          setUploadProgress('Mengunggah...');
-          await documentApi.createDocument(payload);
-          
-          setUploadProgress(null);
-          setIsModalOpen(false);
-          Swal.fire('Berhasil!', 'Dokumen berhasil diunggah.', 'success');
-          loadData();
-        } catch (err) {
-          setUploadError(err.message || 'Gagal menyimpan dokumen.');
-          setUploadProgress(null);
-        }
-      };
-
-      reader.onerror = () => {
-        setUploadError('Gagal membaca file lokal.');
-        setUploadProgress(null);
-      };
-
-      reader.readAsDataURL(selectedFile);
+      setUploadProgress(null);
+      setIsModalOpen(false);
+      Swal.fire('Berhasil!', 'Dokumen berhasil diunggah.', 'success');
+      loadData();
     } catch (err) {
-      setUploadError(err.message || 'Gagal memproses file.');
+      setUploadError(err.message || 'Gagal menyimpan dokumen.');
       setUploadProgress(null);
     }
   };
@@ -231,14 +196,7 @@ const DocumentListPage = () => {
     }
   };
 
-  if (!hasAccess) {
-    return (
-      <div className="py-20 text-center space-y-4">
-        <Loader size="md" />
-        <p className="text-xs text-slate-400 font-semibold">Memeriksa hak akses...</p>
-      </div>
-    );
-  }
+  if (!hasAccess) return null;
 
   return (
     <div className="space-y-6 text-left">
@@ -291,11 +249,11 @@ const DocumentListPage = () => {
               className="bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1 font-semibold"
             >
               <option value="">Semua Kategori</option>
-              <option value="API Spec">API Spec</option>
+              <option value="Requirement">Requirement</option>
               <option value="Design">Design</option>
-              <option value="Architecture">Architecture</option>
+              <option value="Contract">Contract</option>
               <option value="Report">Report</option>
-              <option value="Lainnya">Lainnya</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
@@ -483,11 +441,11 @@ const DocumentListPage = () => {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                 >
-                  <option value="API Spec">API Spec</option>
+                  <option value="Requirement">Requirement</option>
                   <option value="Design">Design</option>
-                  <option value="Architecture">Architecture</option>
+                  <option value="Contract">Contract</option>
                   <option value="Report">Report</option>
-                  <option value="Lainnya">Lainnya</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 

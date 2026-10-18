@@ -33,8 +33,8 @@ export const getDashboardSummary = async () => {
     }
     return data;
   } catch (error) {
-    console.warn('GET /api/dashboard/ failed, using mock fallback:', error);
-    return mockDb.dbGetDashboardStats().summary;
+    console.warn('GET /api/dashboard/ failed:', error);
+    return { totalProjects: 0, completedProjects: 0, inProgressProjects: 0, totalClients: 0 };
   }
 };
 
@@ -93,16 +93,16 @@ export const getProjectsOverview = async () => {
         // Prior months leading up to the project totals
         result.push({
           name: label,
-          'Total Projects': Math.max(0, (data?.summary?.totalProjects || 5) - i),
-          'Completed': Math.max(0, (data?.summary?.completedProjects || 1) - Math.floor(i / 2)),
-          'In Progress': Math.max(0, (data?.summary?.inProgressProjects || 2) - Math.floor(i / 3)),
+          'Total Projects': Math.max(0, (data?.summary?.totalProjects || 0) - i),
+          'Completed': Math.max(0, (data?.summary?.completedProjects || 0) - Math.floor(i / 2)),
+          'In Progress': Math.max(0, (data?.summary?.inProgressProjects || 0) - Math.floor(i / 3)),
         });
       }
     }
     return result;
   } catch (error) {
-    console.warn('GET /api/dashboard/ for overview failed, using mock fallback:', error);
-    return getMockOverview();
+    console.warn('GET /api/dashboard/ for overview failed:', error);
+    return [];
   }
 };
 
@@ -134,10 +134,10 @@ export const getProjectsByCategory = async () => {
           value: c.count,
         }));
     }
-    return getMockCategory();
+    return [];
   } catch (error) {
-    console.warn('GET /api/dashboard/ for category failed, using mock fallback:', error);
-    return getMockCategory();
+    console.warn('GET /api/dashboard/ for category failed:', error);
+    return [];
   }
 };
 
@@ -183,10 +183,10 @@ export const getTopTechnologies = async () => {
         .sort((a, b) => b.percentage - a.percentage)
         .slice(0, 5);
     }
-    return getMockTech();
+    return [];
   } catch (error) {
-    console.warn('GET /api/dashboard/ for technologies failed, using mock fallback:', error);
-    return getMockTech();
+    console.warn('GET /api/dashboard/ for technologies failed:', error);
+    return [];
   }
 };
 
@@ -240,10 +240,18 @@ export const getClientSatisfaction = async () => {
         },
       };
     }
-    return mockDb.dbGetDashboardStats().clientSatisfaction;
+    return {
+      rating: '0.0',
+      reviewsCount: 0,
+      breakdown: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+    };
   } catch (error) {
-    console.warn('GET /api/dashboard/ for satisfaction failed, using mock fallback:', error);
-    return mockDb.dbGetDashboardStats().clientSatisfaction;
+    console.warn('GET /api/dashboard/ for satisfaction failed:', error);
+    return {
+      rating: '0.0',
+      reviewsCount: 0,
+      breakdown: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+    };
   }
 };
 
@@ -317,11 +325,9 @@ export const getRecentProjects = async () => {
       });
     }
 
-    const projects = mockDb.dbGetProjects();
-    return projects.slice(0, 5);
+    return [];
   } catch (error) {
-    console.warn('GET /api/dashboard/ for recent projects failed, using mock fallback:', error);
-    const projects = mockDb.dbGetProjects();
-    return projects.slice(0, 5);
+    console.warn('GET /api/dashboard/ for recent projects failed:', error);
+    return [];
   }
 };

@@ -14,23 +14,19 @@ import {
   Edit,
   Trash2,
   X,
-  Globe,
   Mail,
   Phone,
-  User,
-  CheckCircle2,
-  XCircle,
-  ExternalLink
+  MapPin,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const ClientListPage = () => {
   const navigate = useNavigate();
-  const { isCEO, isPM, isDeveloper, canManageClients } = useRole();
+  const { isCEO } = useRole();
 
-  // Access checks: Admin and PM have full management; Developer can view
-  const hasAccess = isCEO || isPM || isDeveloper;
-  const canWrite = canManageClients;
+  // Clients module is admin-only on the backend.
+  const hasAccess = isCEO;
+  const canWrite = isCEO;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,38 +35,30 @@ const ClientListPage = () => {
 
   // Filters
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    company_name: '',
-    industry: '',
-    contact_name: '',
+    name: '',
     email: '',
     phone: '',
-    website: '',
-    logo: '',
-    active: true
+    address: '',
   });
 
   useEffect(() => {
-    if (!hasAccess && !loading) {
-      navigate('/unauthorized');
+    if (!hasAccess) {
+      navigate('/unauthorized', { replace: true });
     }
-  }, [hasAccess, navigate, loading]);
+  }, [hasAccess, navigate]);
 
   const loadClients = useCallback(async () => {
     if (!hasAccess) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await clientApi.getClients({
-        search,
-        active: statusFilter === '' ? undefined : statusFilter === 'active'
-      });
+      const res = await clientApi.getClients({ search });
       setClients(res.clients || []);
       setTotal(res.total || 0);
     } catch (err) {
@@ -78,7 +66,7 @@ const ClientListPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, hasAccess]);
+  }, [search, hasAccess]);
 
   useEffect(() => {
     loadClients();
@@ -86,44 +74,31 @@ const ClientListPage = () => {
 
   const handleOpenCreate = () => {
     setEditingClient(null);
-    setFormData({
-      company_name: '',
-      industry: '',
-      contact_name: '',
-      email: '',
-      phone: '',
-      website: '',
-      logo: '',
-      active: true
-    });
+    setFormData({ name: '', email: '', phone: '', address: '' });
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (client) => {
     setEditingClient(client);
     setFormData({
-      company_name: client.company_name || client.name || '',
-      industry: client.industry || '',
-      contact_name: client.contact_name || '',
+      name: client.name || client.company_name || '',
       email: client.email || '',
       phone: client.phone || '',
-      website: client.website || '',
-      logo: client.logo || '',
-      active: client.active !== undefined ? client.active : true
+      address: client.address || '',
     });
     setIsModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.company_name.trim()) {
+    if (!formData.name.trim()) {
       Swal.fire({
         title: 'Validasi Gagal',
         text: 'Nama Perusahaan/Klien wajib diisi.',
         icon: 'warning',
         background: '#1e293b',
         color: '#f8fafc',
-        confirmButtonColor: '#2563eb'
+        confirmButtonColor: '#2563eb',
       });
       return;
     }
@@ -138,7 +113,7 @@ const ClientListPage = () => {
           icon: 'success',
           background: '#1e293b',
           color: '#f8fafc',
-          confirmButtonColor: '#2563eb'
+          confirmButtonColor: '#2563eb',
         });
       } else {
         await clientApi.createClient(formData);
@@ -148,7 +123,7 @@ const ClientListPage = () => {
           icon: 'success',
           background: '#1e293b',
           color: '#f8fafc',
-          confirmButtonColor: '#2563eb'
+          confirmButtonColor: '#2563eb',
         });
       }
       setIsModalOpen(false);
@@ -160,7 +135,7 @@ const ClientListPage = () => {
         icon: 'error',
         background: '#1e293b',
         color: '#f8fafc',
-        confirmButtonColor: '#2563eb'
+        confirmButtonColor: '#2563eb',
       });
     } finally {
       setSubmitting(false);
@@ -178,7 +153,7 @@ const ClientListPage = () => {
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#475569',
       background: '#1e293b',
-      color: '#f8fafc'
+      color: '#f8fafc',
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -189,7 +164,7 @@ const ClientListPage = () => {
             icon: 'success',
             background: '#1e293b',
             color: '#f8fafc',
-            confirmButtonColor: '#2563eb'
+            confirmButtonColor: '#2563eb',
           });
           loadClients();
         } catch (err) {
@@ -199,24 +174,14 @@ const ClientListPage = () => {
             icon: 'error',
             background: '#1e293b',
             color: '#f8fafc',
-            confirmButtonColor: '#2563eb'
+            confirmButtonColor: '#2563eb',
           });
         }
       }
     });
   };
 
-  const activeCount = clients.filter((c) => c.active).length;
-  const inactiveCount = clients.filter((c) => !c.active).length;
-
-  if (!hasAccess) {
-    return (
-      <div className="py-20 text-center space-y-4">
-        <Loader size="md" />
-        <p className="text-xs text-slate-400 font-semibold">Memeriksa hak akses...</p>
-      </div>
-    );
-  }
+  if (!hasAccess) return null;
 
   return (
     <div className="space-y-6 text-left">
@@ -228,7 +193,7 @@ const ClientListPage = () => {
             <span>Manajemen Klien</span>
           </h1>
           <p className="text-xs font-semibold text-slate-500 mt-1">
-            Kelola data mitra, perusahaan, dan relasi klien proyek LEXA Software House.
+            Kelola data mitra dan perusahaan klien proyek LEXA Software House.
           </p>
         </div>
 
@@ -245,46 +210,13 @@ const ClientListPage = () => {
         )}
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glass rounded-xl p-4 border border-slate-200 shadow-sm bg-white flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Klien</p>
-            <h3 className="text-2xl font-extrabold text-slate-800 mt-0.5">{total}</h3>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-            <Building2 className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="glass rounded-xl p-4 border border-slate-200 shadow-sm bg-white flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Klien Aktif</p>
-            <h3 className="text-2xl font-extrabold text-emerald-600 mt-0.5">{activeCount}</h3>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="glass rounded-xl p-4 border border-slate-200 shadow-sm bg-white flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Non-Aktif / Arsip</p>
-            <h3 className="text-2xl font-extrabold text-slate-500 mt-0.5">{inactiveCount}</h3>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
-            <XCircle className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-
       {/* Filter and Search Bar */}
       <div className="glass rounded-xl p-4 border border-slate-200 shadow-sm bg-white flex flex-col md:flex-row gap-3 items-center justify-between">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Cari perusahaan, kontak, industri..."
+            placeholder="Cari nama perusahaan atau email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
@@ -292,21 +224,9 @@ const ClientListPage = () => {
         </div>
 
         <div className="flex items-center space-x-2 w-full md:w-auto">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-white border border-slate-200 rounded-lg py-2 px-3 text-xs text-slate-700 focus:outline-none focus:border-blue-500 font-semibold w-full md:w-44"
-          >
-            <option value="">Semua Status</option>
-            <option value="active">Aktif Saja</option>
-            <option value="inactive">Non-Aktif Saja</option>
-          </select>
-
+          <span className="text-xs font-bold text-slate-500">Total: {total}</span>
           <button
-            onClick={() => {
-              setSearch('');
-              setStatusFilter('');
-            }}
+            onClick={() => setSearch('')}
             className="flex items-center space-x-1 py-2 px-3 bg-white hover:bg-slate-50 text-slate-600 rounded-lg text-xs font-bold border border-slate-200 shadow-sm transition-all h-9"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -332,66 +252,39 @@ const ClientListPage = () => {
               <thead>
                 <tr className="border-b border-slate-100 text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">
                   <th className="py-3.5 px-4">Perusahaan / Klien</th>
-                  <th className="py-3.5 px-4">Industri</th>
-                  <th className="py-3.5 px-4">Kontak Person</th>
-                  <th className="py-3.5 px-4">Kontak & Tautan</th>
-                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4">Kontak</th>
+                  <th className="py-3.5 px-4">Alamat</th>
                   {canWrite && <th className="py-3.5 px-4 text-right">Aksi</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
                 {clients.length === 0 ? (
                   <tr>
-                    <td colSpan={canWrite ? 6 : 5} className="py-12 text-center text-slate-400 font-medium">
+                    <td colSpan={canWrite ? 4 : 3} className="py-12 text-center text-slate-400 font-medium">
                       Tidak ada klien yang sesuai dengan kriteria pencarian.
                     </td>
                   </tr>
                 ) : (
                   clients.map((client) => {
-                    const cName = client.company_name || client.name || 'Client';
+                    const cName = client.name || client.company_name || 'Client';
                     return (
                       <tr key={client.id} className="hover:bg-slate-50/50 transition-colors group">
-                        {/* Company Name & Logo */}
+                        {/* Company Name */}
                         <td className="py-4 px-4">
                           <div className="flex items-center space-x-3">
-                            {client.logo ? (
-                              <img
-                                src={client.logo}
-                                alt={cName}
-                                className="w-9 h-9 rounded-lg object-cover border border-slate-200 shadow-xs"
-                              />
-                            ) : (
-                              <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-extrabold text-xs">
-                                {cName.charAt(0)}
-                              </div>
-                            )}
+                            <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-extrabold text-xs">
+                              {cName.charAt(0)}
+                            </div>
                             <div>
                               <p className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                                 {cName}
                               </p>
-                              <p className="text-[11px] text-slate-400 font-medium">ID: {client.id.slice(0, 8)}...</p>
+                              <p className="text-[11px] text-slate-400 font-medium">ID: {String(client.id).slice(0, 8)}...</p>
                             </div>
                           </div>
                         </td>
 
-                        {/* Industry */}
-                        <td className="py-4 px-4 text-slate-700 font-semibold">
-                          {client.industry || <span className="text-slate-400 italic">-</span>}
-                        </td>
-
-                        {/* Contact Person */}
-                        <td className="py-4 px-4 text-slate-700 font-semibold">
-                          {client.contact_name ? (
-                            <div className="flex items-center space-x-1.5">
-                              <User className="w-3.5 h-3.5 text-slate-400" />
-                              <span>{client.contact_name}</span>
-                            </div>
-                          ) : (
-                            <span className="text-slate-400 italic">-</span>
-                          )}
-                        </td>
-
-                        {/* Contact & Website */}
+                        {/* Contact */}
                         <td className="py-4 px-4 space-y-1">
                           {client.email && (
                             <div className="flex items-center space-x-1.5 text-[11px] text-slate-600">
@@ -405,33 +298,21 @@ const ClientListPage = () => {
                               <span>{client.phone}</span>
                             </div>
                           )}
-                          {client.website && (
-                            <div className="flex items-center space-x-1.5 text-[11px]">
-                              <Globe className="w-3 h-3 text-blue-500" />
-                              <a
-                                href={client.website.startsWith('http') ? client.website : `https://${client.website}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-blue-600 hover:underline flex items-center space-x-0.5 font-bold"
-                              >
-                                <span>Kunjungi</span>
-                                <ExternalLink className="w-2.5 h-2.5" />
-                              </a>
-                            </div>
+                          {!client.email && !client.phone && (
+                            <span className="text-slate-400 italic">-</span>
                           )}
                         </td>
 
-                        {/* Status */}
-                        <td className="py-4 px-4">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
-                              client.active
-                                ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                                : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
-                            }`}
-                          >
-                            {client.active ? 'Active' : 'Inactive'}
-                          </span>
+                        {/* Address */}
+                        <td className="py-4 px-4 text-slate-700 font-semibold max-w-[260px]">
+                          {client.address ? (
+                            <div className="flex items-start space-x-1.5 text-[11px]">
+                              <MapPin className="w-3 h-3 text-slate-400 mt-0.5 flex-shrink-0" />
+                              <span>{client.address}</span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 italic">-</span>
+                          )}
                         </td>
 
                         {/* Actions */}
@@ -491,34 +372,10 @@ const ClientListPage = () => {
                 </label>
                 <Input
                   placeholder="Contoh: PT Digital Nusantara"
-                  value={formData.company_name}
-                  onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Sektor / Industri
-                  </label>
-                  <Input
-                    placeholder="Contoh: FinTech, E-Commerce"
-                    value={formData.industry}
-                    onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Kontak Person (PIC)
-                  </label>
-                  <Input
-                    placeholder="Contoh: Budi Santoso"
-                    value={formData.contact_name}
-                    onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
-                  />
-                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -546,41 +403,17 @@ const ClientListPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Website URL
-                  </label>
-                  <Input
-                    placeholder="https://company.id"
-                    value={formData.website}
-                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Logo Image URL
-                  </label>
-                  <Input
-                    placeholder="https://images.../logo.png"
-                    value={formData.logo}
-                    onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="clientActive"
-                  checked={formData.active}
-                  onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                />
-                <label htmlFor="clientActive" className="text-xs font-bold text-slate-700 cursor-pointer">
-                  Status Klien Aktif
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Alamat
                 </label>
+                <textarea
+                  rows={3}
+                  placeholder="Alamat lengkap klien..."
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all font-semibold"
+                />
               </div>
 
               {/* Modal Actions */}

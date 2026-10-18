@@ -4,18 +4,14 @@ import { Edit, Trash2, Globe, EyeOff } from 'lucide-react';
 import { useRole } from '../../hooks/useRole';
 import clsx from 'clsx';
 
-const CaseStudyTable = ({ caseStudies = [], onPublishToggle, onDeleteClick }) => {
+const CaseStudyTable = ({ caseStudies = [], projects = [], onPublishToggle, onDeleteClick }) => {
   const { isCEO, isPM } = useRole();
 
-  // Find project name by project ID
-  const getProjectName = (projId) => {
-    try {
-      const projects = JSON.parse(localStorage.getItem('sh02_db_projects') || '[]');
-      const match = projects.find(p => p.id === projId);
-      return match ? match.name : 'Unknown Project';
-    } catch {
-      return 'Unknown Project';
-    }
+  // Resolve project name from the passed-in API projects list.
+  const getProjectName = (cs) => {
+    const projId = cs.projectId;
+    const match = projects.find((p) => p.id === projId);
+    return match?.name || cs.project?.name || cs.projectName || 'Unknown Project';
   };
 
   return (
@@ -53,7 +49,7 @@ const CaseStudyTable = ({ caseStudies = [], onPublishToggle, onDeleteClick }) =>
                   </td>
 
                   {/* Project Name */}
-                  <td className="py-4 px-4 text-slate-500 truncate max-w-[180px] text-left">{getProjectName(cs.projectId)}</td>
+                  <td className="py-4 px-4 text-slate-500 truncate max-w-[180px] text-left">{getProjectName(cs)}</td>
 
                   {/* Client */}
                   <td className="py-4 px-4 text-slate-500 font-bold text-left">{cs.client}</td>

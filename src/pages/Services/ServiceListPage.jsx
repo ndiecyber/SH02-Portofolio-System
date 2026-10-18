@@ -6,27 +6,16 @@ import Loader from '../../components/common/Loader';
 import Alert from '../../components/common/Alert';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { Plus, Search, RefreshCw, Edit, Trash2, X, Code, Smartphone, Cpu, Palette, Cloud, Shield, Database, Layout } from 'lucide-react';
+import { Plus, Search, RefreshCw, Edit, Trash2, X, Layers, CheckCircle2, XCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
-
-// Helper to map icon names to Lucide icons
-const IconMap = {
-  Code: Code,
-  Smartphone: Smartphone,
-  Cpu: Cpu,
-  Palette: Palette,
-  Cloud: Cloud,
-  Shield: Shield,
-  Database: Database,
-  Layout: Layout
-};
 
 const ServiceListPage = () => {
   const navigate = useNavigate();
-  const { isCEO, isPM } = useRole();
+  const { isCEO } = useRole();
 
-  // Route protection
-  const hasAccess = isCEO || isPM;
+  // Services module is admin-only on the backend.
+  const hasAccess = isCEO;
+  const canWrite = isCEO;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +23,6 @@ const ServiceListPage = () => {
 
   // Filter States
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
 
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,30 +30,28 @@ const ServiceListPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    icon: 'Code',
-    sortOrder: 1,
-    status: 'Active'
+    isActive: true
   });
 
   useEffect(() => {
-    if (!hasAccess && !loading) {
-      navigate('/unauthorized');
+    if (!hasAccess) {
+      navigate('/unauthorized', { replace: true });
     }
-  }, [hasAccess, navigate, loading]);
+  }, [hasAccess, navigate]);
 
   const loadServices = useCallback(async () => {
     if (!hasAccess) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await serviceApi.getServices({ search, status: statusFilter });
-      setServices(res.services);
+      const res = await serviceApi.getServices({ search, limit: 100 });
+      setServices(res.services || []);
     } catch (err) {
       setError(err.message || 'Gagal memuat daftar layanan.');
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, hasAccess]);
+  }, [search, hasAccess]);
 
   useEffect(() => {
     loadServices();
@@ -73,13 +59,7 @@ const ServiceListPage = () => {
 
   const handleOpenCreate = () => {
     setEditingService(null);
-    setFormData({
-      name: '',
-      description: '',
-      icon: 'Code',
-      sortOrder: services.length + 1,
-      status: 'Active'
-    });
+    setFormData({ name: '', description: '', isActive: true });
     setIsModalOpen(true);
   };
 
@@ -88,32 +68,24 @@ const ServiceListPage = () => {
     setFormData({
       name: service.name || '',
       description: service.description || '',
-      icon: service.icon || 'Code',
-      sortOrder: service.sortOrder || 1,
-      status: service.status || 'Active'
+      isActive: service.isActive !== undefined ? service.isActive : true
     });
     setIsModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.description) {
-      Swal.fire('Error', 'Nama dan deskripsi wajib diisi.', 'error');
+    if (!formData.name) {
+      Swal.fire('Error', 'Nama layanan wajib diisi.', 'error');
       return;
     }
 
-    const slug = formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const payload = {
-      ...formData,
-      slug
-    };
-
     try {
       if (editingService) {
-        await serviceApi.updateService(editingService.id, payload);
+        await serviceApi.updateService(editingService.id, formData);
         Swal.fire('Berhasil!', 'Layanan berhasil diperbarui.', 'success');
       } else {
-        await serviceApi.createService(payload);
+        await serviceApi.createService(formData);
         Swal.fire('Berhasil!', 'Layanan baru berhasil ditambahkan.', 'success');
       }
       setIsModalOpen(false);
@@ -148,14 +120,7 @@ const ServiceListPage = () => {
     });
   };
 
-  if (!hasAccess) {
-    return (
-      <div className="py-20 text-center space-y-4">
-        <Loader size="md" />
-        <p className="text-xs text-slate-400 font-semibold">Memeriksa hak akses...</p>
-      </div>
-    );
-  }
+  if (!hasAccess) return null;
 
   return (
     <div className="space-y-6 text-left">
@@ -168,7 +133,7 @@ const ServiceListPage = () => {
           </p>
         </div>
 
-        {isCEO && (
+        {canWrite && (
           <Button
             onClick={handleOpenCreate}
             className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold"
@@ -195,29 +160,13 @@ const ServiceListPage = () => {
           />
         </div>
 
-        {/* Filter status */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-          <div className="flex flex-col space-y-1 w-40 text-left">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1 font-semibold w-full"
-            >
-              <option value="">Semua Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-
-          <button
-            onClick={() => { setSearch(''); setStatusFilter(''); }}
-            className="flex items-center space-x-1 py-2 px-3.5 bg-white hover:bg-slate-50 text-slate-650 rounded-lg text-xs font-bold border border-slate-200 shadow-sm transition-all h-9"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reset</span>
-          </button>
-        </div>
+        <button
+          onClick={() => setSearch('')}
+          className="flex items-center space-x-1 py-2 px-3.5 bg-white hover:bg-slate-50 text-slate-650 rounded-lg text-xs font-bold border border-slate-200 shadow-sm transition-all h-9"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Reset</span>
+        </button>
       </div>
 
       {/* Main List Grid */}
@@ -235,64 +184,55 @@ const ServiceListPage = () => {
               Tidak ada layanan yang ditemukan.
             </div>
           ) : (
-            services.map((service) => {
-              const ServiceIcon = IconMap[service.icon] || Code;
-              return (
-                <div key={service.id} className="glass rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm bg-white hover:shadow-md transition-all duration-300 relative group">
-                  <div className="space-y-4">
-                    {/* Top Row: Icon + Badge + Action */}
-                    <div className="flex items-center justify-between">
-                      <div className="p-3 bg-blue-500/10 rounded-xl text-blue-600 border border-blue-500/20">
-                        <ServiceIcon className="w-6 h-6" />
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
-                          service.status === 'Active'
-                            ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                            : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
-                        }`}>
-                          {service.status}
-                        </span>
-                        
-                        <span className="text-[10px] bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded font-bold">
-                          Order: {service.sortOrder}
-                        </span>
-                      </div>
+            services.map((service) => (
+              <div key={service.id} className="glass rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm bg-white hover:shadow-md transition-all duration-300 relative group">
+                <div className="space-y-4">
+                  {/* Top Row: Icon + Badge */}
+                  <div className="flex items-center justify-between">
+                    <div className="p-3 bg-blue-500/10 rounded-xl text-blue-600 border border-blue-500/20">
+                      <Layers className="w-6 h-6" />
                     </div>
 
-                    {/* Content */}
-                    <div className="space-y-1">
-                      <h3 className="text-md font-extrabold text-slate-800 tracking-tight">{service.name}</h3>
-                      <p className="text-[10px] text-slate-450 font-mono font-bold">Slug: /{service.slug}</p>
-                      <p className="text-xs text-slate-550 leading-relaxed font-semibold pt-1">
-                        {service.description}
-                      </p>
-                    </div>
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
+                      service.isActive
+                        ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                        : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
+                    }`}>
+                      {service.isActive ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                      {service.isActive ? 'Active' : 'Inactive'}
+                    </span>
                   </div>
 
-                  {/* Actions (Only for Admin/CEO) */}
-                  {isCEO && (
-                    <div className="flex justify-end items-center gap-2 border-t border-slate-100 pt-4 mt-5">
-                      <button
-                        onClick={() => handleOpenEdit(service)}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded-lg border border-transparent transition-all font-bold"
-                      >
-                        <Edit className="w-3.5 h-3.5" />
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(service.id, service.name)}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg border border-transparent transition-all font-bold"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Hapus</span>
-                      </button>
-                    </div>
-                  )}
+                  {/* Content */}
+                  <div className="space-y-1">
+                    <h3 className="text-md font-extrabold text-slate-800 tracking-tight">{service.name}</h3>
+                    <p className="text-xs text-slate-550 leading-relaxed font-semibold pt-1">
+                      {service.description || 'Tidak ada deskripsi.'}
+                    </p>
+                  </div>
                 </div>
-              );
-            })
+
+                {/* Actions (Only for Admin/CEO) */}
+                {canWrite && (
+                  <div className="flex justify-end items-center gap-2 border-t border-slate-100 pt-4 mt-5">
+                    <button
+                      onClick={() => handleOpenEdit(service)}
+                      className="flex items-center space-x-1.5 px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded-lg border border-transparent transition-all font-bold"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(service.id, service.name)}
+                      className="flex items-center space-x-1.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg border border-transparent transition-all font-bold"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Hapus</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
           )}
         </div>
       )}
@@ -331,59 +271,33 @@ const ServiceListPage = () => {
               />
 
               <div className="space-y-1.5 text-left">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Deskripsi Layanan *</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Deskripsi Layanan</label>
                 <textarea
                   rows={4}
                   placeholder="Jelaskan spesifikasi keahlian, tech stack pendukung, dan scope penawaran..."
                   className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Icon Selection */}
-                <div className="space-y-1 text-left">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ikon Representasi</label>
-                  <select
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                  >
-                    {Object.keys(IconMap).map((iconKey) => (
-                      <option key={iconKey} value={iconKey}>{iconKey}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Sort Order */}
-                <Input
-                  id="sortOrder"
-                  label="Urutan Urutan"
-                  type="number"
-                  variant="light"
-                  value={formData.sortOrder}
-                  onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value, 10) || 1 })}
+              <div className="flex items-center space-x-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="serviceActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
-
-                {/* Status Selection */}
-                <div className="space-y-1 text-left">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg py-2.5 px-3 text-xs focus:outline-none focus:border-blue-600 focus:ring-1 font-semibold"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
+                <label htmlFor="serviceActive" className="text-xs font-bold text-slate-700 cursor-pointer">
+                  Layanan Aktif
+                </label>
               </div>
 
               {/* Action Buttons */}
               <div className="flex items-center justify-end space-x-3 border-t border-slate-100 pt-4 mt-6">
                 <Button
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
                   variant="secondary"
                   className="bg-white hover:bg-slate-50 text-slate-650 border-slate-200 shadow-sm text-xs font-bold"

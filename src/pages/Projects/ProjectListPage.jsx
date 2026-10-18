@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as projectApi from '../../services/projectApi';
+import * as serviceApi from '../../services/serviceApi';
 import { useRole } from '../../hooks/useRole';
 import ProjectTable from '../../components/tables/ProjectTable';
 import Loader from '../../components/common/Loader';
@@ -8,7 +9,8 @@ import Alert from '../../components/common/Alert';
 import Button from '../../components/common/Button';
 import { Plus, Search, RefreshCw } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { CATEGORIES, PROJECT_STATUS } from '../../config/constants';
+import { PROJECT_STATUS } from '../../config/constants';
+import { projectStatusToApi } from '../../utils/contractMap';
 
 const ProjectListPage = () => {
   const navigate = useNavigate();
@@ -18,13 +20,26 @@ const ProjectListPage = () => {
   const [error, setError] = useState(null);
   const [projects, setProjects] = useState([]);
   const [total, setTotal] = useState(0);
+  const [services, setServices] = useState([]);
 
   // Filters State
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
+  const [serviceId, setServiceId] = useState('');
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
   const limit = 10;
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await serviceApi.getServices({ limit: 100 });
+        setServices(res.services || []);
+      } catch {
+        setServices([]);
+      }
+    };
+    fetchServices();
+  }, []);
 
   const loadProjects = useCallback(async () => {
     setLoading(true);
@@ -32,8 +47,8 @@ const ProjectListPage = () => {
     try {
       const params = {
         search,
-        category,
-        status,
+        serviceId,
+        status: status ? projectStatusToApi(status) : '',
         page,
         limit,
       };
@@ -45,7 +60,7 @@ const ProjectListPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [search, category, status, page]);
+  }, [search, serviceId, status, page]);
 
   useEffect(() => {
     loadProjects();
@@ -99,7 +114,7 @@ const ProjectListPage = () => {
 
   const handleResetFilters = () => {
     setSearch('');
-    setCategory('');
+    setServiceId('');
     setStatus('');
     setPage(1);
   };
@@ -144,18 +159,18 @@ const ProjectListPage = () => {
 
         {/* Filters Group */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          {/* Category Filter */}
+          {/* Service Filter */}
           <div className="flex flex-col space-y-1 w-full sm:w-40 text-left">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kategori</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Layanan</label>
             <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              value={serviceId}
+              onChange={(e) => setServiceId(e.target.value)}
               className="bg-white border border-slate-350 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1/2 focus:ring-blue-500 font-semibold"
             >
-              <option value="">Semua Kategori</option>
-              {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+              <option value="">Semua Layanan</option>
+              {services.map((svc) => (
+                <option key={svc.id} value={svc.id}>
+                  {svc.name}
                 </option>
               ))}
             </select>

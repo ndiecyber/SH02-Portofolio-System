@@ -5,14 +5,26 @@ import { BookOpen, Info, Image, Tag } from 'lucide-react';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import Alert from '../common/Alert';
-import * as mockDb from '../../utils/mockDb';
+import * as projectApi from '../../services/projectApi';
 
 const CaseStudyForm = ({ initialData = {}, onSubmitSuccess }) => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [availableProjects] = useState(mockDb.dbGetProjects());
+  const [availableProjects, setAvailableProjects] = useState([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await projectApi.getProjects({ limit: 100 });
+        setAvailableProjects(res.projects || []);
+      } catch {
+        setAvailableProjects([]);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   const {
     register,
@@ -55,7 +67,7 @@ const CaseStudyForm = ({ initialData = {}, onSubmitSuccess }) => {
     if (watchProjectId) {
       const project = availableProjects.find((p) => p.id === watchProjectId);
       if (project) {
-        setValue('client', project.client);
+        setValue('client', project.clientName || project.client || '');
       }
     }
   }, [watchProjectId, availableProjects, setValue]);
