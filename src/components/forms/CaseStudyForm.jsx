@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Info, Image, Tag } from 'lucide-react';
+import { BookOpen, Info, Image, Tag, Upload } from 'lucide-react';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import Alert from '../common/Alert';
@@ -41,7 +41,7 @@ const CaseStudyForm = ({ initialData = {}, onSubmitSuccess }) => {
       challenge: initialData.challenge || '',
       solution: initialData.solution || '',
       outcome: initialData.outcome || '',
-      featuredImage: initialData.featuredImage || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+      featuredImage: initialData.featuredImage || '',
       tagsString: initialData.tags ? initialData.tags.join(', ') : '',
       status: initialData.status || 'Draft',
     },
@@ -50,6 +50,33 @@ const CaseStudyForm = ({ initialData = {}, onSubmitSuccess }) => {
   const watchTitle = watch('title');
   const watchProjectId = watch('projectId');
   const watchFeaturedImage = watch('featuredImage');
+
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(initialData.featuredImage || '');
+
+  const handleCoverChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Cover harus berupa file gambar (PNG, JPEG, GIF, WebP).');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Ukuran gambar maksimal 10MB.');
+      return;
+    }
+    setError(null);
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  };
+
+  const handleCoverClear = () => {
+    setCoverFile(null);
+    setCoverPreview('');
+    setValue('featuredImage', '');
+  };
+
+  const coverSrc = coverPreview || watchFeaturedImage;
 
   // Auto-slug generator
   useEffect(() => {
@@ -87,6 +114,7 @@ const CaseStudyForm = ({ initialData = {}, onSubmitSuccess }) => {
       const payload = {
         ...data,
         tags,
+        coverImageFile: coverFile,
       };
       delete payload.tagsString;
 
@@ -257,17 +285,41 @@ const CaseStudyForm = ({ initialData = {}, onSubmitSuccess }) => {
             </h3>
 
             <div className="space-y-3">
-              <img
-                src={watchFeaturedImage}
-                alt="Featured Preview"
-                className="w-full h-36 rounded-lg object-cover border border-slate-200 bg-slate-50"
-                onError={(e) => {
-                  e.target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=400&q=80';
-                }}
-              />
+              {coverSrc ? (
+                <img
+                  src={coverSrc}
+                  alt="Featured Preview"
+                  className="w-full h-36 rounded-lg object-cover border border-slate-200 bg-slate-50"
+                />
+              ) : (
+                <div className="w-full h-36 rounded-lg border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center">
+                  <Image className="w-6 h-6 text-slate-400" />
+                </div>
+              )}
+
+              <div className="flex items-center space-x-3">
+                <label className="cursor-pointer inline-flex items-center px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">
+                  <Upload className="w-3.5 h-3.5 mr-2" />
+                  Pilih Gambar
+                  <input type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
+                </label>
+                {(coverFile || coverPreview) && (
+                  <button
+                    type="button"
+                    onClick={handleCoverClear}
+                    className="text-xs font-bold text-rose-600 hover:underline"
+                  >
+                    Hapus
+                  </button>
+                )}
+              </div>
+              {coverFile && (
+                <p className="text-[11px] text-slate-500 font-semibold truncate">File: {coverFile.name}</p>
+              )}
+
               <Input
                 id="featuredImage"
-                label="Cover Image URL Address"
+                label="Atau tempel URL gambar"
                 placeholder="Paste featured image url"
                 variant="light"
                 {...register('featuredImage')}

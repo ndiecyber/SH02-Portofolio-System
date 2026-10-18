@@ -3,6 +3,7 @@ import {
   normalizeCaseStudy,
   serializeCaseStudy,
   contentStatusToApi,
+  toFormData,
 } from '../utils/contractMap';
 
 // Partial payload builder so status-only updates (publish/unpublish) don't need
@@ -46,13 +47,27 @@ export const getCaseStudy = async (id) => {
   return normalizeCaseStudy(response.data?.data ?? response.data);
 };
 
-export const createCaseStudy = async (data) => {
-  const response = await api.post('/api/case-studies', serializeCaseStudy(data));
+export const createCaseStudy = async (data = {}) => {
+  const { coverImageFile, ...rest } = data;
+  const payload = serializeCaseStudy(rest);
+
+  const body = coverImageFile
+    ? toFormData(payload, { coverImageFile })
+    : payload;
+
+  const response = await api.post('/api/case-studies', body);
   return normalizeCaseStudy(response.data?.data ?? response.data);
 };
 
-export const updateCaseStudy = async (id, data) => {
-  const response = await api.put(`/api/case-studies/${id}`, buildPartial(data));
+export const updateCaseStudy = async (id, data = {}) => {
+  const { coverImageFile, ...rest } = data;
+  const payload = buildPartial(rest);
+
+  const body = coverImageFile
+    ? toFormData(payload, { coverImageFile })
+    : payload;
+
+  const response = await api.put(`/api/case-studies/${id}`, body);
   return normalizeCaseStudy(response.data?.data ?? response.data);
 };
 

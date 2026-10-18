@@ -3,6 +3,7 @@ import {
   normalizeProject,
   normalizeProjectList,
   projectStatusToApi,
+  toFormData,
 } from '../utils/contractMap';
 
 const getStoredUser = () => {
@@ -81,13 +82,29 @@ export const getProject = async (id) => {
   return normalizeProject(response.data?.data ?? response.data);
 };
 
-export const createProject = async (projectData) => {
-  const response = await api.post('/api/projects', serializeProjectPayload(projectData));
+export const createProject = async (projectData = {}) => {
+  const { thumbnailFile, ...rest } = projectData;
+  const payload = serializeProjectPayload(rest);
+
+  // A selected image is uploaded as multipart; otherwise plain JSON is used so
+  // empty relation arrays keep their "clear relations" meaning.
+  const body = thumbnailFile
+    ? toFormData(payload, { thumbnailFile })
+    : payload;
+
+  const response = await api.post('/api/projects', body);
   return normalizeProject(response.data?.data ?? response.data);
 };
 
-export const updateProject = async (id, projectData) => {
-  const response = await api.put(`/api/projects/${id}`, serializeProjectUpdatePayload(projectData));
+export const updateProject = async (id, projectData = {}) => {
+  const { thumbnailFile, ...rest } = projectData;
+  const payload = serializeProjectUpdatePayload(rest);
+
+  const body = thumbnailFile
+    ? toFormData(payload, { thumbnailFile })
+    : payload;
+
+  const response = await api.put(`/api/projects/${id}`, body);
   return normalizeProject(response.data?.data ?? response.data);
 };
 

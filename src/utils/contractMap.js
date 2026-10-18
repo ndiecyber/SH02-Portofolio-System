@@ -195,6 +195,30 @@ export const serializeClient = (data = {}) => ({
   address: data.address ?? undefined,
 });
 
+// Builds a multipart/form-data body from a plain payload. Arrays (e.g. relation
+// ids) are JSON-encoded because Elysia only parses multipart arrays from a JSON
+// string or from repeated keys with 2+ values (a single repeated key collapses
+// to a string and fails t.Array validation). null/undefined/'' scalars are
+// skipped; Files are appended as-is.
+export const toFormData = (payload = {}, fileFields = {}) => {
+  const form = new FormData();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    if (Array.isArray(value)) {
+      form.append(key, JSON.stringify(value));
+    } else if (value !== '') {
+      form.append(key, value);
+    }
+  });
+
+  Object.entries(fileFields).forEach(([key, file]) => {
+    if (file) form.append(key, file);
+  });
+
+  return form;
+};
+
 const formatFileSize = (bytes) => {
   if (!bytes && bytes !== 0) return '-';
   const kb = bytes / 1024;

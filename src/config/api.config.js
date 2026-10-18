@@ -7,10 +7,11 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
+
+// Note: do NOT set a global Content-Type. Axios sets application/json for plain
+// objects and multipart/form-data (with boundary) for FormData automatically.
+// Forcing application/json makes axios stringify FormData, breaking file uploads.
 
 // Request Interceptor: Attach token if it exists (for Bearer fallback) & strip empty query params
 api.interceptors.request.use(

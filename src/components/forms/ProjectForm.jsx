@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Tag, ShieldCheck, DollarSign, Image, Users, Info, Building2, Layers } from 'lucide-react';
+import { Calendar, Tag, ShieldCheck, DollarSign, Image, Users, Info, Building2, Layers, Upload } from 'lucide-react';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import Alert from '../common/Alert';
@@ -68,6 +68,7 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -79,12 +80,39 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
       budget: initialData.budget || '',
       startDate: initialData.startDate || '',
       endDate: initialData.endDate || '',
-      thumbnail: initialData.thumbnail || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=500&q=80',
+      thumbnail: initialData.thumbnail || '',
       teamId: (Array.isArray(initialData.teamIds) && initialData.teamIds[0]) || initialData.teamId || '',
     },
   });
 
   const watchThumbnail = watch('thumbnail');
+
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(initialData.thumbnail || '');
+
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Thumbnail harus berupa file gambar (PNG, JPEG, GIF, WebP).');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Ukuran gambar maksimal 10MB.');
+      return;
+    }
+    setError(null);
+    setThumbnailFile(file);
+    setThumbnailPreview(URL.createObjectURL(file));
+  };
+
+  const handleThumbnailClear = () => {
+    setThumbnailFile(null);
+    setThumbnailPreview('');
+    setValue('thumbnail', '');
+  };
+
+  const thumbnailSrc = thumbnailPreview || watchThumbnail;
 
   const handleTechToggle = (techId) => {
     setSelectedTech((prev) =>
@@ -112,6 +140,7 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
         startDate: data.startDate,
         endDate: data.endDate,
         thumbnail: data.thumbnail,
+        thumbnailFile,
         technologyIds: selectedTech,
         memberIds: selectedMembers,
         teamIds: data.teamId ? [data.teamId] : [],
@@ -270,18 +299,42 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
             Project Thumbnail
           </h3>
 
-          <div className="flex items-center space-x-4">
-            <img
-              src={watchThumbnail}
-              alt="Preview"
-              className="w-16 h-16 rounded-xl object-cover border border-slate-200 bg-slate-50 flex-shrink-0"
-              onError={(e) => {
-                e.target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=100&q=80';
-              }}
-            />
+          <div className="space-y-3">
+            {thumbnailSrc ? (
+              <img
+                src={thumbnailSrc}
+                alt="Preview"
+                className="w-full h-36 rounded-xl object-cover border border-slate-200 bg-slate-50"
+              />
+            ) : (
+              <div className="w-full h-36 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center">
+                <Image className="w-6 h-6 text-slate-400" />
+              </div>
+            )}
+
+            <div className="flex items-center space-x-3">
+              <label className="cursor-pointer inline-flex items-center px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">
+                <Upload className="w-3.5 h-3.5 mr-2" />
+                Pilih Gambar
+                <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailChange} />
+              </label>
+              {(thumbnailFile || thumbnailPreview) && (
+                <button
+                  type="button"
+                  onClick={handleThumbnailClear}
+                  className="text-xs font-bold text-rose-600 hover:underline"
+                >
+                  Hapus
+                </button>
+              )}
+            </div>
+            {thumbnailFile && (
+              <p className="text-[11px] text-slate-500 font-semibold truncate">File: {thumbnailFile.name}</p>
+            )}
+
             <Input
               id="thumbnail"
-              label="Image URL Address"
+              label="Atau tempel URL gambar"
               placeholder="Paste thumbnail image URL address"
               variant="light"
               {...register('thumbnail')}
