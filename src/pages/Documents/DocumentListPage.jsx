@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as documentApi from '../../services/documentApi';
 import * as projectApi from '../../services/projectApi';
@@ -476,7 +476,7 @@ const DocumentListPage = () => {
                   <Button
                     onClick={() => setIsModalOpen(false)}
                     variant="secondary"
-                    className="bg-white hover:bg-slate-50 text-slate-655 border-slate-205 shadow-sm text-xs font-bold"
+                    className="bg-white hover:bg-slate-50 text-slate-650 border-slate-205 shadow-sm text-xs font-bold"
                   >
                     Batal
                   </Button>

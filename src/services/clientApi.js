@@ -11,11 +11,6 @@ export const getClients = async (params = {}) => {
   };
 };
 
-export const getClient = async (id) => {
-  const response = await api.get(`/api/clients/${id}`);
-  return normalizeClient(response.data?.data ?? response.data);
-};
-
 export const createClient = async (clientData) => {
   const response = await api.post('/api/clients', serializeClient(clientData));
   return normalizeClient(response.data?.data ?? response.data);

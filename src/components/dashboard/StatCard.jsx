@@ -1,4 +1,3 @@
-import React from 'react';
 import clsx from 'clsx';
 import { ResponsiveContainer, LineChart, Line } from 'recharts';
 

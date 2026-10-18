@@ -30,11 +30,6 @@ export const getTestimonials = async (params = {}) => {
   };
 };
 
-export const getTestimonial = async (id) => {
-  const response = await api.get(`/api/testimonials/${id}`);
-  return normalizeTestimonial(response.data?.data ?? response.data);
-};
-
 export const createTestimonial = async (testimonialData) => {
   const response = await api.post('/api/testimonials', serializeTestimonial(testimonialData));
   return normalizeTestimonial(response.data?.data ?? response.data);

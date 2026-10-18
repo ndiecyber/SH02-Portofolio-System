@@ -18,11 +18,6 @@ export const getUsers = async (params = {}) => {
   return { users: [], total: 0 };
 };
 
-export const getUser = async (id) => {
-  const response = await api.get(`/api/users/${id}`);
-  return response.data?.data ?? response.data;
-};
-
 export const createUser = async (userData) => {
   const response = await api.post('/api/users', userData);
   return response.data?.data ?? response.data;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Star } from 'lucide-react';
 
 const ClientSatisfactionCard = ({ data = {} }) => {
@@ -43,7 +42,7 @@ const ClientSatisfactionCard = ({ data = {} }) => {
             {renderStars(rating)}
           </div>
           <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
-            {reviewsCount > 0 ? `Based on ${reviewsCount} reviews` : 'Based on client feedback'}
+            {reviewsCount > 0 ? `Based on ${reviewsCount} ${reviewsCount === 1 ? 'review' : 'reviews'}` : 'Based on client feedback'}
           </p>
         </div>
 

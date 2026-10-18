@@ -12,6 +12,31 @@ export default {
           925: '#111113',
           950: '#09090b',
         },
+        // Intermediate shades used across the UI (between Tailwind's default
+        // steps). Without these the utility classes silently do nothing.
+        slate: {
+          150: '#eaeef5',
+          205: '#e0e6ee',
+          250: '#d7dfe9',
+          350: '#b0bccd',
+          450: '#7c8ca2',
+          550: '#56647a',
+          650: '#3d4b5f',
+          750: '#283548',
+          850: '#162032',
+        },
+        blue: {
+          650: '#2158e2',
+        },
+        emerald: {
+          650: '#058760',
+        },
+        amber: {
+          650: '#c76508',
+        },
+        sky: {
+          650: '#0377b4',
+        },
         dark: {
           bg:      '#09090b',
           surface: '#111113',

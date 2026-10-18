@@ -1,23 +1,24 @@
-import React from 'react';
-import LoginPage from '../pages/Login/LoginPage';
-import DashboardPage from '../pages/Dashboard/DashboardPage';
-import ProjectListPage from '../pages/Projects/ProjectListPage';
-import ProjectFormPage from '../pages/Projects/ProjectFormPage';
-import ProjectDetailPage from '../pages/Projects/ProjectDetailPage';
-import CaseStudyListPage from '../pages/CaseStudies/CaseStudyListPage';
-import CaseStudyFormPage from '../pages/CaseStudies/CaseStudyFormPage';
-import ServiceListPage from '../pages/Services/ServiceListPage';
-import TechnologyListPage from '../pages/Technologies/TechnologyListPage';
-import TestimonialListPage from '../pages/Testimonials/TestimonialListPage';
-import DocumentListPage from '../pages/Documents/DocumentListPage';
-import UserManagementPage from '../pages/UserManagement/UserManagementPage';
-import DepartmentListPage from '../pages/Departments/DepartmentListPage';
-import TasksPage from '../pages/Tasks/TasksPage';
-import CalendarPage from '../pages/Calendar/CalendarPage';
-import UnauthorizedPage from '../pages/Unauthorized/UnauthorizedPage';
-import TrackProjectPage from '../pages/Track/TrackProjectPage';
-import NotFoundPage from '../pages/NotFound/NotFoundPage';
-import ClientListPage from '../pages/Clients/ClientListPage';
+import {
+  LoginPage,
+  DashboardPage,
+  ProjectListPage,
+  ProjectFormPage,
+  ProjectDetailPage,
+  CaseStudyListPage,
+  CaseStudyFormPage,
+  ServiceListPage,
+  TechnologyListPage,
+  TestimonialListPage,
+  DocumentListPage,
+  UserManagementPage,
+  DepartmentListPage,
+  TasksPage,
+  CalendarPage,
+  UnauthorizedPage,
+  TrackProjectPage,
+  NotFoundPage,
+  ClientListPage,
+} from './lazyPages';
 
 export const routesConfig = [
   {

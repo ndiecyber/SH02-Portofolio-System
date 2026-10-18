@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useRole } from '../../hooks/useRole';
 import * as caseStudyApi from '../../services/caseStudyApi';

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Tag, ShieldCheck, DollarSign, Image, Users, Info, Building2, Layers, Upload } from 'lucide-react';
+import { Calendar, Tag, ShieldCheck, Banknote, Image, Users, Info, Building2, Layers, Upload } from 'lucide-react';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import Alert from '../common/Alert';
@@ -263,7 +263,7 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
               type="number"
               placeholder="e.g. 150000000"
               variant="light"
-              icon={DollarSign}
+              icon={Banknote}
               error={errors.budget?.message}
               {...register('budget')}
             />

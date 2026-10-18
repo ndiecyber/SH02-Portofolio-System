@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ThemeContext } from '../hooks/useTheme';
 
 export const ThemeProvider = ({ children }) => {

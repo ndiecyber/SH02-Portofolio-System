@@ -18,11 +18,6 @@ export const getDepartments = async (params = {}) => {
   return { departments: [], total: 0 };
 };
 
-export const getDepartment = async (id) => {
-  const response = await api.get(`/api/departments/${id}`);
-  return response.data?.data ?? response.data;
-};
-
 export const createDepartment = async (departmentData) => {
   const response = await api.post('/api/departments', departmentData);
   return response.data?.data ?? response.data;

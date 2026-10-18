@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as taskApi from '../../services/taskApi';
 import * as projectApi from '../../services/projectApi';
@@ -57,7 +57,10 @@ const TasksPage = () => {
           search
         }),
         projectApi.getProjects(),
-        userApi.getUsers({ limit: 100 }).catch(() => ({ users: [] }))
+        // Users endpoint is admin-only on the backend.
+        isCEO
+          ? userApi.getUsers({ limit: 100 }).catch(() => ({ users: [] }))
+          : Promise.resolve({ users: [] })
       ]);
 
       setTasks(tasksRes);
@@ -68,7 +71,7 @@ const TasksPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [projectFilter, search, isClient]);
+  }, [projectFilter, search, isClient, isCEO]);
 
   useEffect(() => {
     loadData();
@@ -510,7 +513,7 @@ const TasksPage = () => {
                 <Button
                   onClick={() => setIsModalOpen(false)}
                   variant="secondary"
-                  className="bg-white hover:bg-slate-50 text-slate-655 border-slate-200 shadow-sm text-xs font-bold"
+                  className="bg-white hover:bg-slate-50 text-slate-650 border-slate-200 shadow-sm text-xs font-bold"
                 >
                   Batal
                 </Button>

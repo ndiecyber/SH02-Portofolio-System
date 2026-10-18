@@ -15,11 +15,6 @@ export const getTechnologies = async (params = {}) => {
   return list.map(normalizeTechnology);
 };
 
-export const getTechnology = async (id) => {
-  const response = await api.get(`/api/technologies/${id}`);
-  return normalizeTechnology(response.data?.data ?? response.data);
-};
-
 export const createTechnology = async (techData) => {
   const response = await api.post('/api/technologies', serializeTechnology(techData));
   return normalizeTechnology(response.data?.data ?? response.data);

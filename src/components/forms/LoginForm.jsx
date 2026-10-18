@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import Input from '../common/Input';
@@ -32,10 +32,6 @@ const LoginForm = ({ onSubmitSuccess }) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleLogin = () => {
-    alert('Google authentication is pending OAuth client configuration.');
   };
 
   return (
@@ -87,7 +83,7 @@ const LoginForm = ({ onSubmitSuccess }) => {
           </button>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <label className="flex items-center space-x-2 cursor-pointer select-none">
             <input
               id="rememberMe"
@@ -97,17 +93,6 @@ const LoginForm = ({ onSubmitSuccess }) => {
             />
             <span className="text-xs text-slate-500 font-semibold">Remember Me</span>
           </label>
-
-          <a
-            href="#forgot-password"
-            onClick={(e) => {
-              e.preventDefault();
-              alert('Forgot Password feature is currently pending backend integration.');
-            }}
-            className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            Forgot Password?
-          </a>
         </div>
 
         <Button
@@ -120,38 +105,12 @@ const LoginForm = ({ onSubmitSuccess }) => {
         </Button>
       </form>
 
-      {/* Divider */}
-      <div className="flex items-center my-4">
-        <div className="flex-1 border-t border-slate-200" />
-        <span className="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Or</span>
-        <div className="flex-1 border-t border-slate-200" />
-      </div>
-
-      {/* Google Log In Button */}
-      <button
-        type="button"
-        onClick={handleGoogleLogin}
-        className="w-full flex items-center justify-center space-x-2.5 py-2.5 px-4 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition-all"
-      >
-        <svg className="w-5 h-5" viewBox="0 0 24 24">
-          <path
-            fill="#EA4335"
-            d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.44 0-6.228-2.788-6.228-6.228 0-3.44 2.788-6.229 6.228-6.229 1.5 0 2.87.53 3.96 1.485l3.07-3.07C18.96 2.03 15.82 1 12.24 1 6.048 1 1 6.048 1 12.24s5.048 11.24 11.24 11.24c5.89 0 10.74-4.26 10.74-10.74 0-.648-.06-1.285-.18-1.914h-10.56z"
-          />
-        </svg>
-        <span>Continue with Google</span>
-      </button>
-
       {/* Register Redirect Prompt */}
       <div className="text-center pt-2">
         <p className="text-xs font-semibold text-slate-500">
           Don't have an account?{' '}
           <a
-            href="#contact-admin"
-            onClick={(e) => {
-              e.preventDefault();
-              alert('Please contact your administrator at IT@lexa.com to request an account.');
-            }}
+            href="mailto:IT@lexa.com"
             className="text-blue-600 hover:text-blue-700 font-bold hover:underline transition-colors"
           >
             Contact Administrator

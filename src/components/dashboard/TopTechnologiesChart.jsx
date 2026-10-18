@@ -1,4 +1,3 @@
-import React from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 
 const TopTechnologiesChart = ({ data = [] }) => {

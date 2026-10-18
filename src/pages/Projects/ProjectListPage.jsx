@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as projectApi from '../../services/projectApi';
 import * as serviceApi from '../../services/serviceApi';
 import { useRole } from '../../hooks/useRole';
@@ -14,7 +14,8 @@ import { projectStatusToApi } from '../../utils/contractMap';
 
 const ProjectListPage = () => {
   const navigate = useNavigate();
-  const { canCreateProject } = useRole();
+  const [searchParams] = useSearchParams();
+  const { canCreateProject, isCEO } = useRole();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,13 +24,19 @@ const ProjectListPage = () => {
   const [services, setServices] = useState([]);
 
   // Filters State
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
   const [serviceId, setServiceId] = useState('');
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
   const limit = 10;
 
   useEffect(() => {
+    // Services are admin-only on the backend; skip the call for other roles
+    // to avoid a 403 and an empty filter dropdown.
+    if (!isCEO) {
+      setServices([]);
+      return;
+    }
     const fetchServices = async () => {
       try {
         const res = await serviceApi.getServices({ limit: 100 });
@@ -39,7 +46,7 @@ const ProjectListPage = () => {
       }
     };
     fetchServices();
-  }, []);
+  }, [isCEO]);
 
   const loadProjects = useCallback(async () => {
     setLoading(true);
@@ -165,7 +172,7 @@ const ProjectListPage = () => {
             <select
               value={serviceId}
               onChange={(e) => setServiceId(e.target.value)}
-              className="bg-white border border-slate-350 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1/2 focus:ring-blue-500 font-semibold"
+              className="bg-white border border-slate-350 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold"
             >
               <option value="">Semua Layanan</option>
               {services.map((svc) => (
@@ -182,7 +189,7 @@ const ProjectListPage = () => {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="bg-white border border-slate-350 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1/2 focus:ring-blue-500 font-semibold"
+              className="bg-white border border-slate-350 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold"
             >
               <option value="">Semua Status</option>
               {Object.values(PROJECT_STATUS).map((st) => (

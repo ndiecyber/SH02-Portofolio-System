@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as userApi from '../../services/userApi';
 import * as teamApi from '../../services/teamApi';
@@ -281,7 +281,7 @@ const UserManagementPage = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs text-slate-855 focus:outline-none focus:border-blue-500 focus:ring-1 font-semibold"
+              className="bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1 font-semibold"
             >
               <option value="">Semua Status</option>
               <option value="Active">Active</option>

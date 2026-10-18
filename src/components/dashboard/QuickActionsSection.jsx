@@ -1,11 +1,10 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, BookOpen, MessageSquare, FileText, BarChart3 } from 'lucide-react';
+import { Briefcase, BookOpen, MessageSquare, FileText } from 'lucide-react';
 import { useRole } from '../../hooks/useRole';
 
 const QuickActionsSection = () => {
   const navigate = useNavigate();
-  const { canCreateProject, canManageCaseStudies, canViewReports, isDeveloper } = useRole();
+  const { canCreateProject, canManageCaseStudies, isDeveloper } = useRole();
   // Content authoring (case studies & testimonials) is admin-only; documents are
   // available to developers too.
   const canManageContent = canManageCaseStudies();
@@ -38,13 +37,6 @@ const QuickActionsSection = () => {
       color: 'bg-amber-50/60 hover:bg-amber-100/80 text-amber-650 border-amber-200',
       show: isDeveloper || canManageContent,
       onClick: () => navigate('/documents')
-    },
-    {
-      name: 'View Reports',
-      icon: BarChart3,
-      color: 'bg-sky-50/60 hover:bg-sky-100/80 text-sky-650 border-sky-200',
-      show: canViewReports(),
-      onClick: () => alert('Reports & Analytics module is scheduled for Week 4.')
     }
   ].filter(action => action.show);
 
@@ -56,7 +48,7 @@ const QuickActionsSection = () => {
         <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-2">Quick Actions</h3>
       </div>
       
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {actions.map((act) => {
           const Icon = act.icon;
           return (

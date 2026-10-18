@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as caseStudyApi from '../../services/caseStudyApi';
 import * as projectApi from '../../services/projectApi';
@@ -155,7 +155,7 @@ const CaseStudyListPage = () => {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="bg-white border border-slate-350 rounded-lg py-2 px-3 text-xs text-slate-855 focus:outline-none focus:border-blue-500 focus:ring-1/2 focus:ring-blue-500 font-semibold"
+            className="bg-white border border-slate-350 rounded-lg py-2 px-3 text-xs text-slate-850 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold"
           >
             <option value="">Semua Status</option>
             <option value="Draft">Draft</option>

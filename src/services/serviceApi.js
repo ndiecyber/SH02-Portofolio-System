@@ -18,11 +18,6 @@ export const getServices = async (params = {}) => {
   return { services: [], total: 0 };
 };
 
-export const getService = async (id) => {
-  const response = await api.get(`/api/services/${id}`);
-  return response.data?.data ?? response.data;
-};
-
 export const createService = async (serviceData) => {
   const response = await api.post('/api/services', serviceData);
   return response.data?.data ?? response.data;

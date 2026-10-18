@@ -1,16 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
-import { Menu, Bell, Search, User, LogOut, Sun, Moon } from 'lucide-react';
+import { Menu, Search, User, LogOut, Sun, Moon } from 'lucide-react';
 import lexaLogo from '../../assets/lexa.svg';
 
 const Navbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [query, setQuery] = useState('');
   const dropdownRef = useRef(null);
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const term = query.trim();
+    navigate(term ? `/projects?search=${encodeURIComponent(term)}` : '/projects');
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -98,22 +106,19 @@ const Navbar = ({ onMenuClick }) => {
       {/* Right section */}
       <div className="flex items-center space-x-4 flex-shrink-0">
         {/* Search */}
-        <div className="relative hidden md:block">
+        <form onSubmit={handleSearch} role="search" className="relative hidden md:block">
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-zinc-600">
             <Search className="w-4 h-4" />
           </span>
           <input
-            type="text"
-            placeholder="Search projects, clients..."
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search projects..."
+            aria-label="Search projects"
             className="bg-slate-100/80 dark:bg-[#111113] border border-slate-200 dark:border-[#3f3f46] rounded-lg py-1.5 pl-9 pr-4 text-xs text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-blue-500 dark:focus:ring-indigo-500/30 w-48 focus:w-64 transition-all duration-300 font-semibold"
           />
-        </div>
-
-        {/* Notifications bell */}
-        <button className="p-2 text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-white/6 rounded-lg transition-colors relative">
-          <Bell className="w-4.5 h-4.5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-indigo-500 rounded-full ring-2 ring-white dark:ring-[#111113]" />
-        </button>
+        </form>
 
         {/* Theme Toggle Button */}
         <button

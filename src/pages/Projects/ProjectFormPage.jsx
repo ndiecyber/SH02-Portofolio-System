@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useRole } from '../../hooks/useRole';
 import * as projectApi from '../../services/projectApi';
 import ProjectForm from '../../components/forms/ProjectForm';
@@ -86,6 +86,16 @@ const ProjectFormPage = () => {
     );
   }
 
+  // Prevent rendering the form (and firing privileged requests) for users
+  // without create permission; the effect above redirects to /unauthorized.
+  if (!isEditMode && !canCreateProject) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <Loader size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 text-left">
       {/* Breadcrumb Header */}
@@ -124,11 +134,5 @@ const ProjectFormPage = () => {
     </div>
   );
 };
-
-// Internal router Link replacement mock
-import { Link as RouterLink } from 'react-router-dom';
-const Link = ({ children, to, ...props }) => (
-  <RouterLink to={to} {...props}>{children}</RouterLink>
-);
 
 export default ProjectFormPage;

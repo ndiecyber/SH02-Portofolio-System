@@ -1,4 +1,3 @@
-import React from 'react';
 import clsx from 'clsx';
 
 const Button = ({
@@ -17,7 +16,7 @@ const Button = ({
 
   const variants = {
     primary: 'bg-gradient-to-r from-brand-indigo to-brand-violet text-white hover:from-indigo-600 hover:to-violet-600 shadow-md shadow-brand-indigo/10',
-    secondary: 'bg-dark-border text-dark-text hover:bg-slate-600 border border-slate-600',
+    secondary: 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 dark:hover:bg-zinc-700',
     danger: 'bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-600/10 focus:ring-red-500',
     ghost: 'text-dark-text hover:bg-slate-800 focus:ring-slate-700',
   };
