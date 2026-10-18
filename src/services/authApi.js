@@ -1,8 +1,12 @@
 import api, { USE_MOCK as USE_MOCK_AUTH } from './api';
 import * as mockDb from '../utils/mockDb';
 
-// Initialize mock DB on load
-mockDb.initMockDb();
+// Seed the mock DB only when mock mode is enabled. Guarding this keeps the
+// mock seed data (including demo credentials) out of production bundles and
+// prevents it from being written to localStorage in production.
+if (USE_MOCK_AUTH) {
+  mockDb.initMockDb();
+}
 
 
 export const login = async (email, password) => {

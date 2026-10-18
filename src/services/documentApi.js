@@ -44,7 +44,7 @@ export const createDocument = async (docData = {}) => {
   }
 
   const form = new FormData();
-  form.append('projectId', docData.projectId);
+  if (docData.projectId) form.append('projectId', docData.projectId);
   form.append('category', docCategoryToApi(docData.category));
   form.append('uploadedBy', docData.uploadedBy || getStoredUser()?.id || '');
   if (file) form.append('file', file);

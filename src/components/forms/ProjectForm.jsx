@@ -81,7 +81,7 @@ const ProjectForm = ({ initialData = {}, onSubmitSuccess }) => {
       startDate: initialData.startDate || '',
       endDate: initialData.endDate || '',
       thumbnail: initialData.thumbnail || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=500&q=80',
-      teamId: initialData.teamId || '',
+      teamId: (Array.isArray(initialData.teamIds) && initialData.teamIds[0]) || initialData.teamId || '',
     },
   });
 

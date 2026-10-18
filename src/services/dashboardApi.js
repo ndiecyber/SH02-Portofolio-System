@@ -33,8 +33,10 @@ export const getDashboardSummary = async () => {
     }
     return data;
   } catch (error) {
+    // Propagate so the dashboard page can surface an error instead of
+    // silently rendering zeroed-out metrics.
     console.warn('GET /api/dashboard/ failed:', error);
-    return { totalProjects: 0, completedProjects: 0, inProgressProjects: 0, totalClients: 0 };
+    throw error;
   }
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import {
   LayoutDashboard,
@@ -64,18 +64,6 @@ const Sidebar = ({ isOpen, onClose }) => {
     }
   ].filter(group => group.items.length > 0);
 
-  const handleMockClick = (e, name) => {
-    e.preventDefault();
-    Swal.fire({
-      title: 'Not in Scope',
-      text: `Modul ${name} tidak masuk dalam cakupan pengerjaan milestone ini.`,
-      icon: 'info',
-      background: '#1e293b',
-      color: '#f8fafc',
-      confirmButtonColor: '#2563eb'
-    });
-  };
-
   const handleSignOut = () => {
     Swal.fire({
       title: 'Sign Out',
@@ -127,7 +115,6 @@ const Sidebar = ({ isOpen, onClose }) => {
           'fixed inset-y-0 left-0 w-64 bg-[#0d1b3e] dark:bg-transparent flex flex-col z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
-        style={undefined}
       >
         {/* Dark mode: gradient sidebar with accent top glow */}
         <div className="hidden dark:block absolute inset-0 pointer-events-none" style={{
@@ -162,19 +149,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               <div className="space-y-0.5">
                 {group.items.map((item) => {
                   const Icon = item.icon;
-                  if (item.isMock) {
-                    return (
-                      <a
-                        key={item.name}
-                        href={item.path}
-                        onClick={(e) => handleMockClick(e, item.name)}
-                        className="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors group opacity-60"
-                      >
-                        <Icon className="w-4.5 h-4.5 mr-3 flex-shrink-0 text-slate-500 group-hover:text-slate-300" />
-                        {item.name}
-                      </a>
-                    );
-                  }
 
                   return (
                     <NavLink

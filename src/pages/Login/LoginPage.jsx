@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import LoginForm from '../../components/forms/LoginForm';
 import lexaLogo from '../../assets/lexa.svg';
 

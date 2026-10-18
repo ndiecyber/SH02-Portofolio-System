@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 const ProjectDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isProjectAssigned, canUpdateProgress, canEditProject } = useRole();
+  const { isProjectAssigned, canUpdateProgress, canEditProject, isAdmin } = useRole();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,15 +39,20 @@ const ProjectDetailPage = () => {
       setProgressVal(proj.progress);
       setStatusVal(proj.status);
 
-      // Load latest progress log for display
-      try {
-        const logs = await projectApi.getProjectLogs(id);
-        if (Array.isArray(logs) && logs.length > 0) {
-          setProgressNotesVal(logs[logs.length - 1]?.message || '');
-        } else {
+      // Load latest progress log for display. The logs endpoint is admin-only,
+      // so non-admins fall back to the project's last progress note.
+      if (isAdmin) {
+        try {
+          const logs = await projectApi.getProjectLogs(id);
+          if (Array.isArray(logs) && logs.length > 0) {
+            setProgressNotesVal(logs[logs.length - 1]?.message || '');
+          } else {
+            setProgressNotesVal(proj.progressNotes || '');
+          }
+        } catch {
           setProgressNotesVal(proj.progressNotes || '');
         }
-      } catch {
+      } else {
         setProgressNotesVal(proj.progressNotes || '');
       }
     } catch (err) {
@@ -55,7 +60,7 @@ const ProjectDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [id, isProjectAssigned, navigate]);
+  }, [id, isProjectAssigned, isAdmin, navigate]);
 
   useEffect(() => {
     loadProjectData();
