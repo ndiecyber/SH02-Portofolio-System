@@ -118,6 +118,9 @@ export const updateProjectProgress = async (id, progressData) => {
     progressPercentage: Number(progressData.progressPercentage ?? progressData.progress) || 0,
     message: progressData.message ?? progressData.progressNotes ?? '',
   };
+  if (progressData.status !== undefined && progressData.status !== '') {
+    payload.status = projectStatusToApi(progressData.status);
+  }
   const response = await api.put(`/api/projects/${id}/progress`, payload);
   return normalizeProject(response.data?.data ?? response.data);
 };

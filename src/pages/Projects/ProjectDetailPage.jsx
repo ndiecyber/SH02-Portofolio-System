@@ -73,12 +73,8 @@ const ProjectDetailPage = () => {
       await projectApi.updateProjectProgress(project.id, {
         progressPercentage: progressVal,
         message: progressNotesVal,
+        status: statusVal,
       });
-
-      // Status is managed on the project resource, not the progress endpoint.
-      if (statusVal && statusVal !== project.status) {
-        await projectApi.updateProject(project.id, { status: statusVal });
-      }
 
       Swal.fire({
         title: 'Sukses!',
