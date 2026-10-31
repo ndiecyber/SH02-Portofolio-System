@@ -27,8 +27,6 @@ export const createTask = async (taskData) => {
 
 export const updateTask = async (id, taskData) => {
   const payload = serializeTask(taskData);
-  delete payload.projectId;
-  delete payload.assigneeId;
   delete payload.createdBy;
   const response = await api.put(`/api/tasks/${id}`, payload);
   return normalizeTask(response.data?.data ?? response.data);

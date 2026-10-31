@@ -217,7 +217,7 @@ const TasksPage = () => {
           ) : (
             colTasks.map(task => {
               const assignedProject = projects.find(p => p.id === task.projectId);
-              const assignedMember = members.find(m => m.id === task.assigneeId);
+              const assignedMember = task.assignee || members.find(m => m.id === task.assigneeId);
               const isAssignee = user && assignedMember && assignedMember.email === user.email;
 
               return (
