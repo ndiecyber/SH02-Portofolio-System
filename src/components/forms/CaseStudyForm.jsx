@@ -89,6 +89,15 @@ const CaseStudyForm = ({ initialData = {}, onSubmitSuccess }) => {
     }
   }, [watchTitle, setValue, initialData.slug]);
 
+  // Re-apply the initial project once the options are rendered: a <select>
+  // cannot display a value whose matching <option> does not exist yet, and the
+  // projects list loads asynchronously after the form mounts.
+  useEffect(() => {
+    if (initialData.projectId && availableProjects.length > 0) {
+      setValue('projectId', initialData.projectId);
+    }
+  }, [availableProjects, initialData.projectId, setValue]);
+
   // Auto-client filler based on selected project
   useEffect(() => {
     if (watchProjectId) {
