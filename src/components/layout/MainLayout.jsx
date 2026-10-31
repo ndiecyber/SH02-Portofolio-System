@@ -18,7 +18,7 @@ const MainLayout = () => {
         
         {/* Main Content Area */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#f1f5f9] dark:bg-[#09090b] p-2 md:p-3 relative transition-colors duration-200">
-          <div className="max-w-7xl mx-auto relative z-10 animate-fade-in lg:h-full lg:flex lg:flex-col">
+          <div className="max-w-7xl mx-auto relative animate-fade-in lg:h-full lg:flex lg:flex-col">
             <Outlet />
           </div>
         </main>

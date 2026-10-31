@@ -266,9 +266,20 @@
 /* ── ANIMATIONS ──────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  /* End with `none` (not translateY(0)): a retained transform creates a
+     containing block, which makes `position: fixed` modal overlays size to
+     the content wrapper instead of the viewport. */
+  to   { opacity: 1; transform: none; }
 }
-.animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
+/* No `forwards`: a filled animation keeps the final transform applied, which
+   creates a containing block for `position: fixed` modal overlays and clips
+   them to the content wrapper. The end state matches the base style anyway. */
+.animate-fade-in { animation: fadeIn 0.25s ease-out; }
+
+/* Fixed overlays are often rendered inside a `space-y-*` container, whose
+   `margin-top` shifts the overlay down and shrinks it (e.g. a 24px gap at the
+   top). A fixed full-screen overlay must never carry margins. */
+.fixed.inset-0 { margin: 0 !important; }
 
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 8px rgba(99,102,241,0.2); }
