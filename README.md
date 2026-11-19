@@ -1,16 +1,38 @@
-# React + Vite
+# SH02 — Creative Portfolio Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A dynamic, API-driven portfolio management system and creative showcase platform engineered with React, Vite, and Tailwind CSS.
 
-Currently, two official plugins are available:
+[![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-Fast-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Modern-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-Standardized-85EA2D?style=flat-square&logo=openapiinitiative&logoColor=black)](openapi_spec.json)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Overview
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+SH02 is a specialized portfolio architecture built to manage, curate, and render engineering case studies and creative works. It integrates structured OpenAPI specifications with responsive UI components for cross-device presentation.
 
-## Expanding the Oxlint configuration
+## Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- **Standardized API Contract**: Documented endpoints via `openapi_spec.json` for headless CMS or backend integration.
+- **Component Architecture**: Modular presentation cards, modal inspectors, and dynamic category filters.
+- **Fast Tooling**: Powered by Vite and Oxlint for rapid builds and clean code quality.
+
+## Development
+
+```bash
+# Clone repository
+git clone https://github.com/ndiecyber/SH02-Portofolio-System.git
+cd SH02-Portofolio-System
+
+# Install packages
+npm install
+
+# Run dev server
+npm run dev
+```
+
+---
+
+<sub>Collaborative Project • Maintained by @ndiecyber & Collaborators</sub>
